@@ -21,3 +21,4 @@ D:\GitHub\MazeLib\MazeLib\obj\Release\MazeLib.csproj.GenerateResource.cache
 D:\GitHub\MazeLib\MazeLib\obj\Release\MazeLib.csproj.CoreCompileInputs.cache
 D:\GitHub\MazeLib\MazeLib\obj\Release\MazeLib.dll
 D:\GitHub\MazeLib\MazeLib\obj\Release\MazeLib.pdb
+D:\GitHub\MazeLib\MazeLib\obj\Release\MazeLib.csprojAssemblyReference.cache
