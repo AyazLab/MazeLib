@@ -1,0 +1,168 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{92C771EC-482B-4B02-9892-69A64EAB9F64}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MazeLib</RootNamespace>
+    <AssemblyName>MazeLib</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'NSIS|AnyCPU'">
+    <OutputPath>..\..\Setup\Files\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ActiveRegion.cs" />
+    <Compile Include="Audio.cs" />
+    <Compile Include="CurvedWall.cs" />
+    <Compile Include="CustomObject.cs" />
+    <Compile Include="DynamicObject.cs" />
+    <Compile Include="EndRegion.cs" />
+    <Compile Include="EventExtensions.cs" />
+    <Compile Include="EventItem.cs" />
+    <Compile Include="ExtendedMaze.cs" />
+    <Compile Include="Floor.cs" />
+    <Compile Include="Light.cs" />
+    <Compile Include="LogExpInfo.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LogExpInfo.Designer.cs">
+      <DependentUpon>LogExpInfo.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Maze.cs" />
+    <Compile Include="MazeItem.cs" />
+    <Compile Include="MazeItemTheme.cs" />
+    <Compile Include="MazePathItem.cs" />
+    <Compile Include="MazeViewer.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="MazeViewer.Designer.cs">
+      <DependentUpon>MazeViewer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MeasurementRegion.cs" />
+    <Compile Include="MeasurementRegionCollection.cs" />
+    <Compile Include="MeasurementRegionManager.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MeasurementRegionManager.Designer.cs">
+      <DependentUpon>MeasurementRegionManager.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Model.cs" />
+    <Compile Include="MPoint.cs" />
+    <Compile Include="MazePath.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Settings.cs" />
+    <Compile Include="SplashScreen.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SplashScreen.Designer.cs" />
+    <Compile Include="SplashScreen1.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>SplashScreen.resx</DependentUpon>
+    </Compile>
+    <Compile Include="StartPos.cs" />
+    <Compile Include="StaticModel.cs" />
+    <Compile Include="Texture.cs" />
+    <Compile Include="Tools.cs" />
+    <Compile Include="TPoint.cs" />
+    <Compile Include="VersionChecker.cs" />
+    <Compile Include="VersionCheckerEventArgs.cs" />
+    <Compile Include="VersionCheckResult.cs" />
+    <Compile Include="Wall.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="LogExpInfo.resx">
+      <DependentUpon>LogExpInfo.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MazeViewer.resx">
+      <DependentUpon>MazeViewer.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MeasurementRegionManager.resx">
+      <DependentUpon>MeasurementRegionManager.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SplashScreen.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>SplashScreen1.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\open.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\save.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\delete.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="changes.txt" />
+    <None Include="Resources\AcceptIcon.png" />
+    <None Include="Resources\ImportIcon.png" />
+    <None Include="Resources\ExportIcon.png" />
+    <None Include="Resources\mazeAnalyzerBG.png" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

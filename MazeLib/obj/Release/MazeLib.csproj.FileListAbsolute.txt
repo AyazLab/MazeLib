@@ -1,0 +1,12 @@
+D:\VSStudio\Visual Studio 2013\Projects\MazeLib\MazeLib\bin\Release\MazeLib.dll
+D:\VSStudio\Visual Studio 2013\Projects\MazeLib\MazeLib\bin\Release\MazeLib.pdb
+D:\VSStudio\Visual Studio 2013\Projects\MazeLib\MazeLib\obj\Release\MazeLib.MazeViewer.resources
+D:\VSStudio\Visual Studio 2013\Projects\MazeLib\MazeLib\obj\Release\MazeLib.MeasurementRegionManager.resources
+D:\VSStudio\Visual Studio 2013\Projects\MazeLib\MazeLib\obj\Release\MazeLib.Properties.Resources.resources
+D:\VSStudio\Visual Studio 2013\Projects\MazeLib\MazeLib\obj\Release\MazeLib.SplashScreen.resources
+D:\VSStudio\Visual Studio 2013\Projects\MazeLib\MazeLib\obj\Release\MazeLib.csproj.GenerateResource.Cache
+D:\VSStudio\Visual Studio 2013\Projects\MazeLib\MazeLib\obj\Release\MazeLib.dll
+D:\VSStudio\Visual Studio 2013\Projects\MazeLib\MazeLib\obj\Release\MazeLib.pdb
+D:\VSStudio\Visual Studio 2013\Projects\MazeLib\MazeLib\obj\Release\MazeLib.LogExpInfo.resources
+D:\VSStudio\Visual Studio 2013\Projects\MazeLib\MazeLib\obj\Release\MazeLib.csproj.CoreCompileInputs.cache
+D:\VSStudio\Visual Studio 2013\Projects\MazeLib\MazeLib\obj\Release\MazeLib.csprojAssemblyReference.cache
