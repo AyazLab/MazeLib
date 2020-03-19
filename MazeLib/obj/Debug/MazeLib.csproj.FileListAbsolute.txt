@@ -22,3 +22,15 @@ D:\GitHub\MazeLib\MazeLib\obj\Debug\MazeLib.csproj.GenerateResource.cache
 D:\GitHub\MazeLib\MazeLib\obj\Debug\MazeLib.csproj.CoreCompileInputs.cache
 D:\GitHub\MazeLib\MazeLib\obj\Debug\MazeLib.dll
 D:\GitHub\MazeLib\MazeLib\obj\Debug\MazeLib.pdb
+F:\Github\MazeLib\MazeLib\bin\Debug\MazeLib.dll
+F:\Github\MazeLib\MazeLib\bin\Debug\MazeLib.pdb
+F:\Github\MazeLib\MazeLib\obj\Debug\MazeLib.csprojAssemblyReference.cache
+F:\Github\MazeLib\MazeLib\obj\Debug\MazeLib.LogExpInfo.resources
+F:\Github\MazeLib\MazeLib\obj\Debug\MazeLib.MazeViewer.resources
+F:\Github\MazeLib\MazeLib\obj\Debug\MazeLib.MeasurementRegionManager.resources
+F:\Github\MazeLib\MazeLib\obj\Debug\MazeLib.Properties.Resources.resources
+F:\Github\MazeLib\MazeLib\obj\Debug\MazeLib.SplashScreen.resources
+F:\Github\MazeLib\MazeLib\obj\Debug\MazeLib.csproj.GenerateResource.cache
+F:\Github\MazeLib\MazeLib\obj\Debug\MazeLib.csproj.CoreCompileInputs.cache
+F:\Github\MazeLib\MazeLib\obj\Debug\MazeLib.dll
+F:\Github\MazeLib\MazeLib\obj\Debug\MazeLib.pdb

@@ -30,3 +30,10 @@ MazeLib/obj/Release/MazeLib.csprojAssemblyReference.cache
 MazeLib/obj/Release/MazeLib.dll
 MazeLib/obj/Release/MazeLib.pdb
 MazeLib/obj/Release/MazeLib.csproj.FileListAbsolute.txt
+*.cache
+MazeLib/obj/Debug/MazeLib.csproj.FileListAbsolute.txt
+*.cache
+*.pdb
+MazeLib/obj/Debug/MazeLib.dll
+MazeLib/obj/Release/MazeLib.pdb
+MazeLib/obj/Release/MazeLib.dll
