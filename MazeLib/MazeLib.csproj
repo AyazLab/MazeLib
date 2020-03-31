@@ -113,6 +113,7 @@
     </Compile>
     <Compile Include="StartPos.cs" />
     <Compile Include="StaticModel.cs" />
+    <Compile Include="STLWriter.cs" />
     <Compile Include="Texture.cs" />
     <Compile Include="Tools.cs" />
     <Compile Include="TPoint.cs" />
