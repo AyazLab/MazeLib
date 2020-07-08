@@ -78,10 +78,32 @@ namespace MazeLib
 
         }
 
-        int numDrawPoints=0;
-        public Image PaintAnalyzerItemsToBuffer() //Draws to Background (everything but Maze)
+
+        public Image PaintAnalyzerItemsToBuffer()
         {
-            Image buffer = new Bitmap(this.Width, this.Height); //I usually use 32BppARGB as my color depth
+            return PaintAnalyzerItemsToBuffer(iViewOffsetX, iViewOffsetY, Width, Height);
+        }
+
+        public Image PaintAnalyzerItemsToBuffer(float iViewOffsetX, float iViewOffsetY, int width, int height, double drawScale)
+        {
+            double curScale = curMaze.Scale;
+            curRegions.SetAllScales(drawScale);
+            bool temp = bShowPaths;
+            bShowPaths = false;
+            
+            Image buffer = PaintAnalyzerItemsToBuffer(iViewOffsetX, iViewOffsetY, width, height);
+            
+            bShowPaths = temp;
+            curRegions.SetAllScales(curScale);
+
+            return buffer;
+        }
+
+
+        int numDrawPoints =0;
+        public Image PaintAnalyzerItemsToBuffer(float iViewOffsetX, float iViewOffsetY, int width, int height) //Draws to Background (everything but Maze)
+        {
+            Image buffer = new Bitmap(width, height); //I usually use 32BppARGB as my color depth
             Graphics gr = Graphics.FromImage(buffer);
 
             try
@@ -174,17 +196,33 @@ namespace MazeLib
         }
 
         public MazeLib.MazeItemTheme curMazeTheme = new MazeLib.MazeItemTheme();
-        
 
-        Image PaintMazeToBuffer()
+        public Image PaintMazeToBuffer()
         {
-            Image buffer = new Bitmap(this.Width, this.Height); 
+            return PaintMazeToBuffer(iViewOffsetX, iViewOffsetY, Width, Height);
+        }
+
+        public Image PaintMazeToBuffer(float iViewOffsetX, float iViewOffsetY, int width, int height, double drawScale)
+        {
+            double curScale = curMaze.Scale;
+            curMaze.Scale = drawScale;
+
+            Image buffer = PaintMazeToBuffer(iViewOffsetX, iViewOffsetY, width, height);
+            
+            curMaze.Scale = curScale;
+            
+            return buffer;
+        }
+
+        public Image PaintMazeToBuffer(float iViewOffsetX, float iViewOffsetY, int width, int height)
+        {
+            Image buffer = new Bitmap(width, height); 
             Graphics gr = Graphics.FromImage(buffer);
             try
             {
                 gr.TranslateTransform(iViewOffsetX, iViewOffsetY);
 
-                gr.FillRectangle(Brushes.AliceBlue, 0, 0, this.Width, this.Height);
+                gr.FillRectangle(Brushes.AliceBlue, 0, 0, width, height);
 
                 gr.SmoothingMode =
                     System.Drawing.Drawing2D.SmoothingMode.AntiAlias;

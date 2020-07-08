@@ -34,3 +34,15 @@ F:\Github\MazeLib\MazeLib\obj\Debug\MazeLib.csproj.GenerateResource.cache
 F:\Github\MazeLib\MazeLib\obj\Debug\MazeLib.csproj.CoreCompileInputs.cache
 F:\Github\MazeLib\MazeLib\obj\Debug\MazeLib.dll
 F:\Github\MazeLib\MazeLib\obj\Debug\MazeLib.pdb
+C:\Users\liqui\Documents\GitHub\MazeLib\MazeLib\bin\Debug\MazeLib.dll
+C:\Users\liqui\Documents\GitHub\MazeLib\MazeLib\bin\Debug\MazeLib.pdb
+C:\Users\liqui\Documents\GitHub\MazeLib\MazeLib\obj\Debug\MazeLib.csprojAssemblyReference.cache
+C:\Users\liqui\Documents\GitHub\MazeLib\MazeLib\obj\Debug\MazeLib.LogExpInfo.resources
+C:\Users\liqui\Documents\GitHub\MazeLib\MazeLib\obj\Debug\MazeLib.MazeViewer.resources
+C:\Users\liqui\Documents\GitHub\MazeLib\MazeLib\obj\Debug\MazeLib.MeasurementRegionManager.resources
+C:\Users\liqui\Documents\GitHub\MazeLib\MazeLib\obj\Debug\MazeLib.Properties.Resources.resources
+C:\Users\liqui\Documents\GitHub\MazeLib\MazeLib\obj\Debug\MazeLib.SplashScreen.resources
+C:\Users\liqui\Documents\GitHub\MazeLib\MazeLib\obj\Debug\MazeLib.csproj.GenerateResource.cache
+C:\Users\liqui\Documents\GitHub\MazeLib\MazeLib\obj\Debug\MazeLib.csproj.CoreCompileInputs.cache
+C:\Users\liqui\Documents\GitHub\MazeLib\MazeLib\obj\Debug\MazeLib.dll
+C:\Users\liqui\Documents\GitHub\MazeLib\MazeLib\obj\Debug\MazeLib.pdb

@@ -137,7 +137,7 @@ namespace MazeLib
         }
 
         private Color mazeColorRegular = Color.Transparent;
-        
+
         [Browsable(true)]
         [Category("Color")]
         [Description("Path Display Color")]
@@ -190,7 +190,7 @@ namespace MazeLib
         public string Walker
         {
             get { return walker; }
-            set { walker = value;}
+            set { walker = value; }
         }
 
         private string maze = "";
@@ -261,7 +261,7 @@ namespace MazeLib
         public bool ViewVector
         {
             get { return bViewVector; }
-            set { bViewVector = value;}
+            set { bViewVector = value; }
         }
 
         private string returnValue = "";
@@ -283,10 +283,25 @@ namespace MazeLib
         [ReadOnly(true)]
         [DisplayName("Mel Index")]
         public int MelIndex
-        { 
+        {
             get { return melIndex; }
             set { melIndex = value; }
         }
+
+
+        double velocity;
+        readonly List<MPoint> teleports = new List<MPoint>();
+
+        static double minX;
+        static double maxX;
+        static double minZ;
+        static double maxZ;
+
+        static double mazeXCenter;
+        public static double offsetX;
+        static double mazeZCenter;
+        public static double offsetZ;
+
 
         private char[] param = new char[] { '\t' };
         public bool AddLine(string line)
@@ -316,6 +331,33 @@ namespace MazeLib
                         mp.X = temp;
                         mp.Z = float.Parse(p[2]);
                         mp.Y = float.Parse(p[3]);
+
+
+                        try
+                        {
+                            velocity = cPoints[cPoints.Count - 1].GetDistance(mp) / (time - cTimes[cTimes.Count - 1]);
+                        }
+                        catch // cPoints[-1] exception
+                        {
+                        }
+
+                        if (velocity > 1)
+                        {
+                            teleports.Add(mp);
+                        }
+
+                        minX = Math.Min(mp.X, minX);
+                        maxX = Math.Max(mp.X, maxX);
+                        minZ = Math.Min(mp.Z, minZ);
+                        maxZ = Math.Max(mp.Z, maxZ);
+
+                        mazeXCenter = (maxX + minX) / 2;
+                        offsetX = mazeXCenter; // default offset, change default here
+                        mazeZCenter = (maxZ + minZ) / 2;
+                        offsetZ = mazeZCenter;
+
+                        UpdateHtmapPixels();
+
 
                         cPoints.Add(mp);
                         cTimes.Add(time);
@@ -384,8 +426,16 @@ namespace MazeLib
             //gr.DrawLine(p, 0, 0, 50, 50);
             for (int i = 1; i < cPoints.Count;i++)
             {
-                gr.DrawLine(p, (float)(cPoints[i-1].X * scale), (float)(cPoints[i-1].Z * scale), (float)(cPoints[i].X * scale),(float) (cPoints[i].Z * scale));
-                if(bViewVector)// && bShowingAll==false)
+
+
+                //teleport fix
+                if (!(teleports.Contains(cPoints[i])))
+                {
+                    gr.DrawLine(p, (float)(cPoints[i - 1].X * scale), (float)(cPoints[i - 1].Z * scale), (float)(cPoints[i].X * scale), (float)(cPoints[i].Z * scale));
+                }
+
+
+                if (bViewVector)// && bShowingAll==false)
                 {
                     gr.DrawLine(p2, (float)(cViewPoints[i - 1].X * scale), (float)(cViewPoints[i - 1].Z * scale), (float)(cViewPoints[i].X * scale), (float)(cViewPoints[i].Z * scale));
                 }
@@ -397,7 +447,84 @@ namespace MazeLib
 
         }
 
-        
 
+        public static double htmapXCenter;
+        public static double htmapZCenter;
+
+        public static double res = 5; // default resolution, change default here
+
+        public static int xLowerRadius;
+        static int xUpperRadius;
+        public static int xPixels;
+
+        public static int zLowerRadius;
+        static int zUpperRadius;
+        public static int zPixels;
+
+        public static void UpdateHtmapPixels()
+        // Updates Heatmap Pixels Based When Resolution or Offset is Changed
+        {
+            htmapXCenter = mazeXCenter + ((offsetX - mazeXCenter) % res);
+            htmapZCenter = mazeZCenter + ((offsetZ - mazeZCenter) % res);
+
+            xLowerRadius = (int)Math.Ceiling((htmapXCenter - minX) / res); // # of pixels left of offset
+            xUpperRadius = (int)Math.Ceiling((maxX - htmapXCenter) / res); // # of pixels right of offset
+            xPixels = xLowerRadius + xUpperRadius;
+
+            zLowerRadius = (int)Math.Ceiling((htmapZCenter - minZ) / res);
+            zUpperRadius = (int)Math.Ceiling((maxZ - htmapZCenter) / res);
+            zPixels = zLowerRadius + zUpperRadius;
+        }
+
+        public double[,] presHtmap;
+        public double[,] entrHtmap;
+        public double[,] timeHtmap;
+
+        int prevMapX;
+        int prevMapZ;
+
+        public void MakePathHtmap()
+        {
+            presHtmap = new double[xPixels, zPixels];
+            entrHtmap = new double[xPixels, zPixels];
+            timeHtmap = new double[xPixels, zPixels];
+
+            for (int i = 0; i < PathPoints.Count; i++)
+            {
+                // index of offset +- # of pixels away
+                Point pixelCoord = MapCoord(PathPoints[i].X, PathPoints[i].Z);
+
+                if (!teleports.Contains(PathPoints[i]))
+                {
+                    presHtmap[pixelCoord.X, pixelCoord.Y] = 1;
+
+                    if (prevMapX != pixelCoord.X || prevMapZ != pixelCoord.Y)
+                    {
+                        entrHtmap[pixelCoord.X, pixelCoord.Y] += 1;
+                    }
+
+                    try
+                    {
+                        timeHtmap[pixelCoord.X, pixelCoord.Y] += PathTimes[i] - PathTimes[i - 1];
+                    }
+                    catch // PathTimes[-1] exception
+                    {
+                    }
+                }
+
+                prevMapX = pixelCoord.X;
+                prevMapZ = pixelCoord.Y;
+            }
+        }
+
+        public static Point MapCoord(double xCoord, double zCoord)
+        {
+            Point pixelCoord = new Point();
+
+            pixelCoord.X = xLowerRadius + (int)Math.Floor((xCoord - htmapXCenter) / res);
+            pixelCoord.Y = zLowerRadius + (int)Math.Floor((zCoord - htmapZCenter) / res);
+
+            return pixelCoord;
+        }
     }
 }
