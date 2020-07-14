@@ -75,6 +75,7 @@
       <DependentUpon>LogExpInfo.cs</DependentUpon>
     </Compile>
     <Compile Include="Maze.cs" />
+    <Compile Include="HeatmapItem.cs" />
     <Compile Include="MazeItem.cs" />
     <Compile Include="MazeItemTheme.cs" />
     <Compile Include="MazePathItem.cs" />

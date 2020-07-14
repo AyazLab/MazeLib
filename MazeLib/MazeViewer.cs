@@ -13,6 +13,10 @@ namespace MazeLib
 {
     public partial class MazeViewer : UserControl
     {
+        public HeatmapItem presHeatmap = new HeatmapItem(HeatmapItem.Type.Presence);
+        public HeatmapItem entrHeatmap = new HeatmapItem(HeatmapItem.Type.Entrance);
+        public HeatmapItem timeHeatmap = new HeatmapItem(HeatmapItem.Type.Time);
+
 
         //public MazeMaker.Maze curMaze = null;
         public MazeLib.ExtendedMaze curMaze = null;
@@ -73,35 +77,30 @@ namespace MazeLib
             projectInfo = new ProjectInfo();
         }
 
-        private void MazeViewer_Load(object sender, EventArgs e)
-        {
-
-        }
-
 
         public Image PaintAnalyzerItemsToBuffer()
         {
             return PaintAnalyzerItemsToBuffer(iViewOffsetX, iViewOffsetY, Width, Height);
         }
 
-        public Image PaintAnalyzerItemsToBuffer(float iViewOffsetX, float iViewOffsetY, int width, int height, double drawScale)
+        public Image PaintAnalyzerItemsToBuffer(int iViewOffsetX, int iViewOffsetY, int width, int height, double scale)
         {
-            double curScale = curMaze.Scale;
-            curRegions.SetAllScales(drawScale);
-            bool temp = bShowPaths;
+            double temp0 = curMaze.Scale;
+            curRegions.SetAllScales(scale);
+            bool temp1 = bShowPaths;
             bShowPaths = false;
-            
+
             Image buffer = PaintAnalyzerItemsToBuffer(iViewOffsetX, iViewOffsetY, width, height);
-            
-            bShowPaths = temp;
-            curRegions.SetAllScales(curScale);
+
+            bShowPaths = temp1;
+            curRegions.SetAllScales(temp0);
 
             return buffer;
         }
 
 
-        int numDrawPoints =0;
-        public Image PaintAnalyzerItemsToBuffer(float iViewOffsetX, float iViewOffsetY, int width, int height) //Draws to Background (everything but Maze)
+        int numDrawPoints=0;
+        public Image PaintAnalyzerItemsToBuffer(int iViewOffsetX, int iViewOffsetY, int width, int height) //Draws to Background (everything but Maze)
         {
             Image buffer = new Bitmap(width, height); //I usually use 32BppARGB as my color depth
             Graphics gr = Graphics.FromImage(buffer);
@@ -197,24 +196,26 @@ namespace MazeLib
 
         public MazeLib.MazeItemTheme curMazeTheme = new MazeLib.MazeItemTheme();
 
-        public Image PaintMazeToBuffer()
+
+        Image PaintMazeToBuffer()
         {
             return PaintMazeToBuffer(iViewOffsetX, iViewOffsetY, Width, Height);
         }
 
-        public Image PaintMazeToBuffer(float iViewOffsetX, float iViewOffsetY, int width, int height, double drawScale)
+        public Image PaintMazeToBuffer(int iViewOffsetX, int iViewOffsetY, int width, int height, double scale)
         {
-            double curScale = curMaze.Scale;
-            curMaze.Scale = drawScale;
+            double temp = curMaze.Scale;
+            curMaze.Scale = scale;
 
             Image buffer = PaintMazeToBuffer(iViewOffsetX, iViewOffsetY, width, height);
-            
-            curMaze.Scale = curScale;
-            
+
+            curMaze.Scale = temp;
+
             return buffer;
         }
 
-        public Image PaintMazeToBuffer(float iViewOffsetX, float iViewOffsetY, int width, int height)
+
+        Image PaintMazeToBuffer(int iViewOffsetX, int iViewOffsetY, int width, int height)
         {
             Image buffer = new Bitmap(width, height); 
             Graphics gr = Graphics.FromImage(buffer);
@@ -222,7 +223,7 @@ namespace MazeLib
             {
                 gr.TranslateTransform(iViewOffsetX, iViewOffsetY);
 
-                gr.FillRectangle(Brushes.AliceBlue, 0, 0, width, height);
+                gr.FillRectangle(Brushes.AliceBlue, 0, 0, this.Width, this.Height);
 
                 gr.SmoothingMode =
                     System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
@@ -1298,5 +1299,21 @@ namespace MazeLib
             output.Dispose();
         }
 
+
+        public void SetHeatmapRes(double res)
+        {
+            foreach (MazePathItem mpi in curMazePaths.cPaths)
+            {
+                mpi.SetHeatmapRes(res);
+            }
+        }
+
+        public void SetHeatmapOffset(double offsetX, double offsetZ)
+        {
+            foreach (MazePathItem mpi in curMazePaths.cPaths)
+            {
+                mpi.SetHeatmapOffset(offsetX, offsetZ);
+            }
+        }
     }
 }
