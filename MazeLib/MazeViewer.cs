@@ -13,6 +13,10 @@ namespace MazeLib
 {
     public partial class MazeViewer : UserControl
     {
+        public HeatmapItem presHeatmap = new HeatmapItem(HeatmapItem.Type.Presence);
+        public HeatmapItem entrHeatmap = new HeatmapItem(HeatmapItem.Type.Entrance);
+        public HeatmapItem timeHeatmap = new HeatmapItem(HeatmapItem.Type.Time);
+
 
         //public MazeMaker.Maze curMaze = null;
         public MazeLib.ExtendedMaze curMaze = null;
@@ -73,15 +77,33 @@ namespace MazeLib
             projectInfo = new ProjectInfo();
         }
 
-        private void MazeViewer_Load(object sender, EventArgs e)
-        {
 
+        public Image PaintAnalyzerItemsToBuffer()
+        {
+            return PaintAnalyzerItemsToBuffer(iViewOffsetX, iViewOffsetY, Width, Height);
         }
 
-        int numDrawPoints=0;
-        public Image PaintAnalyzerItemsToBuffer() //Draws to Background (everything but Maze)
+        public Image PaintAnalyzerItemsToBuffer(int iViewOffsetX, int iViewOffsetY, int width, int height, double scale)
+        // overload to paint maze under heatmap
         {
-            Image buffer = new Bitmap(this.Width, this.Height); //I usually use 32BppARGB as my color depth
+            double temp = curMaze.Scale;
+            curRegions.SetAllScales(scale);
+            bool temp1 = bShowPaths;
+            bShowPaths = false;
+
+            Image buffer = PaintAnalyzerItemsToBuffer(iViewOffsetX, iViewOffsetY, width, height);
+
+            bShowPaths = temp1;
+            curRegions.SetAllScales(temp);
+
+            return buffer;
+        }
+
+
+        int numDrawPoints=0;
+        public Image PaintAnalyzerItemsToBuffer(int iViewOffsetX, int iViewOffsetY, int width, int height) //Draws to Background (everything but Maze)
+        {
+            Image buffer = new Bitmap(width, height); //I usually use 32BppARGB as my color depth
             Graphics gr = Graphics.FromImage(buffer);
 
             try
@@ -174,11 +196,30 @@ namespace MazeLib
         }
 
         public MazeLib.MazeItemTheme curMazeTheme = new MazeLib.MazeItemTheme();
-        
+
 
         Image PaintMazeToBuffer()
         {
-            Image buffer = new Bitmap(this.Width, this.Height); 
+            return PaintMazeToBuffer(iViewOffsetX, iViewOffsetY, Width, Height);
+        }
+
+        public Image PaintMazeToBuffer(int iViewOffsetX, int iViewOffsetY, int width, int height, double scale)
+        // overload to paint maze under heatmap
+        {
+            double temp = curMaze.Scale;
+            curMaze.Scale = scale;
+
+            Image buffer = PaintMazeToBuffer(iViewOffsetX, iViewOffsetY, width, height);
+
+            curMaze.Scale = temp;
+
+            return buffer;
+        }
+
+
+        Image PaintMazeToBuffer(int iViewOffsetX, int iViewOffsetY, int width, int height)
+        {
+            Image buffer = new Bitmap(width, height); 
             Graphics gr = Graphics.FromImage(buffer);
             try
             {
@@ -1260,5 +1301,21 @@ namespace MazeLib
             output.Dispose();
         }
 
+
+        public void SetPathHeatmapOffsets(double offsetX, double offsetZ)
+        {
+            foreach (MazePathItem mpi in curMazePaths.cPaths)
+            {
+                mpi.SetHeatmapOffsets(offsetX, offsetZ);
+            }
+        }
+
+        public void SetPathHeatmapRes(double res)
+        {
+            foreach (MazePathItem mpi in curMazePaths.cPaths)
+            {
+                mpi.SetHeatmapRes(res);
+            }
+        }
     }
 }

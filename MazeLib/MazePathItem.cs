@@ -12,6 +12,11 @@ namespace MazeLib
 {
     public class MazePathItem
     {
+        public HeatmapItem presHeatmap = new HeatmapItem(HeatmapItem.Type.Presence);
+        public HeatmapItem entrHeatmap = new HeatmapItem(HeatmapItem.Type.Entrance);
+        public HeatmapItem timeHeatmap = new HeatmapItem(HeatmapItem.Type.Time);
+
+
         public bool selected = false;
 
         List<MPoint> cPoints = new List<MPoint>();
@@ -288,6 +293,16 @@ namespace MazeLib
             set { melIndex = value; }
         }
 
+
+        double velocity;
+        readonly List<MPoint> PathTeleports = new List<MPoint>();
+
+        double minX;
+        double maxX;
+        double minZ;
+        double maxZ;
+
+
         private char[] param = new char[] { '\t' };
         public bool AddLine(string line)
         {
@@ -316,6 +331,27 @@ namespace MazeLib
                         mp.X = temp;
                         mp.Z = float.Parse(p[2]);
                         mp.Y = float.Parse(p[3]);
+
+
+                        if (cPoints.Count - 1 >= 0 && cTimes.Count - 1 >= 0)
+                        {
+                            velocity = cPoints[cPoints.Count - 1].GetDistance(mp) / (time - cTimes[cTimes.Count - 1]);
+                        }
+
+                        if (velocity > 1) // finds teleport points
+                        {
+                            PathTeleports.Add(mp);
+                        }
+
+                        minX = Math.Min(mp.X, minX); // essential data for making heatmaps for each path
+                        maxX = Math.Max(mp.X, maxX);
+                        minZ = Math.Min(mp.Z, minZ);
+                        maxZ = Math.Max(mp.Z, maxZ);
+
+                        presHeatmap.UpdateHeatmapPixels(minX, maxX, minZ, maxZ);
+                        entrHeatmap.UpdateHeatmapPixels(minX, maxX, minZ, maxZ);
+                        timeHeatmap.UpdateHeatmapPixels(minX, maxX, minZ, maxZ);
+
 
                         cPoints.Add(mp);
                         cTimes.Add(time);
@@ -397,7 +433,44 @@ namespace MazeLib
 
         }
 
-        
 
+        public void SetHeatmapOffsets(double offsetX, double offsetZ)
+        {
+            presHeatmap.offsetMazeX = offsetX;
+            presHeatmap.offsetMazeZ = offsetZ;
+
+            entrHeatmap.offsetMazeX = offsetX;
+            entrHeatmap.offsetMazeZ = offsetZ;
+            
+            timeHeatmap.offsetMazeX = offsetX;
+            timeHeatmap.offsetMazeZ = offsetZ;
+           
+            UpdateHeatmapPixels();
+        }
+
+        public void SetHeatmapRes(double res)
+        {
+            presHeatmap.res = res;
+            entrHeatmap.res = res;
+            timeHeatmap.res = res;
+
+            UpdateHeatmapPixels();
+        }
+
+        public void UpdateHeatmapPixels()
+        // call when the resolution or offset is changed
+        {
+            presHeatmap.UpdateHeatmapPixels();
+            entrHeatmap.UpdateHeatmapPixels();
+            timeHeatmap.UpdateHeatmapPixels();
+        }
+
+        public void MakePathHeatmaps()
+        // each path has a heatmap, which will be added together such that each maze has a heatmap
+        {
+            presHeatmap.MakePathHeatmap(PathPoints, PathTimes, PathTeleports);
+            entrHeatmap.MakePathHeatmap(PathPoints, PathTimes, PathTeleports);
+            timeHeatmap.MakePathHeatmap(PathPoints, PathTimes, PathTeleports);
+        }
     }
 }

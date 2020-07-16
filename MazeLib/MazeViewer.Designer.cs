@@ -40,7 +40,6 @@
             this.BackColor = System.Drawing.Color.AliceBlue;
             this.Name = "MazeViewer";
             this.Size = new System.Drawing.Size(358, 322);
-            this.Load += new System.EventHandler(this.MazeViewer_Load);
             this.VisibleChanged += new System.EventHandler(this.MazeViewer_VisibleChanged);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.MazeViewer_Paint);
             this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.MazeViewer_MouseClick);
