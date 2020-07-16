@@ -333,12 +333,9 @@ namespace MazeLib
                         mp.Y = float.Parse(p[3]);
 
 
-                        try
+                        if (cPoints.Count - 1 >= 0 && cTimes.Count - 1 >= 0)
                         {
                             velocity = cPoints[cPoints.Count - 1].GetDistance(mp) / (time - cTimes[cTimes.Count - 1]);
-                        }
-                        catch // cPoints[-1] exception
-                        {
                         }
 
                         if (velocity > 1) // finds teleport points
@@ -437,16 +434,16 @@ namespace MazeLib
         }
 
 
-        public void SetHeatmapOffset(double offsetX, double offsetZ)
+        public void SetHeatmapOffsets(double offsetX, double offsetZ)
         {
-            presHeatmap.offsetX = offsetX;
-            presHeatmap.offsetZ = offsetZ;
+            presHeatmap.offsetMazeX = offsetX;
+            presHeatmap.offsetMazeZ = offsetZ;
 
-            entrHeatmap.offsetX = offsetX;
-            entrHeatmap.offsetZ = offsetZ;
+            entrHeatmap.offsetMazeX = offsetX;
+            entrHeatmap.offsetMazeZ = offsetZ;
             
-            timeHeatmap.offsetX = offsetX;
-            timeHeatmap.offsetZ = offsetZ;
+            timeHeatmap.offsetMazeX = offsetX;
+            timeHeatmap.offsetMazeZ = offsetZ;
            
             UpdateHeatmapPixels();
         }
@@ -468,7 +465,7 @@ namespace MazeLib
             timeHeatmap.UpdateHeatmapPixels();
         }
 
-        public void MakePathHeatmap()
+        public void MakePathHeatmaps()
         // each path has a heatmap, which will be added together such that each maze has a heatmap
         {
             presHeatmap.MakePathHeatmap(PathPoints, PathTimes, PathTeleports);

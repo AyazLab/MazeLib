@@ -1302,15 +1302,15 @@ namespace MazeLib
         }
 
 
-        public void SetHeatmapOffset(double offsetX, double offsetZ)
+        public void SetPathHeatmapOffsets(double offsetX, double offsetZ)
         {
             foreach (MazePathItem mpi in curMazePaths.cPaths)
             {
-                mpi.SetHeatmapOffset(offsetX, offsetZ);
+                mpi.SetHeatmapOffsets(offsetX, offsetZ);
             }
         }
 
-        public void SetHeatmapRes(double res)
+        public void SetPathHeatmapRes(double res)
         {
             foreach (MazePathItem mpi in curMazePaths.cPaths)
             {

@@ -19,27 +19,27 @@ namespace MazeLib
         public double minVal = double.PositiveInfinity;
         public double maxVal = double.NegativeInfinity;
 
-        double minX; // in maze coord
-        double maxX;
-        double minZ;
-        double maxZ;
+        double minMazeX; // in maze coord
+        double maxMazeX;
+        double minMazeZ;
+        double maxMazeZ;
 
         double mzXCenter; // in maze coord
-        public double offsetX = 0; // default offset
+        public double offsetMazeX = 0; // default offset
         double mzZCenter;
-        public double offsetZ = 0;
+        public double offsetMazeZ = 0;
 
         public double res = 5; // default resolution in maze coord / pixel
 
         public double hmXCenter; // in heatmap coord
         public double hmZCenter;
 
-        public int xBotRadius; // in heatmap coord
-        int xTopRadius;
+        public int xOffsetRemainder_Bot; // in heatmap coord
+        int xOffsetRemainder_Top;
         public int xPixels = 0;
 
-        public int zBotRadius;
-        int zTopRadius;
+        public int zOffsetRemainder_Bot;
+        int zOffsetRemainder_Top;
         public int zPixels = 0;
 
         public HeatmapItem()
@@ -55,10 +55,10 @@ namespace MazeLib
         public void UpdateHeatmapPixels(double minX, double maxX, double minZ, double maxZ)
         // called when the heatmap is initially maded
         {
-            this.minX = minX;
-            this.maxX = maxX;
-            this.minZ = minZ;
-            this.maxZ = maxZ;
+            this.minMazeX = minX;
+            this.maxMazeX = maxX;
+            this.minMazeZ = minZ;
+            this.maxMazeZ = maxZ;
 
             mzXCenter = (maxX + minX) / 2;
             mzZCenter = (maxZ + minZ) / 2;
@@ -69,16 +69,16 @@ namespace MazeLib
         public void UpdateHeatmapPixels()
         // call when the resolution or offset is changed
         {
-            hmXCenter = mzXCenter + ((offsetX - mzXCenter) % res);
-            hmZCenter = mzZCenter + ((offsetZ - mzZCenter) % res);
+            hmXCenter = mzXCenter + ((offsetMazeX - mzXCenter) % res);
+            hmZCenter = mzZCenter + ((offsetMazeZ - mzZCenter) % res);
 
-            xBotRadius = (int)Math.Ceiling((hmXCenter - minX) / res); // # of pixels left of offset
-            xTopRadius = (int)Math.Ceiling((maxX - hmXCenter) / res); // # of pixels right of offset
-            xPixels = xBotRadius + xTopRadius;
+            xOffsetRemainder_Bot = (int)Math.Ceiling((hmXCenter - minMazeX) / res); // # of pixels left of offset
+            xOffsetRemainder_Top = (int)Math.Ceiling((maxMazeX - hmXCenter) / res); // # of pixels right of offset
+            xPixels = xOffsetRemainder_Bot + xOffsetRemainder_Top;
 
-            zBotRadius = (int)Math.Ceiling((hmZCenter - minZ) / res);
-            zTopRadius = (int)Math.Ceiling((maxZ - hmZCenter) / res);
-            zPixels = zBotRadius + zTopRadius;
+            zOffsetRemainder_Bot = (int)Math.Ceiling((hmZCenter - minMazeZ) / res);
+            zOffsetRemainder_Top = (int)Math.Ceiling((maxMazeZ - hmZCenter) / res);
+            zPixels = zOffsetRemainder_Bot + zOffsetRemainder_Top;
         }
 
         int prevHeatmapX; // for entrance heatmaps
@@ -109,12 +109,9 @@ namespace MazeLib
                             break;
 
                         case Type.Time:
-                            try
+                            if (i > 0)
                             {
                                 val[heatmapCoord.X, heatmapCoord.Y] += PathTimes[i] - PathTimes[i - 1];
-                            }
-                            catch // PathTimes[-1] exception
-                            {
                             }
                             break;
                     }
@@ -129,8 +126,8 @@ namespace MazeLib
         {
             Point heatmapCoord = new Point();
 
-            heatmapCoord.X = xBotRadius + (int)Math.Floor((mazeXCoord - hmXCenter) / res);
-            heatmapCoord.Y = zBotRadius + (int)Math.Floor((mazeZCoord - hmZCenter) / res);
+            heatmapCoord.X = xOffsetRemainder_Bot + (int)Math.Floor((mazeXCoord - hmXCenter) / res);
+            heatmapCoord.Y = zOffsetRemainder_Bot + (int)Math.Floor((mazeZCoord - hmZCenter) / res);
 
             return heatmapCoord;
         }
@@ -185,7 +182,7 @@ namespace MazeLib
                 throw new Exception("The heatmap resolution should be the same.");
             }
             double res = hm1.res;
-            if (hm1.offsetX % res != hm2.offsetX % res || hm1.offsetZ % res != hm2.offsetZ % res)
+            if (hm1.offsetMazeX % res != hm2.offsetMazeX % res || hm1.offsetMazeZ % res != hm2.offsetMazeZ % res)
             {
                 throw new Exception("The heatmap offset should be the same.");
             }
@@ -193,16 +190,16 @@ namespace MazeLib
             Type hmSumType = hm1.type;
             HeatmapItem hmSum = new HeatmapItem(hmSumType)
             {
-                offsetX = hm1.offsetX,
-                offsetZ = hm1.offsetZ,
+                offsetMazeX = hm1.offsetMazeX,
+                offsetMazeZ = hm1.offsetMazeZ,
                 res = res
             };
 
             // TODO: add heatmap of same resolution, but different sizes
-            double hmSumMinX = Math.Min(hm1.minX, hm2.minX);
-            double hmSumMaxX = Math.Max(hm1.maxX, hm2.maxX);
-            double hmSumMinZ = Math.Min(hm1.minZ, hm2.minZ);
-            double hmSumMaxZ = Math.Max(hm1.maxZ, hm2.maxZ);
+            double hmSumMinX = Math.Min(hm1.minMazeX, hm2.minMazeX);
+            double hmSumMaxX = Math.Max(hm1.maxMazeX, hm2.maxMazeX);
+            double hmSumMinZ = Math.Min(hm1.minMazeZ, hm2.minMazeZ);
+            double hmSumMaxZ = Math.Max(hm1.maxMazeZ, hm2.maxMazeZ);
             hmSum.UpdateHeatmapPixels(hmSumMinX, hmSumMaxX, hmSumMinZ, hmSumMaxZ);
 
             hmSum.val = new double[hmSum.xPixels, hmSum.zPixels];
