@@ -177,11 +177,6 @@ namespace MazeLib
             date = dateTime;
             mel = melName;
             selected = false;
-
-
-            presHeatmap = new HeatmapItem(HeatmapItem.Type.Presence);
-
-
         }
 
         public MazePathItem(string mazeName, string walkerName, string dateTime)
@@ -300,7 +295,7 @@ namespace MazeLib
 
 
         double velocity;
-        readonly List<MPoint> teleports = new List<MPoint>();
+        readonly List<MPoint> PathTeleports = new List<MPoint>();
 
         double minX;
         double maxX;
@@ -346,12 +341,12 @@ namespace MazeLib
                         {
                         }
 
-                        if (velocity > 1)
+                        if (velocity > 1) // finds teleport points
                         {
-                            teleports.Add(mp);
+                            PathTeleports.Add(mp);
                         }
 
-                        minX = Math.Min(mp.X, minX);
+                        minX = Math.Min(mp.X, minX); // essential data for making heatmaps for each path
                         maxX = Math.Max(mp.X, maxX);
                         minZ = Math.Min(mp.Z, minZ);
                         maxZ = Math.Max(mp.Z, maxZ);
@@ -466,7 +461,7 @@ namespace MazeLib
         }
 
         public void UpdateHeatmapPixels()
-        // Updates Heatmap Pixels Based When Resolution or Offset is Changed
+        // call when the resolution or offset is changed
         {
             presHeatmap.UpdateHeatmapPixels();
             entrHeatmap.UpdateHeatmapPixels();
@@ -474,10 +469,11 @@ namespace MazeLib
         }
 
         public void MakePathHeatmap()
+        // each path has a heatmap, which will be added together such that each maze has a heatmap
         {
-            presHeatmap.MakePathHeatmap(PathPoints, PathTimes, teleports);
-            entrHeatmap.MakePathHeatmap(PathPoints, PathTimes, teleports);
-            timeHeatmap.MakePathHeatmap(PathPoints, PathTimes, teleports);
+            presHeatmap.MakePathHeatmap(PathPoints, PathTimes, PathTeleports);
+            entrHeatmap.MakePathHeatmap(PathPoints, PathTimes, PathTeleports);
+            timeHeatmap.MakePathHeatmap(PathPoints, PathTimes, PathTeleports);
         }
     }
 }

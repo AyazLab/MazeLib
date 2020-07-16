@@ -84,8 +84,9 @@ namespace MazeLib
         }
 
         public Image PaintAnalyzerItemsToBuffer(int iViewOffsetX, int iViewOffsetY, int width, int height, double scale)
+        // overload to paint maze under heatmap
         {
-            double temp0 = curMaze.Scale;
+            double temp = curMaze.Scale;
             curRegions.SetAllScales(scale);
             bool temp1 = bShowPaths;
             bShowPaths = false;
@@ -93,7 +94,7 @@ namespace MazeLib
             Image buffer = PaintAnalyzerItemsToBuffer(iViewOffsetX, iViewOffsetY, width, height);
 
             bShowPaths = temp1;
-            curRegions.SetAllScales(temp0);
+            curRegions.SetAllScales(temp);
 
             return buffer;
         }
@@ -203,6 +204,7 @@ namespace MazeLib
         }
 
         public Image PaintMazeToBuffer(int iViewOffsetX, int iViewOffsetY, int width, int height, double scale)
+        // overload to paint maze under heatmap
         {
             double temp = curMaze.Scale;
             curMaze.Scale = scale;
@@ -1300,19 +1302,19 @@ namespace MazeLib
         }
 
 
-        public void SetHeatmapRes(double res)
-        {
-            foreach (MazePathItem mpi in curMazePaths.cPaths)
-            {
-                mpi.SetHeatmapRes(res);
-            }
-        }
-
         public void SetHeatmapOffset(double offsetX, double offsetZ)
         {
             foreach (MazePathItem mpi in curMazePaths.cPaths)
             {
                 mpi.SetHeatmapOffset(offsetX, offsetZ);
+            }
+        }
+
+        public void SetHeatmapRes(double res)
+        {
+            foreach (MazePathItem mpi in curMazePaths.cPaths)
+            {
+                mpi.SetHeatmapRes(res);
             }
         }
     }
