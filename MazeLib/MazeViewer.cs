@@ -29,8 +29,8 @@ namespace MazeLib
 
         public int selectedPath = -1;
 
-        int iViewOffsetX = 0;
-        int iViewOffsetY = 0;
+        float iViewOffsetX = 0;
+        float iViewOffsetY = 0;
 
         public string mazeFileName = "";
 
@@ -77,13 +77,24 @@ namespace MazeLib
             projectInfo = new ProjectInfo();
         }
 
+        public PointF Mouse2Maze(float X, float Y)
+        {
+            PointF mzCoord = new PointF();
+            X = X - iViewOffsetX;
+            Y = Y - iViewOffsetY;
+            mzCoord.X = X / (float)curMaze.Scale; //this works
+            mzCoord.Y = Y / (float)curMaze.Scale;
+
+            return mzCoord;
+        }
+
 
         public Image PaintAnalyzerItemsToBuffer()
         {
             return PaintAnalyzerItemsToBuffer(iViewOffsetX, iViewOffsetY, Width, Height);
         }
 
-        public Image PaintAnalyzerItemsToBuffer(int iViewOffsetX, int iViewOffsetY, int width, int height, double scale)
+        public Image PaintAnalyzerItemsToBuffer(float iViewOffsetX, float iViewOffsetY, int width, int height, double scale)
         // overload to paint maze under heatmap
         {
             double temp = curMaze.Scale;
@@ -100,8 +111,10 @@ namespace MazeLib
         }
 
 
+
+
         int numDrawPoints=0;
-        public Image PaintAnalyzerItemsToBuffer(int iViewOffsetX, int iViewOffsetY, int width, int height) //Draws to Background (everything but Maze)
+        public Image PaintAnalyzerItemsToBuffer(float iViewOffsetX, float iViewOffsetY, int width, int height) //Draws to Background (everything but Maze)
         {
             Image buffer = new Bitmap(width, height); //I usually use 32BppARGB as my color depth
             Graphics gr = Graphics.FromImage(buffer);
@@ -203,7 +216,7 @@ namespace MazeLib
             return PaintMazeToBuffer(iViewOffsetX, iViewOffsetY, Width, Height);
         }
 
-        public Image PaintMazeToBuffer(int iViewOffsetX, int iViewOffsetY, int width, int height, double scale)
+        public Image PaintMazeToBuffer(float iViewOffsetX, float iViewOffsetY, int width, int height, double scale)
         // overload to paint maze under heatmap
         {
             double temp = curMaze.Scale;
@@ -217,10 +230,18 @@ namespace MazeLib
         }
 
 
-        Image PaintMazeToBuffer(int iViewOffsetX, int iViewOffsetY, int width, int height)
+        Image PaintMazeToBuffer(float iViewOffsetX, float iViewOffsetY, int width, int height)
         {
+            //iViewOffsetX and Y are the offset in pixel size
+            //Width and Height are the bitmap width and height
+
+            // maze objects are drawn based on internal maze to scale attributes (in pixels per maze unit)
+
+
             Image buffer = new Bitmap(width, height); 
             Graphics gr = Graphics.FromImage(buffer);
+
+            
             try
             {
                 gr.TranslateTransform(iViewOffsetX, iViewOffsetY);
@@ -1000,10 +1021,10 @@ namespace MazeLib
                 int newW=w, newH=h;
 
                 if (curMaze.maxX+iViewOffsetX >= w)
-                    newW = (int)curMaze.maxX + iViewOffsetX + viewMargin;
+                    newW = (int) (curMaze.maxX + iViewOffsetX + viewMargin);
 
                 if (curMaze.maxY + iViewOffsetY >= h)
-                    newH = (int)(curMaze.maxY)+iViewOffsetY+ viewMargin;
+                    newH = (int)(curMaze.maxY+ iViewOffsetY + viewMargin);
 
                 this.Size = new System.Drawing.Size(newW, newH);
                 //this.ClientSize = new System.Drawing.Size(newW, newH);

@@ -29,7 +29,7 @@ namespace MazeLib
         double mzZCenter;
         public double offsetMazeZ = 0;
 
-        public double res = 5; // default resolution in maze coord / pixel
+        public double res = 2; // default resolution in maze coord / pixel
 
         public double hmXCenter; // in heatmap coord
         public double hmZCenter;
@@ -74,11 +74,11 @@ namespace MazeLib
 
             xOffsetRemainder_Bot = (int)Math.Ceiling((hmXCenter - minMazeX) / res); // # of pixels left of offset
             xOffsetRemainder_Top = (int)Math.Ceiling((maxMazeX - hmXCenter) / res); // # of pixels right of offset
-            xPixels = xOffsetRemainder_Bot + xOffsetRemainder_Top;
+            xPixels = xOffsetRemainder_Bot + xOffsetRemainder_Top+1;
 
             zOffsetRemainder_Bot = (int)Math.Ceiling((hmZCenter - minMazeZ) / res);
             zOffsetRemainder_Top = (int)Math.Ceiling((maxMazeZ - hmZCenter) / res);
-            zPixels = zOffsetRemainder_Bot + zOffsetRemainder_Top;
+            zPixels = zOffsetRemainder_Bot + zOffsetRemainder_Top+1;
         }
 
         int prevHeatmapX; // for entrance heatmaps
@@ -93,7 +93,7 @@ namespace MazeLib
                 // index of offset +- # of pixels away
                 Point heatmapCoord = MazeToHeatmapCoord(PathPoints[i].X, PathPoints[i].Z);
 
-                if (!teleports.Contains(PathPoints[i]))
+                if (!teleports.Contains(PathPoints[i])&&heatmapCoord.X>=0&&heatmapCoord.Y>=0&&heatmapCoord.X<xPixels&&heatmapCoord.Y<zPixels)
                 {
                     switch (type)
                     {
@@ -130,6 +130,16 @@ namespace MazeLib
             heatmapCoord.Y = zOffsetRemainder_Bot + (int)Math.Floor((mazeZCoord - hmZCenter) / res);
 
             return heatmapCoord;
+        }
+
+        public PointF HeatmapToMazeCoord(double heatmapXCoord, double heatmapZCoord)
+        {
+            PointF mzCoord = new PointF();
+
+            mzCoord.X = (float)((heatmapXCoord- xOffsetRemainder_Bot) * res + hmXCenter);
+            mzCoord.Y = (float)((heatmapZCoord-zOffsetRemainder_Bot)*res+ hmZCenter);
+
+            return mzCoord;
         }
 
         public double GetMin()
