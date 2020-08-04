@@ -48,6 +48,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -106,8 +107,7 @@
     <Compile Include="SplashScreen.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="SplashScreen.Designer.cs" />
-    <Compile Include="SplashScreen1.Designer.cs">
+    <Compile Include="SplashScreen.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>SplashScreen.resx</DependentUpon>
