@@ -24,7 +24,8 @@ namespace MazeMaker
             a.RestoreDirectory = true;
             if (a.ShowDialog() == DialogResult.OK)
             {                
-                this.name = a.FileName;               
+                this.name = a.FileName;
+                filePath = a.FileName;
                 int index = a.FileName.LastIndexOf('\\');
                 if (index == -1)
                     this.name = a.FileName;
@@ -56,6 +57,7 @@ namespace MazeMaker
             if (a.ShowDialog() == DialogResult.OK)
             {
                 this.name = a.FileName;
+                filePath = a.FileName;
                 int index = a.FileName.LastIndexOf('\\');
                 if (index == -1)
                     this.name = a.FileName;
@@ -114,6 +116,14 @@ namespace MazeMaker
             }
              * */
 
+        }
+
+        public string filePath = "";
+        [Browsable(false)]
+        public string FilePath
+        {
+            get { return filePath; }
+            set { filePath = value; }
         }
 
         public string name = "";
@@ -251,7 +261,6 @@ namespace MazeMaker
 
     }
 
-
     public class AudioCounter
     {
         static int curIndex = 99;
@@ -268,8 +277,4 @@ namespace MazeMaker
             return curIndex;
         }
     }
-
-
-
-
 }

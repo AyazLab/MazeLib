@@ -37,6 +37,7 @@ namespace MazeMaker
                     ext = a.FileNames[0].Substring(a.FileNames[0].LastIndexOf(".") + 1).ToLower();    //record extension in case..        
                     Image img = Bitmap.FromFile((string)a.FileNames[0]);
                     fname = a.FileNames[0];
+                    filePath = a.FileNames[0];
                     if (ext != "jpg" && ext != "jpeg" && ext != "tga" && ext != "bmp" && ext != "png")  //Check if image is bitmap..
                     {
                         edited = true;
@@ -68,6 +69,7 @@ namespace MazeMaker
                 throw new Exception("No selection");                
             }
         }
+
         private bool edited = false;
         public Texture(string dir)
         {
@@ -87,6 +89,7 @@ namespace MazeMaker
                     ext = a.FileNames[0].Substring(a.FileNames[0].LastIndexOf(".") + 1).ToLower();    //record extension in case..        
                     Image img = Bitmap.FromFile((string)a.FileNames[0]);
                     fname = a.FileNames[0];
+                    filePath = a.FileNames[0];
                     if (ext != "jpg" && ext != "jpeg" && ext!="png" && ext != "tga" && ext != "bmp")  //Check if image is bitmap..
                     {
                         edited = true;
@@ -133,6 +136,7 @@ namespace MazeMaker
                 try
                 {
                     img = Bitmap.FromFile(dir + "\\" + inpName);
+                    filePath = dir + "\\" + inpName;
                     //this.img = new Bitmap(AppDomain.CurrentDomain.BaseDirectory + "\\Texture\\" + inpName);            
                     return;
                 }
@@ -144,6 +148,7 @@ namespace MazeMaker
                 try
                 {
                     img = Bitmap.FromFile(Settings.userLibraryFolder + "\\" + inpName);
+                    filePath = Settings.userLibraryFolder + "\\" + inpName;
                     //this.img = new Bitmap(AppDomain.CurrentDomain.BaseDirectory + "\\Texture\\" + inpName);            
                     return;
                 }
@@ -155,6 +160,7 @@ namespace MazeMaker
                 try
                 {
                     img = Bitmap.FromFile(Settings.standardLibraryFolder + "\\" + inpName);
+                    filePath = Settings.standardLibraryFolder + "\\" + inpName;
                     //this.img = new Bitmap(AppDomain.CurrentDomain.BaseDirectory + "\\Texture\\" + inpName);            
                     return;
                 }
@@ -162,8 +168,17 @@ namespace MazeMaker
                 { }
             }
             else
-            { img = MazeLib.Properties.Resources.delete; }            
+            { img = MazeLib.Properties.Resources.delete; }
         }
+
+        public string filePath = "";
+        [Browsable(false)]
+        public string FilePath
+        {
+            get { return filePath; }
+            set { filePath = value; }
+        }
+
         public string name = "";
         [Category("Options")]
         [Description("Name of the Texture Image")]
@@ -279,11 +294,13 @@ namespace MazeMaker
             //true means show a combobox
             return true;
         }
+
         public override bool GetStandardValuesExclusive(ITypeDescriptorContext context)
         {
             //true will limit to list. false will show the list, but allow free-form entry
             return true;
         }
+
         public override
         System.ComponentModel.TypeConverter.StandardValuesCollection
         GetStandardValues(ITypeDescriptorContext context)
@@ -292,6 +309,7 @@ namespace MazeMaker
         }
        
     }
+
     public class StretchConverter : ExpandableObjectConverter
     {
         public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
@@ -304,6 +322,7 @@ namespace MazeMaker
             //true will limit to list. false will show the list, but allow free-form entry
             return true;
         }
+
         public override
         System.ComponentModel.TypeConverter.StandardValuesCollection
         GetStandardValues(ITypeDescriptorContext context)
@@ -319,11 +338,13 @@ namespace MazeMaker
             //true means show a combobox
             return true;
         }
+
         public override bool GetStandardValuesExclusive(ITypeDescriptorContext context)
         {
             //true will limit to list. false will show the list, but allow free-form entry
             return true;
         }
+
         public override
         System.ComponentModel.TypeConverter.StandardValuesCollection
         GetStandardValues(ITypeDescriptorContext context)
@@ -333,7 +354,6 @@ namespace MazeMaker
 
     }
     
-
     public class TextureConverter : ExpandableObjectConverter
     {
         public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
@@ -370,6 +390,7 @@ namespace MazeMaker
                 return true;            
             return base.CanConvertTo(context, destinationType);
         }
+
         public override bool CanConvertFrom(ITypeDescriptorContext context, System.Type sourceType)
         {
             if (sourceType == typeof(String))
@@ -377,6 +398,7 @@ namespace MazeMaker
 
             return base.CanConvertFrom(context, sourceType);
         }
+
         public override object ConvertTo(ITypeDescriptorContext context,
                                CultureInfo culture,
                                object value,
@@ -390,6 +412,7 @@ namespace MazeMaker
             }
             return base.ConvertTo(context, culture, value, destinationType);
         }
+
         public override object ConvertFrom(ITypeDescriptorContext context,
                               CultureInfo culture, object value)
         {
@@ -415,7 +438,6 @@ namespace MazeMaker
             }
             return base.ConvertFrom(context, culture, value);
         }
-
     }
 
     public class TextureCounter
@@ -459,8 +481,5 @@ namespace MazeMaker
             curIndex = 99;
             //skyIndex = 0;
         }
-
     }
-
-
 }
