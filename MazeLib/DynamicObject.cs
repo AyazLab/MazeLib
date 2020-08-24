@@ -342,19 +342,25 @@ namespace MazeMaker
         }
 
         public int switchToModelID = -999;
-        private Model switchToModel = null;
+        private string switchToModel = "";
         [Category("6.Phase 2: Event")]
         [Description("Model to switch after the action. List can be edited from the Maze model collection")]
-        [TypeConverter(typeof(ModelConverter))]
-        public Model SwitchToModel
+        [TypeConverter(typeof(ModelPathConverter))]
+        public string SwitchToModel
         {
             get { return switchToModel; }
-            set { switchToModel = value;
-                if (switchToModel == null)
-                    switchToModelID = -999;
-                else
-                    switchToModelID = switchToModel.Index;
-                OnPropertyChanged("SwitchToModel"); }
+            set { switchToModel = value; }
+
+            //set {
+            //    switchToModel = value;
+                
+            //    if (switchToModel == null)
+            //        switchToModelID = -999;
+            //    else
+            //        switchToModelID = switchToModel.Index;
+                
+            //    OnPropertyChanged("SwitchToModel");
+            //}
         }
 
         public enum HighlightTypes
@@ -798,7 +804,7 @@ namespace MazeMaker
 
         }
 
-        public new bool PrintToFile(ref StreamWriter fp)
+        public new bool PrintToFile(ref StreamWriter fp, Dictionary<string, string> cModels)
         {
             try
             {
@@ -828,7 +834,11 @@ namespace MazeMaker
                 //  phase2_endModel_ID 
 
                 fp.WriteLine("11\t8\t" + this.GetID().ToString() + "\t" + this.Label);
-                fp.WriteLine(((Model == null) ? "-1" : Model.Index.ToString()) + "\t" + this.MzPoint.X.ToString(".##;-.##;0") + "\t" + this.MzPoint.Y.ToString(".##;-.##;0") + "\t" + this.MzPoint.Z.ToString(".##;-.##;0"));
+                //fp.WriteLine(((Model == null) ? "-1" : Model.Index.ToString()) + "\t" + this.MzPoint.X.ToString(".##;-.##;0") + "\t" + this.MzPoint.Y.ToString(".##;-.##;0") + "\t" + this.MzPoint.Z.ToString(".##;-.##;0"));
+                string modelID = "";
+                if (cModels.ContainsKey(Model))
+                    modelID = cModels[Model];
+                fp.WriteLine(modelID + "\t" + this.MzPoint.X.ToString(".##;-.##;0") + "\t" + this.MzPoint.Y.ToString(".##;-.##;0") + "\t" + this.MzPoint.Z.ToString(".##;-.##;0"));
                 fp.WriteLine(this.ModelScale.ToString(".##;-.##;0") + "\t" + this.MzPointRot.X.ToString(".##;-.##;0") + "\t" + this.MzPointRot.Y.ToString(".##;-.##;0") + "\t" + this.MzPointRot.Z.ToString(".##;-.##;0"));
                 //fp.WriteLine((this.Collision ? "1" : "0"));
                 fp.WriteLine((this.Collision ? "1" : "0") + "\t" + (this.Kinematic ? "1" : "0") + "\t" + this.Mass);
@@ -855,7 +865,11 @@ namespace MazeMaker
                 if (switchToModel == null)
                     fp.WriteLine("0");
                 else
-                    fp.WriteLine(switchToModel.Index.ToString());
+                    //fp.WriteLine(switchToModel.Index.ToString());
+                    modelID = "";
+                    if (cModels.ContainsKey(switchToModel))
+                        modelID = cModels[switchToModel];
+                    fp.WriteLine(modelID);
                 return true;
             }
             catch
@@ -865,7 +879,7 @@ namespace MazeMaker
             }
         }
 
-        public override XmlElement toXMLnode(XmlDocument doc)
+        public override XmlElement toXMLnode(XmlDocument doc, Dictionary<string, string> cModels)
         {
             XmlElement dynamicObjectNode = doc.CreateElement(string.Empty, "DynamicObject", string.Empty);
             dynamicObjectNode.SetAttribute("label", this.Label);
@@ -879,10 +893,16 @@ namespace MazeMaker
 
             XmlElement modelNode = doc.CreateElement(string.Empty, "Model", string.Empty);
             dynamicObjectNode.AppendChild(modelNode);
-            if(this.Model!=null)
-            { 
-                modelNode.SetAttribute("id", this.Model.Index.ToString());
-            }
+            //if (this.Model != null)
+            //{
+            //    modelNode.SetAttribute("id", this.Model.Index.ToString());
+            //}
+
+            string modelID = "";
+            if (cModels.ContainsKey(Model))
+                modelID = cModels[Model];
+            modelNode.SetAttribute("id", modelID);
+
             modelNode.SetAttribute("scale", this.ModelScale.ToString());
             modelNode.SetAttribute("rotX", this.MzPointRot.X.ToString());
             modelNode.SetAttribute("rotY", this.MzPointRot.Y.ToString());
@@ -941,8 +961,14 @@ namespace MazeMaker
             endRotNode.SetAttribute("rotX", this.MzEndRot.X.ToString());
             endRotNode.SetAttribute("rotY", this.MzEndRot.Y.ToString());
             endRotNode.SetAttribute("rotZ", this.MzEndRot.Z.ToString());
-            if (this.SwitchToModel != null)
-                endRotNode.SetAttribute("switchModelID", this.SwitchToModel.Index.ToString());
+            //if (this.SwitchToModel != null)
+            //    endRotNode.SetAttribute("switchModelID", this.SwitchToModel.Index.ToString());
+
+            modelID = "";
+            if (cModels.ContainsKey(SwitchToModel))
+                modelID = cModels[SwitchToModel];
+            endRotNode.SetAttribute("switchModelID", modelID);
+
             endRotNode.SetAttribute("endScale", this.EndScale.ToString());
 
             return dynamicObjectNode;

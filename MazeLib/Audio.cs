@@ -82,6 +82,7 @@ namespace MazeMaker
         public Audio(string dir, string inpName, int fIndex)
         {
             name = inpName;
+            filePath = dir + "\\" + inpName;
             index = fIndex;
 
             /*

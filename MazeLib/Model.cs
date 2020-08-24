@@ -12,7 +12,7 @@ using System.Xml;
 
 namespace MazeMaker
 {
-    [TypeConverterAttribute(typeof(ModelConverter)), DescriptionAttribute("Model Support")]
+    //[TypeConverterAttribute(typeof(ModelConverter)), DescriptionAttribute("Model Support")]
     [Serializable]
     public class Model
     {
@@ -24,13 +24,15 @@ namespace MazeMaker
             a.RestoreDirectory = true;
             if (a.ShowDialog() == DialogResult.OK)
             {                
-                this.name = a.FileName;               
+                this.name = a.FileName;
+                filePath = name;
                 int index = a.FileName.LastIndexOf('\\');
                 if (index == -1)
                     this.name = a.FileName;
                 else
                     this.name = a.FileName.Substring(index + 1);  
-                this.index = ModelCounter.GetIndex();
+                //this.index = ModelCounter.GetIndex();
+                this.index = 0;
 
                 string preview_str = a.FileName.Replace(".obj", "_preview.jpg");
                 if(Tools.FileExists(preview_str))
@@ -43,9 +45,8 @@ namespace MazeMaker
                 //no selection..
                 throw new Exception("No selection"); 
             }
-
-              
         }
+
         public Model(String dir)
         {
             OpenFileDialog a = new OpenFileDialog();
@@ -56,12 +57,14 @@ namespace MazeMaker
             if (a.ShowDialog() == DialogResult.OK)
             {
                 this.name = a.FileName;
+                filePath = name;
                 int index = a.FileName.LastIndexOf('\\');
                 if (index == -1)
                     this.name = a.FileName;
                 else
                     this.name = a.FileName.Substring(index + 1);
-                this.index = ModelCounter.GetIndex();
+                //this.index = ModelCounter.GetIndex();
+                this.index = 0;
 
                 string preview_str = a.FileName.Replace(".obj", "_preview.jpg");
                 if (Tools.FileExists(preview_str))
@@ -74,19 +77,19 @@ namespace MazeMaker
                 //no selection..
                 throw new Exception("No selection"); 
             }
-
-
         }
+
         public Model(string dir, string inpName, int fIndex)
         {
             name = inpName;
+            filePath = dir + "\\" + inpName;
             index = fIndex;
 
             string preview_name = inpName.Replace(".obj", "_preview.jpg");
 
             try
             {
-                img = Bitmap.FromFile(dir + "\\" + preview_name);                             
+                img = Bitmap.FromFile(dir + "\\" + preview_name);
             }
             catch
             {
@@ -121,6 +124,14 @@ namespace MazeMaker
         {
             get { return name; }
             set { name = value; }
+        }
+
+        public string filePath = "";
+        [Browsable(false)]
+        public string FilePath
+        {
+            get { return filePath; }
+            set { filePath = value; }
         }
 
         private Image img = null;
@@ -165,109 +176,102 @@ namespace MazeMaker
         }
     }
 
-    public class ModelConverter : ExpandableObjectConverter
-    {
-        public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
-        {
-            //true means show a combobox
-            return true;
-        }
-        public override bool GetStandardValuesExclusive(ITypeDescriptorContext context)
-        {
-            //true will limit to list. false will show the list, but allow free-form entry
-            return true;
-        }
+    //public class ModelConverter : ExpandableObjectConverter
+    //{
+    //    public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
+    //    {
+    //        //true means show a combobox
+    //        return true;
+    //    }
 
-        public override
-        System.ComponentModel.TypeConverter.StandardValuesCollection
-        GetStandardValues(ITypeDescriptorContext context)
-        {
-            List<Model> theArray = new List<Model>();
-            //theArray.Add(new Texture(null,null,0));
-            theArray.Add(null);
-            List<Model> list = MazeMaker.Maze.GetModels();
-            foreach (Model t in list)
-            {
-                theArray.Add(t);
-            }
-            return new StandardValuesCollection(theArray.ToArray());
-            //return new StandardValuesCollection(MazeMaker.Maze.GetModels().ToArray());
-            //return new StandardValuesCollection(new string[] { "entry1", "entry2", "entry3" });
-        }
+    //    public override bool GetStandardValuesExclusive(ITypeDescriptorContext context)
+    //    {
+    //        //true will limit to list. false will show the list, but allow free-form entry
+    //        return true;
+    //    }
 
-        public override bool CanConvertTo(ITypeDescriptorContext context, System.Type destinationType)
-        {
-            if (destinationType == typeof(Texture))
-                return true;
+    //    public override System.ComponentModel.TypeConverter.StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
+    //    {
+    //        List<Model> theArray = new List<Model>();
+    //        //theArray.Add(new Texture(null,null,0));
+    //        theArray.Add(null);
+    //        List<Model> list = MazeMaker.Maze.GetModels();
+    //        foreach (Model t in list)
+    //        {
+    //            theArray.Add(t);
+    //        }
+    //        return new StandardValuesCollection(theArray.ToArray());
+    //        //return new StandardValuesCollection(MazeMaker.Maze.GetModels().ToArray());
+    //        //return new StandardValuesCollection(new string[] { "entry1", "entry2", "entry3" });
+    //    }
 
-            return base.CanConvertTo(context, destinationType);
-        }
-        public override bool CanConvertFrom(ITypeDescriptorContext context, System.Type sourceType)
-        {
-            if (sourceType == typeof(String))
-                return true;
+    //    public override bool CanConvertTo(ITypeDescriptorContext context, System.Type destinationType)
+    //    {
+    //        if (destinationType == typeof(Texture))
+    //            return true;
 
-            return base.CanConvertFrom(context, sourceType);
-        }
-        public override object ConvertTo(ITypeDescriptorContext context,
-                               CultureInfo culture,
-                               object value,
-                               System.Type destinationType)
-        {
-            if (destinationType == typeof(System.String) &&
-                 value is Model)
-            {
-                Model so = (Model)value;
-                return so.name;
-            }
-            return base.ConvertTo(context, culture, value, destinationType);
-        }
-        public override object ConvertFrom(ITypeDescriptorContext context,
-                              CultureInfo culture, object value)
-        {
-            if (value is string)
-            {
-                try
-                {
-                    if (value == null || (string)value == "")
-                        return null;
-                    List<Model> cList = Maze.GetModels();
-                    foreach (Model t in cList)
-                    {
-                        if (t.Name.CompareTo(value) == 0)
-                            return t;
-                    }
-                }
-                catch
-                {
-                    throw new ArgumentException("Can not convert '" + (string)value + "' to type StaticModel");
-                }
-                return value;
-            }
-            return base.ConvertFrom(context, culture, value);
-        }
+    //        return base.CanConvertTo(context, destinationType);
+    //    }
 
+    //    public override bool CanConvertFrom(ITypeDescriptorContext context, System.Type sourceType)
+    //    {
+    //        if (sourceType == typeof(String))
+    //            return true;
 
+    //        return base.CanConvertFrom(context, sourceType);
+    //    }
 
-    }
+    //    public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, System.Type destinationType)
+    //    {
+    //        if (destinationType == typeof(string) && value is Model)
+    //        {
+    //            Model so = (Model)value;
+    //            return so.name;
+    //        }
+    //        return base.ConvertTo(context, culture, value, destinationType);
+    //    }
 
+    //    public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+    //    {
+    //        if (value is string)
+    //        {
+    //            try
+    //            {
+    //                if (value == null || (string)value == "")
+    //                    return null;
+    //                List<Model> cList = Maze.GetModels();
+    //                foreach (Model t in cList)
+    //                {
+    //                    if (t.Name.CompareTo(value) == 0)
+    //                        return t;
+    //                }
+    //            }
+    //            catch
+    //            {
+    //                throw new ArgumentException("Can not convert '" + (string)value + "' to type StaticModel");
+    //            }
+    //            return value;
+    //        }
+    //        return base.ConvertFrom(context, culture, value);
+    //    }
+    //}
 
-    public class ModelCounter
-    {
-        static int curIndex = 99;
-        static public int GetIndex()
-        {
-            curIndex++;
-            foreach (Model t in Maze.mzP.cModels)
-            {
-                if (t.Index >= curIndex)
-                {
-                    curIndex = t.Index + 1;
-                }
-            }
-            return curIndex;
-        }
-    }
+    //public class ModelCounter
+    //{
+    //    static int curIndex = 99;
+    //    static public int GetIndex()
+    //    {
+    //        curIndex++;
+    //        foreach (Model t in Maze.mzP.cModels)
+    //        {
+    //            if (t.Index >= curIndex)
+    //            {
+    //                curIndex = t.Index + 1;
+    //            }
+    //        }
+    //        return curIndex;
+    //    }
+    //}
 
     public class HighLightConverter : ExpandableObjectConverter
     {
