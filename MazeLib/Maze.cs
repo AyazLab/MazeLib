@@ -38,30 +38,6 @@ namespace MazeMaker
 
         private string cMazeDirectory;
 
-        
-
-        public Dictionary<string, string> cModels = new Dictionary<string, string>();
-        int modelIDCounter = 100;
-        public List<Audio> cAudio = new List<Audio>();
-
-        [Category("2.Collections")]
-        [Description("Model Files. Place these files to the same directory of with the Maze file or place them in the global models directory")]
-        public Dictionary<string, string> Model
-        {
-            get { return cModels; }
-            set
-            {
-                cModels = value;
-            }
-        }
-
-        [Category("2.Collections")]
-        [Description("Available Model Number in the List")]
-        [ReadOnly(true)]
-        public int ModelCount
-        {
-            get { return cModels.Count; }
-        }
 
         public List<Texture> cImages = new List<Texture>();
         [Category("2.Collections")]
@@ -69,10 +45,7 @@ namespace MazeMaker
         public List<Texture> Image
         {
             get { return cImages; }
-            set
-            {
-                cImages = value; 
-            }
+            set { cImages = value; }
         }
 
         [Category("2.Collections")]
@@ -83,15 +56,31 @@ namespace MazeMaker
             get { return cImages.Count; }
         }
 
+        int modelIDCounter = 100;
+        public Dictionary<string, string> cModels = new Dictionary<string, string>();
+        [Category("2.Collections")]
+        [Description("Model Files. Place these files to the same directory of with the Maze file or place them in the global models directory")]
+        public Dictionary<string, string> Model
+        {
+            get { return ModelPathConverter.Paths; }
+            set { ModelPathConverter.Paths = value; }
+        }
+        
+        [Category("2.Collections")]
+        [Description("Available Model Number in the List")]
+        [ReadOnly(true)]
+        public int ModelCount
+        {
+            get { return ModelPathConverter.Paths.Count; }
+        }
+
+        public List<Audio> cAudio = new List<Audio>();
         [Category("2.Collections")]
         [Description("Audio Files. Place these files to the same directory of with the Maze file or place them in the user library directory")]
         public List<Audio> Audio
         {
             get { return cAudio; }
-            set
-            {
-                cAudio = value;
-            }
+            set { cAudio = value; }
         }
 
         [Category("2.Collections")]
@@ -102,7 +91,7 @@ namespace MazeMaker
             get { return cAudio.Count; }
         }
 
-       // public List<StartPos> cStart = new List<StartPos>();
+        //public List<StartPos> cStart = new List<StartPos>();
         //public EndRegion cEnd=null;
 
         private string desginer = "Anonymous";
@@ -992,27 +981,23 @@ namespace MazeMaker
             return true;
         }
 
-        public static string MakeRelativePath(string fromPath, string toPath)
+        string MakeRelativePath(string fromPath, string toPath)
         {
             try
             {
                 Uri fromUri = new Uri(fromPath);
                 Uri toUri = new Uri(toPath);
 
-                if (fromUri.Scheme != toUri.Scheme)
-                    return toPath;
+                if (fromUri.Scheme != toUri.Scheme) { return toPath; }
 
-                string relativeUri = fromUri.MakeRelativeUri(toUri).ToString();
+                String relativePath = Uri.UnescapeDataString(fromUri.MakeRelativeUri(toUri).ToString());
 
-                if (relativeUri[0] == '.')
-                    relativeUri = relativeUri.Substring(1);
+                if (toUri.Scheme.Equals("file", StringComparison.InvariantCultureIgnoreCase))
+                    return relativePath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
 
-                return relativeUri;
+                return relativePath;
             }
-            catch
-            {
-                return toPath;
-            }
+            catch { return toPath; }
         }
 
         public bool SaveToClassicFile(string inp)
