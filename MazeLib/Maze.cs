@@ -992,27 +992,22 @@ namespace MazeMaker
             return true;
         }
 
-        public static String MakeRelativePath(String fromPath, String toPath)
+        public static string MakeRelativePath(string fromPath, string toPath)
         {
-            if (String.IsNullOrEmpty(fromPath)) throw new ArgumentNullException("fromPath");
-            if (String.IsNullOrEmpty(toPath)) throw new ArgumentNullException("toPath");
-
-            Uri fromUri = new Uri(fromPath);
             try
             {
+                Uri fromUri = new Uri(fromPath);
                 Uri toUri = new Uri(toPath);
 
-                if (fromUri.Scheme != toUri.Scheme) { return toPath; } // path can't be made relative.
+                if (fromUri.Scheme != toUri.Scheme)
+                    return toPath;
 
-                Uri relativeUri = fromUri.MakeRelativeUri(toUri);
-                String relativePath = Uri.UnescapeDataString(relativeUri.ToString());
+                string relativeUri = fromUri.MakeRelativeUri(toUri).ToString();
 
-                if (toUri.Scheme.Equals("file", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    relativePath = relativePath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
-                }
+                if (relativeUri[0] == '.')
+                    relativeUri = relativeUri.Substring(1);
 
-                return relativePath;
+                return relativeUri;
             }
             catch
             {
