@@ -141,11 +141,7 @@ namespace MazeMaker
         public string Model
         {
             get { return model; }
-            set
-            {
-                model = value;
-                //OnPropertyChanged("Model");
-            }
+            set { model = value; OnPropertyChanged("Model"); }
         }
 
         private double modelscale = 1;

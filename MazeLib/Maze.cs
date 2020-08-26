@@ -56,40 +56,43 @@ namespace MazeMaker
             get { return cImages.Count; }
         }
 
+        int audioIDCounter = 100;
+        public Dictionary<string, string> cAudio = new Dictionary<string, string>();
+        [Category("2.Collections")]
+        [Description("Audio Files. Place these files to the same directory of with the Maze file or place them in the user library directory")]
+        [Browsable(false)]
+        public Dictionary<string, string> Audio
+        {
+            get { return cAudio; }
+            set { cAudio = value; }
+        }
+
+        //[Category("2.Collections")]
+        //[Description("Available Audio Number in the List")]
+        //[ReadOnly(true)]
+        //public int AudioCount
+        //{
+        //    get { return cAudio.Count; }
+        //}
+
         int modelIDCounter = 100;
         public Dictionary<string, string> cModels = new Dictionary<string, string>();
         [Category("2.Collections")]
         [Description("Model Files. Place these files to the same directory of with the Maze file or place them in the global models directory")]
+        [Browsable(false)]
         public Dictionary<string, string> Model
         {
             get { return ModelPathConverter.Paths; }
             set { ModelPathConverter.Paths = value; }
         }
         
-        [Category("2.Collections")]
-        [Description("Available Model Number in the List")]
-        [ReadOnly(true)]
-        public int ModelCount
-        {
-            get { return ModelPathConverter.Paths.Count; }
-        }
-
-        public List<Audio> cAudio = new List<Audio>();
-        [Category("2.Collections")]
-        [Description("Audio Files. Place these files to the same directory of with the Maze file or place them in the user library directory")]
-        public List<Audio> Audio
-        {
-            get { return cAudio; }
-            set { cAudio = value; }
-        }
-
-        [Category("2.Collections")]
-        [Description("Available Audio Number in the List")]
-        [ReadOnly(true)]
-        public int AudioCount
-        {
-            get { return cAudio.Count; }
-        }
+        //[Category("2.Collections")]
+        //[Description("Available Model Number in the List")]
+        //[ReadOnly(true)]
+        //public int ModelCount
+        //{
+        //    get { return ModelPathConverter.Paths.Count; }
+        //}
 
         //public List<StartPos> cStart = new List<StartPos>();
         //public EndRegion cEnd=null;
@@ -878,11 +881,28 @@ namespace MazeMaker
             XmlElement audioLibraryNode = doc.CreateElement(string.Empty, "AudioLibrary", string.Empty);
             mazeXMLnode.AppendChild(audioLibraryNode);
 
-            XmlElement audioNode;
-            foreach (Audio a in cAudio)
+            XmlElement audioLibraryItem;
+            //foreach (Audio a in cAudio)
+            foreach (string audio in AudioPathConverter.Paths.Keys)
             {
-                audioNode = a.toXMLnode(doc);
-                audioLibraryNode.AppendChild(audioNode);
+                //audioLibraryItem = a.toXMLnode(doc);
+                audioLibraryItem = doc.CreateElement(string.Empty, "Sound", string.Empty);
+
+                if (!cAudio.ContainsKey(audio))
+                {
+                    cAudio[audio] = audioIDCounter.ToString();
+                    audioIDCounter++;
+                }
+
+                audioLibraryItem.SetAttribute("id", cAudio[audio]);
+                string filePath = AudioPathConverter.Paths[audio];
+                if (filePath[1] == ':')
+                {
+                    filePath = MakeRelativePath(inp, filePath);
+                }
+                audioLibraryItem.SetAttribute("file", filePath);
+
+                audioLibraryNode.AppendChild(audioLibraryItem);
             }
 
             XmlElement mazeItemsNode = doc.CreateElement(string.Empty, "MazeItems", string.Empty);
@@ -931,7 +951,7 @@ namespace MazeMaker
             XmlElement dynamicObjectNode;
             foreach (DynamicObject d in cDynamicObjects)
             {
-                dynamicObjectNode = d.toXMLnode(doc, cModels);
+                dynamicObjectNode = d.toXMLnode(doc, cAudio, cModels);
                 dynamicObjectsNode.AppendChild(dynamicObjectNode);
             }
 
@@ -971,7 +991,7 @@ namespace MazeMaker
             XmlElement activeRegionNode;
             foreach (ActiveRegion ar in cActRegions)
             {
-                activeRegionNode = ar.toXMLnode(doc);
+                activeRegionNode = ar.toXMLnode(doc, cAudio);
                 activeRegionsNode.AppendChild(activeRegionNode);
             }
 
@@ -1147,7 +1167,7 @@ namespace MazeMaker
                     else
                     {
                         //fp.WriteLine("\t{0}\t{1}", model.Index, model.Name.Trim() + " ");
-                        fp.WriteLine("\t{0}\t{1}", "-1", filePath);
+                        fp.WriteLine("\t{0}\t{1}", "-1", filePath + " ");
                     }
 
                 }
@@ -1158,9 +1178,11 @@ namespace MazeMaker
 
             ////Audio List//////
             fp.WriteLine("-11\t-1");
-            foreach (Audio t in cAudio)
+            //foreach (Audio audio in cAudio)
+            foreach (string audio in AudioPathConverter.Paths.Keys)
             {
-                if (t.Name != "")
+                //if (audio.Name != "")
+                if (audio != "")
                 {
                     //fp.WriteLine("\t{0}\t{1}", index, t.Name);   
 
@@ -1169,27 +1191,45 @@ namespace MazeMaker
                     bool used = false;
                     if (used == false)
                     {
-                        foreach (DynamicObject d in cDynamicObjects)
+                        foreach (DynamicObject dynamicObject in cDynamicObjects)
                         {
-                            if (d.Phase1HighlightAudio != null && d.Phase1HighlightAudio.Index == t.Index)
+                            //if (dynamicObject.Phase1HighlightAudio != null && dynamicObject.Phase1HighlightAudio.Index == audio.Index)
+                            if (dynamicObject.Phase1HighlightAudio == audio)
                             {
+                                if (!cAudio.ContainsKey(audio))
+                                {
+                                    cAudio[audio] = audioIDCounter.ToString();
+                                    audioIDCounter++;
+                                }
+
                                 used = true;
                                 break;
                             }
-                            if (d.Phase2EventAudio != null && d.Phase2EventAudio.Index == t.Index)
+                            //if (dynamicObject.Phase2EventAudio != null && dynamicObject.Phase2EventAudio.Index == audio.Index)
+                            if (dynamicObject.Phase2EventAudio == audio)
                             {
+                                if (!cAudio.ContainsKey(audio))
+                                {
+                                    cAudio[audio] = audioIDCounter.ToString();
+                                    audioIDCounter++;
+                                }
+
                                 used = true;
                                 break;
                             }
                         }
                     }
+
+                    string filePath = MakeRelativePath(inp, AudioPathConverter.Paths[audio]);
                     if (used)
                     {
-                        fp.WriteLine("\t{0}\t{1}", t.Index, t.Name.Trim());
+                        //fp.WriteLine("\t{0}\t{1}", audio.Index, audio.Name.Trim());
+                        fp.WriteLine("\t{0}\t{1}", cAudio[audio], filePath);
                     }
                     else
                     {
-                        fp.WriteLine("\t{0}\t{1}", t.Index, t.Name.Trim() + " ");
+                        //fp.WriteLine("\t{0}\t{1}", audio.Index, audio.Name.Trim() + " ");
+                        fp.WriteLine("\t{0}\t{1}", "-1", filePath + " ");
                     }
 
 
@@ -1217,7 +1257,7 @@ namespace MazeMaker
             }
             foreach (DynamicObject l in cDynamicObjects)
             {
-                l.PrintToFile(ref fp, cModels);
+                l.PrintToFile(ref fp, cAudio, cModels);
             }
             foreach (StartPos s in cStart)
             {
@@ -1313,18 +1353,18 @@ namespace MazeMaker
         //    return null;
         //}
 
-        private Audio GetAudio(int id)
-        {
-            if (id == -999)
-                return null;
+        //private Audio GetAudio(int id)
+        //{
+        //    if (id == -999)
+        //        return null;
 
-            foreach (Audio t in cAudio)
-            {
-                if (t.Index == id)
-                    return t;
-            }
-            return null;
-        }
+        //    foreach (Audio t in cAudio)
+        //    {
+        //        if (t.Index == id)
+        //            return t;
+        //    }
+        //    return null;
+        //}
 
         public bool ReadOldFormat(string inp)
         {
@@ -1918,8 +1958,15 @@ namespace MazeMaker
                                 if (tab != -1)
                                 {
                                     cmd = int.Parse(buf.Substring(0, tab));
-                                    mAudio = new Audio(cMazeDirectory, buf.Substring(tab + 1), cmd);
-                                    cAudio.Add(mAudio);
+                                    //mAudio = new Audio(cMazeDirectory, buf.Substring(tab + 1), cmd);
+                                    //cAudio.Add(mAudio);
+                                    string filePath = buf.Substring(tab + 1);
+                                    string fileName = filePath.Substring(filePath.LastIndexOf("\\" + 1));
+                                    if (fileName == "")
+                                        fileName = filePath;
+
+                                    cAudio[cmd.ToString()] = fileName;
+                                    AudioPathConverter.Paths[fileName] = filePath;
                                 }
                                 else
                                     break;
@@ -2039,7 +2086,8 @@ namespace MazeMaker
                                 dm.Phase1HighlightStyle = (DynamicObject.HighlightTypes)int.Parse(parsed[1]);
                                 dm.Phase1ActiveRadius = double.Parse(parsed[2]);
                                 dm.Phase1AutoTriggerTime = int.Parse(parsed[3]);
-                                dm.Phase1HighlightAudio = GetAudio(int.Parse(parsed[4]));
+                                //dm.Phase1HighlightAudio = GetAudio(int.Parse(parsed[4]));
+                                dm.Phase1HighlightAudio = cAudio[parsed[4]];
                                 dm.Phase1HighlightAudioLoop = (int.Parse(parsed[5])>0);
                                 dm.Phase1HighlightAudioBehavior = (DynamicObject.AudioBehaviour)int.Parse(parsed[6]);
 
@@ -2049,7 +2097,8 @@ namespace MazeMaker
                                 dm.EventAction = parsed[1];                                
                                 dm.Phase2ActiveRadius = double.Parse(parsed[2]);
                                 dm.Phase2AutoTriggerTime = int.Parse(parsed[3]);
-                                dm.Phase2EventAudio = GetAudio(int.Parse(parsed[4]));
+                                //dm.Phase2EventAudio = GetAudio(int.Parse(parsed[4]));
+                                dm.Phase2EventAudio = cAudio[parsed[4]];
                                 dm.Phase2EventAudioLoop = (int.Parse(parsed[5])>0);
                                 dm.Phase2EventAudioBehavior = int.Parse(parsed[6]);
 
@@ -2207,8 +2256,8 @@ namespace MazeMaker
             {
                 string text = node.InnerText; //or loop through its children as well
                 Texture tTex;
-                Model mMod;
-                Audio mAudio;
+                //Model mMod;
+                //Audio mAudio;
                 int id;
                 string filePath;
 
@@ -2229,7 +2278,7 @@ namespace MazeMaker
                         if (filePath.Length < 2)
                             break;
                         //mMod = new Model(cMazeDirectory, filename, id); 
-                        //modelLibraryItems.Add(mMod);
+                        //cModels.Add(mMod);
                         string fileName = filePath.Substring(filePath.LastIndexOf("\\") + 1);
                         if (fileName == "")
                             fileName = filePath;
@@ -2242,8 +2291,14 @@ namespace MazeMaker
                         filePath = Tools.getStringFromAttribute(node, "file");
                         if (filePath.Length < 2)
                             break;
-                        mAudio = new Audio(cMazeDirectory, filePath, id);
-                        cAudio.Add(mAudio);
+                        //mAudio = new Audio(cMazeDirectory, filePath, id);
+                        //cAudio.Add(mAudio);
+                        fileName = filePath.Substring(filePath.LastIndexOf("\\") + 1);
+                        if (fileName == "")
+                            fileName = filePath;
+
+                        cAudio[id.ToString()] = fileName;
+                        AudioPathConverter.Paths[fileName] = filePath;
                         break;
                 }
 
@@ -2776,8 +2831,11 @@ namespace MazeMaker
                     l.Model = cModels[l.modelID.ToString()];
                 if (cModels.ContainsKey(l.switchToModelID.ToString()))
                     l.SwitchToModel = cModels[l.switchToModelID.ToString()];
-                l.Phase1HighlightAudio = GetAudio(l.phase1HighlightAudioID);
-                l.Phase2EventAudio = GetAudio(l.phase2EventAudioID);
+
+                if (cAudio.ContainsKey(l.phase1HighlightAudioID.ToString()))
+                    l.Phase1HighlightAudio = cAudio[l.phase1HighlightAudioID.ToString()];
+                if (cAudio.ContainsKey(l.phase2EventAudioID.ToString()))
+                    l.Phase2EventAudio = cAudio[l.phase2EventAudioID.ToString()];
             }
             foreach (CustomObject c in cObject)
             {
@@ -2802,8 +2860,12 @@ namespace MazeMaker
 
             foreach (ActiveRegion en in cActRegions)
             {
-                en.Phase1HighlightAudio = GetAudio(en.phase1HighlightAudioID);
-                en.Phase2EventAudio = GetAudio(en.phase2EventAudioID);
+                //en.Phase1HighlightAudio = GetAudio(en.phase1HighlightAudioID);
+                //en.Phase2EventAudio = GetAudio(en.phase2EventAudioID);
+                if (cAudio.ContainsKey(en.phase1HighlightAudioID.ToString()))
+                    en.Phase1HighlightAudio = en.phase1HighlightAudioID.ToString();
+                if (cAudio.ContainsKey(en.phase2EventAudioID.ToString()))
+                    en.Phase2EventAudio = cAudio[en.phase2EventAudioID.ToString()];
 
                 startPosIndex = this.GetMazeItemByID(en.moveToPosID, MazeItemType.Start);
                 if (startPosIndex >= 0)
@@ -3361,17 +3423,17 @@ namespace MazeMaker
             return mzP.cDynamicObjects;
         }
 
-        static public Dictionary<string, string> GetModels()
-        {
-            //return mzP.cModels;
-            return ModelPathConverter.Paths;
-        }
-        static public List<Audio> GetAudios()
-        {
-            return mzP.cAudio;
-        }
+        //static public Dictionary<string, string> GetModels()
+        //{
+        //    //return mzP.cModels;
+        //    return ModelPathConverter.Paths;
+        //}
 
-        
+        //static public Dictionary<string, string> GetAudios()
+        //{
+        //    //return mzP.cAudio;
+        //    return AudioPathConverter.Paths;
+        //}
 
         public void CheckForRemovedTextures()
         {

@@ -349,7 +349,7 @@ namespace MazeMaker
         public string SwitchToModel
         {
             get { return switchToModel; }
-            set { switchToModel = value; }
+            set { switchToModel = value; OnPropertyChanged("SwitchToModel"); }
 
             //set {
             //    switchToModel = value;
@@ -583,37 +583,51 @@ namespace MazeMaker
 
 
         public int phase1HighlightAudioID = -999;
-        private Audio phase1HighlightAudio = null;
+        private string phase1HighlightAudio = "";
         [Category("5.Phase 1: Highlight")]
         [Description("Select audio for highlight event. List can be edited from Maze Collection")]
-        [TypeConverter(typeof(AudioConverter))]
+        [TypeConverter(typeof(AudioPathConverter))]
         [DisplayName("Audio")]
-        public Audio Phase1HighlightAudio
+        public string Phase1HighlightAudio
         {
             get { return phase1HighlightAudio; }
-            set { phase1HighlightAudio = value;
-                if (phase1HighlightAudio != null)
-                    phase1HighlightAudioID = phase1HighlightAudio.Index;
-                else
-                    phase1HighlightAudioID = -999;
-                OnPropertyChanged("Phase1HighlightAudio"); }
+            set { phase1HighlightAudio = value; OnPropertyChanged("Phase1HighlightAudio"); }
+
+            //set
+            //{
+            //    phase1HighlightAudio = value;
+                
+            //    if (phase1HighlightAudio != null)
+            //        phase1HighlightAudioID = phase1HighlightAudio.Index;
+            //    else
+            //        phase1HighlightAudioID = -999;
+                
+            //    OnPropertyChanged("Phase1HighlightAudio");
+            //}
         }
 
         public int phase2EventAudioID = -999;
-        private Audio phase2EventAudio = null;
+        private string phase2EventAudio = "";
         [Category("6.Phase 2: Event")]
         [Description("Select audio for trigger event. List can be edited from Maze Collection")]
-        [TypeConverter(typeof(AudioConverter))]
+        [TypeConverter(typeof(AudioPathConverter))]
         [DisplayName("Audio")]
-        public Audio Phase2EventAudio
+        public string Phase2EventAudio
         {
             get { return phase2EventAudio; }
-            set { phase2EventAudio = value;
-                if (phase2EventAudio != null)
-                    phase2EventAudioID = phase2EventAudio.Index;
-                else
-                    phase2EventAudioID = -999;
-                OnPropertyChanged("Phase2EventAudio"); }
+            set { phase2EventAudio = value; OnPropertyChanged("Phase2EventAudio"); }
+
+            //set
+            //{
+            //    phase2EventAudio = value;
+            
+            //    if (phase2EventAudio != null)
+            //        phase2EventAudioID = phase2EventAudio.Index;
+            //    else
+            //        phase2EventAudioID = -999;
+                
+            //    OnPropertyChanged("Phase2EventAudio");
+            //}
         }
 
         private bool phase1HighlightAudioLoop = false;
@@ -804,7 +818,7 @@ namespace MazeMaker
 
         }
 
-        public new bool PrintToFile(ref StreamWriter fp, Dictionary<string, string> cModels)
+        public bool PrintToFile(ref StreamWriter fp, Dictionary<string, string> cAudio, Dictionary<string, string> cModels)
         {
             try
             {
@@ -849,7 +863,11 @@ namespace MazeMaker
                 }
                 else
                 {
-                    fp.WriteLine(phase1HighlightAudio.Index + "\t" + (phase1HighlightAudioLoop ? "1" : "0") + "\t" + phase1HighlightAudioBehavior);
+                    //fp.WriteLine(phase1HighlightAudio.Index + "\t" + (phase1HighlightAudioLoop ? "1" : "0") + "\t" + phase1HighlightAudioBehavior);
+                    string audioID = "";
+                    if (cAudio.ContainsKey(phase1HighlightAudio))
+                        audioID = cAudio[phase1HighlightAudio];
+                    fp.WriteLine(audioID + "\t" + (phase1HighlightAudioLoop ? "1" : "0") + "\t" + phase1HighlightAudioBehavior);
                 }
                 fp.Write(phase2Criteria + "\t" + eventAction + "\t" + phase2ActiveRadius.ToString(".##;-.##;0") + "\t" + phase2AutoTriggerTime + "\t");
                 if (phase2EventAudio == null)
@@ -858,7 +876,11 @@ namespace MazeMaker
                 }
                 else
                 {
-                    fp.WriteLine(phase2EventAudio.Index + "\t" + (phase2EventAudioLoop?"1":"0") + "\t" + phase2EventAudioBehavior);
+                    //fp.WriteLine(phase2EventAudio.Index + "\t" + (phase2EventAudioLoop?"1":"0") + "\t" + phase2EventAudioBehavior);
+                    string audioID = "";
+                    if (cAudio.ContainsKey(phase2EventAudio))
+                        audioID = cAudio[phase2EventAudio];
+                    fp.WriteLine(audioID + "\t" + (phase2EventAudioLoop?"1":"0") + "\t" + phase2EventAudioBehavior);
                 }
                 fp.WriteLine(endScale.ToString(".##;-.##;0") + "\t" + (this.MzEndPoint.X + this.MzPoint.X).ToString(".##;-.##;0") + "\t" + (this.MzEndPoint.Y + this.MzPoint.Y).ToString(".##;-.##;0") + "\t" + (this.MzEndPoint.Z + this.MzPoint.Z).ToString(".##;-.##;0"));
                 fp.WriteLine(actionTime.ToString(".##;-.##;0") + "\t" + this.MzEndRot.X.ToString(".##;-.##;0") + "\t" + this.MzEndRot.Y.ToString(".##;-.##;0") + "\t" + this.MzEndRot.Z.ToString(".##;-.##;0"));
@@ -879,7 +901,7 @@ namespace MazeMaker
             }
         }
 
-        public override XmlElement toXMLnode(XmlDocument doc, Dictionary<string, string> cModels)
+        public XmlElement toXMLnode(XmlDocument doc, Dictionary<string, string> cAudio, Dictionary<string, string> cModels)
         {
             XmlElement dynamicObjectNode = doc.CreateElement(string.Empty, "DynamicObject", string.Empty);
             dynamicObjectNode.SetAttribute("label", this.Label);
@@ -924,12 +946,17 @@ namespace MazeMaker
 
             XmlElement audioNode1 = doc.CreateElement(string.Empty, "Audio", string.Empty);
             phase1Node.AppendChild(audioNode1);
-            if(this.Phase1HighlightAudio!=null)
-            { 
-                audioNode1.SetAttribute("id", this.Phase1HighlightAudio.Index.ToString());
+            //if (this.Phase1HighlightAudio != null)
+            if (Phase1HighlightAudio != "")
+            {
+                //audioNode1.SetAttribute("id", this.Phase1HighlightAudio.Index.ToString());
                 audioNode1.SetAttribute("loop", this.Phase1HighlightAudioLoop.ToString());
                 audioNode1.SetAttribute("unhighlightBehavior", this.Phase1HighlightAudioBehavior.ToString());
             }
+            string audioID = "";
+            if (cAudio.ContainsKey(Phase1HighlightAudio))
+                audioID = cAudio[Phase1HighlightAudio];
+            audioNode1.SetAttribute("id", audioID);
 
             XmlElement phase2Node = doc.CreateElement(string.Empty, "Phase2Event", string.Empty);
             dynamicObjectNode.AppendChild(phase2Node);
@@ -943,12 +970,17 @@ namespace MazeMaker
 
             XmlElement audioNode2 = doc.CreateElement(string.Empty, "Audio", string.Empty);
             phase2Node.AppendChild(audioNode2);
-            if (this.Phase2EventAudio != null)
+            //if (this.Phase2EventAudio != null)
+            if (this.Phase2EventAudio != "")
             {
-                audioNode2.SetAttribute("id", this.Phase2EventAudio.Index.ToString());
+                //audioNode2.SetAttribute("id", this.Phase2EventAudio.Index.ToString());
                 audioNode2.SetAttribute("loop", this.Phase2EventAudioLoop.ToString());
                 audioNode2.SetAttribute("audioBehavior", this.Phase2EventAudioBehavior.ToString());
             }
+            audioID = "";
+            if (cAudio.ContainsKey(Phase2EventAudio))
+                audioID = cAudio[Phase2EventAudio];
+            audioNode2.SetAttribute("id", audioID);
 
             XmlElement endPosNode = doc.CreateElement(string.Empty, "EndMzPoint", string.Empty);
             phase2Node.AppendChild(endPosNode);
