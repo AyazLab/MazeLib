@@ -90,6 +90,7 @@ namespace MazeMaker
             try
             {
                 img = Bitmap.FromFile(dir + "\\" + preview_name);
+                filePath = dir + "\\" + preview_name;
             }
             catch
             {
@@ -98,6 +99,7 @@ namespace MazeMaker
                 try
                 {
                     img = Bitmap.FromFile(Settings.userLibraryFolder + "\\" + preview_name);
+                    filePath = Settings.userLibraryFolder + "\\" + preview_name;
                 }
                 catch// (System.Exception ex)
                 {
@@ -105,6 +107,7 @@ namespace MazeMaker
                     try
                     {
                         img = Bitmap.FromFile(Settings.standardLibraryFolder + "\\" + preview_name);
+                        filePath = Settings.standardLibraryFolder + "\\" + preview_name;
                     }
                     catch// (System.Exception ex)
                     {

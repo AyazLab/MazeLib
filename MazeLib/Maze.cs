@@ -38,23 +38,24 @@ namespace MazeMaker
 
         private string cMazeDirectory;
 
-
-        public List<Texture> cImages = new List<Texture>();
+        int imageIDCounter = 100;
+        public Dictionary<string, string> cImages = new Dictionary<string, string>();
         [Category("2.Collections")]
         [Description("Texture Image Files. Place these files to the same directory of with the Maze file or place them in the user library directory")]
-        public List<Texture> Image
+        [Browsable(false)]
+        public Dictionary<string, string> Image
         {
             get { return cImages; }
             set { cImages = value; }
         }
 
-        [Category("2.Collections")]
-        [Description("Available Texture Image Number in the List")]
-        [ReadOnly(true)]
-        public int ImageCount
-        {
-            get { return cImages.Count; }
-        }
+        //[Category("2.Collections")]
+        //[Description("Available Texture Image Number in the List")]
+        //[ReadOnly(true)]
+        //public int ImageCount
+        //{
+        //    get { return cImages.Count; }
+        //}
 
         int audioIDCounter = 100;
         public Dictionary<string, string> cAudio = new Dictionary<string, string>();
@@ -228,36 +229,35 @@ namespace MazeMaker
         }
 
         private int skyTextureID = -999;
-        private Texture skyTexture = null;
+        private string skyTexture = "";
         [Category("6.Skybox")]
         [Description("Select texture to be used for skybox. List can be edited at Texture Collection")]
-        [TypeConverter(typeof(TextureConverter))]
-        public Texture SkyBoxTexture
+        [TypeConverter(typeof(ImagePathConverter))]
+        public string SkyBoxTexture
         {
-
             get { return skyTexture; }
-            set
-            {
-                if (skyTexture == null)
-                {
-                    skyTextureID = -999;
-                    foreach (Texture t in cImages)
-                    {
-                        t.Skybox = false;
-                    }
-
-                }
-                else
-                {
-                    foreach (Texture t in cImages)
-                    {
-                        t.Skybox = false;
-                    }
-                    skyTextureID = skyTexture.Index;
-                    skyTexture.Skybox = true;
-                }
-                skyTexture = value;
-            }
+            set { skyTexture = value; }
+            //set
+            //{
+            //    if (skyTexture == null)
+            //    {
+            //        skyTextureID = -999;
+            //        foreach (Texture t in cImages)
+            //        {
+            //            t.Skybox = false;
+            //        }
+            //    }
+            //    else
+            //    {
+            //        foreach (Texture t in cImages)
+            //        {
+            //            t.Skybox = false;
+            //        }
+            //        skyTextureID = skyTexture.Index;
+            //        skyTexture.Skybox = true;
+            //    }
+            //    skyTexture = value;
+            //}
         }
 
         private double scale = 17;
@@ -744,7 +744,7 @@ namespace MazeMaker
 
             SetName(inp);
 
-            FinalCheckBeforeWrite();
+            //FinalCheckBeforeWrite();
 
             changed = false;
 
@@ -758,99 +758,126 @@ namespace MazeMaker
             mazeXMLnode.SetAttribute("url", "http://www.mazesuite.com");
 
             XmlElement infoNode = doc.CreateElement(string.Empty, "Info", string.Empty);
-                mazeXMLnode.AppendChild(infoNode);
+            mazeXMLnode.AppendChild(infoNode);
 
-                    XmlElement authorNode = doc.CreateElement(string.Empty, "Author", string.Empty);
-                    infoNode.AppendChild(authorNode);
+            XmlElement authorNode = doc.CreateElement(string.Empty, "Author", string.Empty);
+            infoNode.AppendChild(authorNode);
                     
 
             authorNode.SetAttribute("name", this.Designer);
-                    authorNode.SetAttribute("comments", this.Comments);
+            authorNode.SetAttribute("comments", this.Comments);
 
-                XmlElement globalNode = doc.CreateElement(string.Empty, "Global", string.Empty);
-                mazeXMLnode.AppendChild(globalNode);
+            XmlElement globalNode = doc.CreateElement(string.Empty, "Global", string.Empty);
+            mazeXMLnode.AppendChild(globalNode);
 
                 
-                    XmlElement avatarNode = doc.CreateElement(string.Empty, "Avatar", string.Empty);
-                    globalNode.AppendChild(avatarNode);
-                    avatarNode.SetAttribute("scale", this.AvatarScale.ToString());
+            XmlElement avatarNode = doc.CreateElement(string.Empty, "Avatar", string.Empty);
+            globalNode.AppendChild(avatarNode);
+            avatarNode.SetAttribute("scale", this.AvatarScale.ToString());
             //if (this.AvatarModel != null)
             //    avatarNode.SetAttribute("id", this.AvatarModel.Index.ToString());
-            string modelID = "";
-            if (cModels.ContainsKey(AvatarModel))
-                modelID = cModels[AvatarModel];
-            avatarNode.SetAttribute("id", modelID);
-                    avatarNode.SetAttribute("rotX", this.AvatarInitRot.X.ToString());
-                    avatarNode.SetAttribute("rotY", this.AvatarInitRot.Y.ToString());
-                    avatarNode.SetAttribute("rotZ", this.AvatarInitRot.Z.ToString());
+            if (AvatarModel != "")
+            {
+                cModels[AvatarModel] = modelIDCounter.ToString();
+                modelIDCounter++;
+                avatarNode.SetAttribute("id", cModels[AvatarModel]);
+            }
+            avatarNode.SetAttribute("rotX", this.AvatarInitRot.X.ToString());
+            avatarNode.SetAttribute("rotY", this.AvatarInitRot.Y.ToString());
+            avatarNode.SetAttribute("rotZ", this.AvatarInitRot.Z.ToString());
 
             XmlElement generalNode = doc.CreateElement(string.Empty, "General", string.Empty);
-                    globalNode.AppendChild(generalNode);
-                    //generalNode.SetAttribute("scale", this.Scale.ToString());
+            globalNode.AppendChild(generalNode);
+            //generalNode.SetAttribute("scale", this.Scale.ToString());
 
-                    XmlElement speedNode = doc.CreateElement(string.Empty, "Speed", string.Empty);
-                    globalNode.AppendChild(speedNode);
-                    speedNode.SetAttribute("moveSpeed", this.moveSpeed.ToString());
-                    speedNode.SetAttribute("turnSpeed", this.turnSpeed.ToString());
+            XmlElement speedNode = doc.CreateElement(string.Empty, "Speed", string.Empty);
+            globalNode.AppendChild(speedNode);
+            speedNode.SetAttribute("moveSpeed", this.moveSpeed.ToString());
+            speedNode.SetAttribute("turnSpeed", this.turnSpeed.ToString());
 
-                    XmlElement ambientLightNode = doc.CreateElement(string.Empty, "AmbientLight", string.Empty);
-                    globalNode.AppendChild(ambientLightNode);
-                    ambientLightNode.SetAttribute("r", ((float)this.AmbientColor.R/255).ToString());
-                    ambientLightNode.SetAttribute("g", ((float)this.AmbientColor.G / 255).ToString());
-                    ambientLightNode.SetAttribute("b", ((float)this.AmbientColor.B / 255).ToString());
-                    ambientLightNode.SetAttribute("intensity", this.AmbientIntesity.ToString());
+            XmlElement ambientLightNode = doc.CreateElement(string.Empty, "AmbientLight", string.Empty);
+            globalNode.AppendChild(ambientLightNode);
+            ambientLightNode.SetAttribute("r", ((float)this.AmbientColor.R/255).ToString());
+            ambientLightNode.SetAttribute("g", ((float)this.AmbientColor.G / 255).ToString());
+            ambientLightNode.SetAttribute("b", ((float)this.AmbientColor.B / 255).ToString());
+            ambientLightNode.SetAttribute("intensity", this.AmbientIntesity.ToString());
 
-                    XmlElement startMessageNode = doc.CreateElement(string.Empty, "StartMessage", string.Empty);
-                    globalNode.AppendChild(startMessageNode);
-                    startMessageNode.SetAttribute("enabled", this.StartMessageEnable.ToString());
-                    startMessageNode.SetAttribute("message", this.StartMessageText);
+            XmlElement startMessageNode = doc.CreateElement(string.Empty, "StartMessage", string.Empty);
+            globalNode.AppendChild(startMessageNode);
+            startMessageNode.SetAttribute("enabled", this.StartMessageEnable.ToString());
+            startMessageNode.SetAttribute("message", this.StartMessageText);
 
-                    XmlElement defaultStartPositionNode = doc.CreateElement(string.Empty, "DefaultStartPosition", string.Empty);
-                    globalNode.AppendChild(defaultStartPositionNode);
-                    if(this.DefaultStartPos!=null)
-                        defaultStartPositionNode.SetAttribute("id", this.DefaultStartPos.GetID().ToString());
+            XmlElement defaultStartPositionNode = doc.CreateElement(string.Empty, "DefaultStartPosition", string.Empty);
+            globalNode.AppendChild(defaultStartPositionNode);
+            if(this.DefaultStartPos!=null)
+                defaultStartPositionNode.SetAttribute("id", this.DefaultStartPos.GetID().ToString());
 
-                    XmlElement timeoutNode = doc.CreateElement(string.Empty, "Timeout", string.Empty);
-                    globalNode.AppendChild(timeoutNode);
-                    timeoutNode.SetAttribute("enabled", this.TimeoutEnable.ToString());
-                    timeoutNode.SetAttribute("message", this.TimeoutMessageText);
-                    timeoutNode.SetAttribute("timeoutValue", this.TimeoutValue.ToString());
+            XmlElement timeoutNode = doc.CreateElement(string.Empty, "Timeout", string.Empty);
+            globalNode.AppendChild(timeoutNode);
+            timeoutNode.SetAttribute("enabled", this.TimeoutEnable.ToString());
+            timeoutNode.SetAttribute("message", this.TimeoutMessageText);
+            timeoutNode.SetAttribute("timeoutValue", this.TimeoutValue.ToString());
 
-                    XmlElement pointOptionsNode = doc.CreateElement(string.Empty, "PointOptions", string.Empty);
-                    globalNode.AppendChild(pointOptionsNode);
-                    pointOptionsNode.SetAttribute("exitThreshold", this.PointOutThreshold.ToString());
-                    pointOptionsNode.SetAttribute("messageText", this.PointOutMessageText);
+            XmlElement pointOptionsNode = doc.CreateElement(string.Empty, "PointOptions", string.Empty);
+            globalNode.AppendChild(pointOptionsNode);
+            pointOptionsNode.SetAttribute("exitThreshold", this.PointOutThreshold.ToString());
+            pointOptionsNode.SetAttribute("messageText", this.PointOutMessageText);
 
-                    if (this.skyTexture != null)
-                    { 
-                            XmlElement skyboxNode = doc.CreateElement(string.Empty, "Skybox", string.Empty);
-                            globalNode.AppendChild(skyboxNode);
-                            skyboxNode.SetAttribute("id", this.skyTexture.Index.ToString());
-                    }
+            //if (this.skyTexture != null)
+            //{
+            //    XmlElement skyboxNode = doc.CreateElement(string.Empty, "Skybox", string.Empty);
+            //    globalNode.AppendChild(skyboxNode);
+            //    skyboxNode.SetAttribute("id", this.skyTexture.Index.ToString());
+            //}
+            if (skyTexture != "")
+            {
+                cImages[skyTexture] = imageIDCounter.ToString();
+                imageIDCounter++;
 
-                XmlElement perspectiveSettingsNode = doc.CreateElement(string.Empty, "PerspectiveSettings", string.Empty);
-                globalNode.AppendChild(perspectiveSettingsNode);
-                perspectiveSettingsNode.SetAttribute("avatarHeight", this.AvatarHeight.ToString());
-                perspectiveSettingsNode.SetAttribute("cameraHeight", this.CameraHeight.ToString());
-                perspectiveSettingsNode.SetAttribute("cameraMode", this.ViewPerspective.ToString());
-                perspectiveSettingsNode.SetAttribute("fieldOfView", this.FieldOfView.ToString());
-                perspectiveSettingsNode.SetAttribute("fixCameraX", this.FixedXLocationEnabled.ToString());
-                perspectiveSettingsNode.SetAttribute("fixedCameraX", this.FixedX.ToString());
-                perspectiveSettingsNode.SetAttribute("fixCameraZ", this.FixedZLocationEnabled.ToString());
-                perspectiveSettingsNode.SetAttribute("fixedCameraZ", this.FixedZ.ToString());
-                perspectiveSettingsNode.SetAttribute("topDownOrientation", this.TopDownOrientation.ToString());
-                //perspectiveSettingsNode.SetAttribute("useMouseToOrient", this.UseMouseToOrient.ToString());
-                perspectiveSettingsNode.SetAttribute("xRayRendering", this.UseXRayDisplay.ToString());
+                XmlElement skyboxNode = doc.CreateElement(string.Empty, "Skybox", string.Empty);
+                globalNode.AppendChild(skyboxNode);
+                skyboxNode.SetAttribute("id", cImages[skyTexture]);
+            }
+
+            XmlElement perspectiveSettingsNode = doc.CreateElement(string.Empty, "PerspectiveSettings", string.Empty);
+            globalNode.AppendChild(perspectiveSettingsNode);
+            perspectiveSettingsNode.SetAttribute("avatarHeight", this.AvatarHeight.ToString());
+            perspectiveSettingsNode.SetAttribute("cameraHeight", this.CameraHeight.ToString());
+            perspectiveSettingsNode.SetAttribute("cameraMode", this.ViewPerspective.ToString());
+            perspectiveSettingsNode.SetAttribute("fieldOfView", this.FieldOfView.ToString());
+            perspectiveSettingsNode.SetAttribute("fixCameraX", this.FixedXLocationEnabled.ToString());
+            perspectiveSettingsNode.SetAttribute("fixedCameraX", this.FixedX.ToString());
+            perspectiveSettingsNode.SetAttribute("fixCameraZ", this.FixedZLocationEnabled.ToString());
+            perspectiveSettingsNode.SetAttribute("fixedCameraZ", this.FixedZ.ToString());
+            perspectiveSettingsNode.SetAttribute("topDownOrientation", this.TopDownOrientation.ToString());
+            //perspectiveSettingsNode.SetAttribute("useMouseToOrient", this.UseMouseToOrient.ToString());
+            perspectiveSettingsNode.SetAttribute("xRayRendering", this.UseXRayDisplay.ToString());
 
             XmlElement imageLibraryNode = doc.CreateElement(string.Empty, "ImageLibrary", string.Empty);
             mazeXMLnode.AppendChild(imageLibraryNode);
 
-                XmlElement texNode;
-                foreach (Texture t in cImages)
+            XmlElement imageLibraryItem;
+            foreach (string image in ImagePathConverter.Paths.Keys)
+            {
+                //imageLibraryItem = image.toXMLnode(doc);
+                imageLibraryItem = doc.CreateElement(string.Empty, "Image", string.Empty);
+
+                if (!cImages.ContainsKey(image))
                 {
-                    texNode = t.toXMLnode(doc);
-                    imageLibraryNode.AppendChild(texNode);
+                    cImages[image] = imageIDCounter.ToString();
+                    imageIDCounter++;
                 }
+                imageLibraryItem.SetAttribute("id", cImages[image]);
+
+                string filePath = ImagePathConverter.Paths[image];
+                if (filePath[1] == ':')
+                {
+                    filePath = MakeRelativePath(inp, filePath);
+                }
+                imageLibraryItem.SetAttribute("file", filePath);
+
+                imageLibraryNode.AppendChild(imageLibraryItem);
+            }
 
             XmlElement modelLibraryNode = doc.CreateElement(string.Empty, "ModelLibrary", string.Empty);
             mazeXMLnode.AppendChild(modelLibraryNode);
@@ -866,8 +893,8 @@ namespace MazeMaker
                     cModels[model] = modelIDCounter.ToString();
                     modelIDCounter++;
                 }
-
                 modelLibraryItem.SetAttribute("id", cModels[model]);
+
                 string filePath = ModelPathConverter.Paths[model];
                 if (filePath[1] == ':')
                 {
@@ -893,8 +920,8 @@ namespace MazeMaker
                     cAudio[audio] = audioIDCounter.ToString();
                     audioIDCounter++;
                 }
-
                 audioLibraryItem.SetAttribute("id", cAudio[audio]);
+
                 string filePath = AudioPathConverter.Paths[audio];
                 if (filePath[1] == ':')
                 {
@@ -914,14 +941,14 @@ namespace MazeMaker
             XmlElement wallNode;
             foreach (Wall w in cWall)
             {
-                wallNode = w.toXMLnode(doc);
+                wallNode = w.toXMLnode(doc, cImages);
                 wallsNode.AppendChild(wallNode);
             }
 
             XmlElement curvedWallNode;
             foreach (CurvedWall w in cCurveWall)
             {
-                curvedWallNode = w.toXMLnode(doc);
+                curvedWallNode = w.toXMLnode(doc, cImages);
                 wallsNode.AppendChild(curvedWallNode);
             }
 
@@ -931,7 +958,7 @@ namespace MazeMaker
             XmlElement floorNode;
             foreach (Floor f in cFloor)
             {
-                floorNode = f.toXMLnode(doc);
+                floorNode = f.toXMLnode(doc, cImages);
                 floorsNode.AppendChild(floorNode);
             }
 
@@ -1031,7 +1058,7 @@ namespace MazeMaker
             
             SetName(inp);
 
-            FinalCheckBeforeWrite();
+            //FinalCheckBeforeWrite();
 
             changed = false;
 
@@ -1041,9 +1068,11 @@ namespace MazeMaker
             //bitmap file names goes here
             //fp.WriteLine("\t1\tmetal.bmp");
             //int index = 1;
-            foreach (Texture t in cImages)
+            //foreach (Texture image in cImages)
+            foreach (string image in ImagePathConverter.Paths.Keys)
             {
-                if (t.Name != "")
+                //if (image.Name != "")
+                if (image != "") // true
                 {
                     //fp.WriteLine("\t{0}\t{1}", index, t.Name);   
                  
@@ -1052,41 +1081,62 @@ namespace MazeMaker
                     bool used = false;
                     if (used == false)
                     {
-                        foreach (Wall d in cWall)
+                        foreach (Wall wall in cWall)
                         {
-                            if (d.Texture != null && d.Texture.Index == t.Index)
+                            if (wall.Texture == image)
                             {
+                                if (!cImages.ContainsKey(image))
+                                {
+                                    cImages[image] = imageIDCounter.ToString();
+                                    imageIDCounter++;
+                                }
+
                                 used = true;
                                 break;
                             }
                         }
                     }
+
                     if (used == false)
                     {
-                        foreach (Floor d in cFloor)
+                        foreach (Floor floor in cFloor)
                         {
-                            if (d.FloorTexture != null && d.FloorTexture.Index == t.Index)
+                            if (floor.FloorTexture == image)
                             {
+                                if (!cImages.ContainsKey(image))
+                                {
+                                    cImages[image] = imageIDCounter.ToString();
+                                    imageIDCounter++;
+                                }
+
                                 used = true;
                                 break;
                             }
-                            else if (d.CeilingTexture != null && d.CeilingTexture.Index == t.Index)
+                            else if (floor.CeilingTexture == image)
                             {
+                                if (!cImages.ContainsKey(image))
+                                {
+                                    cImages[image] = imageIDCounter.ToString();
+                                    imageIDCounter++;
+                                }
+
                                 used = true;
                                 break;
                             }
                         }
                     }
+
+                    string filePath = MakeRelativePath(inp, ImagePathConverter.Paths[image]);
                     if (used)
                     {
-                        fp.WriteLine("\t{0}\t{1}", t.Index, t.Name.Trim());
+                        //fp.WriteLine("\t{0}\t{1}", image.Index, image.Name.Trim());
+                        fp.WriteLine("\t{0}\t{1}", cImages[image], filePath);
                     }
                     else
                     {
-                        fp.WriteLine("\t{0}\t{1}", t.Index, t.Name.Trim() + " ");
+                        //fp.WriteLine("\t{0}\t{1}", image.Index, image.Name.Trim() + " ");
+                        fp.WriteLine("\t{0}\t{1}", "99", filePath + " ");
                     }
-
-                    
                 }
                 //index++;
             }
@@ -1167,7 +1217,7 @@ namespace MazeMaker
                     else
                     {
                         //fp.WriteLine("\t{0}\t{1}", model.Index, model.Name.Trim() + " ");
-                        fp.WriteLine("\t{0}\t{1}", "-1", filePath + " ");
+                        fp.WriteLine("\t{0}\t{1}", "99", filePath + " ");
                     }
 
                 }
@@ -1229,7 +1279,7 @@ namespace MazeMaker
                     else
                     {
                         //fp.WriteLine("\t{0}\t{1}", audio.Index, audio.Name.Trim() + " ");
-                        fp.WriteLine("\t{0}\t{1}", "-1", filePath + " ");
+                        fp.WriteLine("\t{0}\t{1}", "99", filePath + " ");
                     }
 
 
@@ -1243,12 +1293,12 @@ namespace MazeMaker
             ////Objects/////////
             foreach (Floor f in cFloor)
             {
-                f.PrintToFile(ref fp);
+                f.PrintToFile(ref fp, cImages);
             }
 
             foreach (Wall w in cWall)
             {
-                w.PrintToFile(ref fp);
+                w.PrintToFile(ref fp, cImages);
             }
 
             foreach (StaticModel l in cStaticModels)
@@ -1320,26 +1370,30 @@ namespace MazeMaker
 
             //skybox texture
             fp.WriteLine("-22\t1");
-            int textureIndex = 0;
-            if (skyTexture != null) textureIndex = skyTexture.Index;
-            fp.WriteLine(textureIndex);
+            //int textureIndex = 0;
+            //if (skyTexture != null) textureIndex = skyTexture.Index;
+            //fp.WriteLine(textureIndex);
+            string imageID = "0";
+            if (cImages.ContainsKey(skyTexture))
+                imageID = cImages[skyTexture];
+            fp.WriteLine(imageID);
 
             fp.Close();
             return true;
         }
 
-        private Texture GetTexture(int id)
-        {
-            if (id == -999) //marked bad
-                return null;
+        //private Texture GetTexture(int id)
+        //{
+        //    if (id == -999) //marked bad
+        //        return null;
 
-            foreach(Texture t in cImages)
-            {
-                if (t.Index == id)
-                    return t;
-            }
-            return null;
-        }
+        //    foreach(Texture t in cImages)
+        //    {
+        //        if (t.Index == id)
+        //            return t;
+        //    }
+        //    return null;
+        //}
 
         //private Model GetModel(int id)
         //{
@@ -1379,7 +1433,7 @@ namespace MazeMaker
             int cmd = 0;
             int tab = 0;
             int tab2 = 0;
-            
+
             MPoint tempPoint;// = new MPoint();
             MPoint tempPoint2;// = new MPoint();
             MPoint tempPoint3;// = new MPoint();
@@ -1388,24 +1442,24 @@ namespace MazeMaker
             PointF tem2 = new PointF();
             PointF tem3 = new PointF();
             PointF tem4 = new PointF();
-            Color col= new Color();
-            int texture=0;
+            Color col = new Color();
+            int texture = 0;
             Floor tFloor;
             Wall tWall;
             Texture tTex;
             EndRegion tEn;
             StartPos sPos;
-          try
-          {
+            try
+            {
                 while (true)
                 {
                     buf = fp.ReadLine();
                     cmd = Int32.Parse(buf);
                     switch (cmd)
                     {
-                        case 0:     //plane
+                        case 0: // plane
                             buf = fp.ReadLine();
-                            ReadColorLine(ref buf, ref texture, ref col);                            
+                            ReadColorLine(ref buf, ref texture, ref col);
                             buf = fp.ReadLine();
                             tempPoint = new MPoint();
                             ReadALine(ref buf, ref tem, ref tempPoint);
@@ -1418,15 +1472,17 @@ namespace MazeMaker
                             buf = fp.ReadLine();
                             tempPoint4 = new MPoint();
                             ReadALine(ref buf, ref tem4, ref tempPoint4);
-                            if (AreEqual(tempPoint.Y, tempPoint2.Y) && AreEqual(tempPoint2.Y,tempPoint3.Y) && AreEqual(tempPoint3.Y,tempPoint4.Y))
+                            if (AreEqual(tempPoint.Y, tempPoint2.Y) && AreEqual(tempPoint2.Y, tempPoint3.Y) && AreEqual(tempPoint3.Y, tempPoint4.Y))
                             {
                                 //floor
                                 if (tempPoint.Y < 0)
                                 {
                                     //new floor
-                                    tFloor = new Floor(scale,"");
-                                    //tFloor.TextureIndex = texture;
-                                    tFloor.FloorTexture = GetTexture(texture);
+                                    tFloor = new Floor(scale, "");
+                                    //tFloor.floorTexID = texture;
+                                    //tFloor.FloorTexture = GetTexture(texture);
+                                    if (cImages.ContainsKey(texture.ToString()))
+                                        tFloor.FloorTexture = cImages[texture.ToString()];
                                     tFloor.FloorColor = col;
                                     tFloor.MzPoint1 = tempPoint;
                                     tFloor.MzPoint2 = tempPoint2;
@@ -1443,11 +1499,13 @@ namespace MazeMaker
                                 {
                                     //ceiling - search for its floor
                                     foreach (Floor f in cFloor)
-                                    {                                        
+                                    {
                                         if (AreEqual(f.MzPoint1.X, tempPoint.X) && AreEqual(f.MzPoint1.Z, tempPoint.Z) && AreEqual(f.MzPoint2.X, tempPoint2.X) && AreEqual(f.MzPoint2.Z, tempPoint2.Z))
                                         {
-                                            //f.TextureIndex2 = texture;
-                                            f.CeilingTexture = GetTexture(texture);
+                                            //f.ceilingTexID = texture;
+                                            //f.CeilingTexture = GetTexture(texture);
+                                            if (cImages.ContainsKey(texture.ToString()))
+                                                f.CeilingTexture = cImages[texture.ToString()];
                                             f.Ceiling = true;
                                             f.CeilingColor = col;
                                             f.CeilingVertex1 = new TPoint(tem.X, tem.Y);
@@ -1463,8 +1521,10 @@ namespace MazeMaker
                             {
                                 //wall                                
                                 tWall = new Wall(scale, "");
-                                //tWall.TextureIndex = texture;                                
-                                tWall.Texture = GetTexture(texture);
+                                //tWall.texID = texture;
+                                //tWall.Texture = GetTexture(texture);
+                                if (cImages.ContainsKey(texture.ToString()))
+                                    tWall.Texture = cImages[texture.ToString()];
                                 tWall.Color = col;
                                 tWall.MzPoint1 = tempPoint;
                                 tWall.MzPoint2 = tempPoint2;
@@ -1474,7 +1534,7 @@ namespace MazeMaker
                                 tWall.Vertex2 = new TPoint(tem2.X, tem2.Y);
                                 tWall.Vertex3 = new TPoint(tem3.X, tem3.Y);
                                 tWall.Vertex4 = new TPoint(tem4.X, tem4.Y);
-                                
+
                                 cWall.Add(tWall);
                             }
                             break;
@@ -1494,9 +1554,16 @@ namespace MazeMaker
                                 tab = buf.IndexOf('\t');
                                 if (tab != -1)
                                 {
-                                    cmd = int.Parse(buf.Substring(0, tab));                                    
-                                    tTex = new Texture(cMazeDirectory, buf.Substring(tab+1),cmd);
-                                    cImages.Add(tTex);
+                                    cmd = int.Parse(buf.Substring(0, tab));
+                                    //tTex = new Texture(cMazeDirectory, buf.Substring(tab + 1), cmd);
+                                    //cImages.Add(tTex);
+                                    string filePath = buf.Substring(tab + 1);
+                                    string fileName = filePath.Substring(filePath.LastIndexOf("\\") + 1);
+                                    if (fileName == "")
+                                        fileName = filePath;
+
+                                    cImages[cmd.ToString()] = fileName;
+                                    ImagePathConverter.Paths[fileName] = filePath;
                                 }
                                 else
                                     break;
@@ -1538,7 +1605,7 @@ namespace MazeMaker
                             break;
                         case -4:    //timeout
                             buf = fp.ReadLine();
-                            timeout = double.Parse(buf)/1000;
+                            timeout = double.Parse(buf) / 1000;
                             break;
                         case -5:    //designer
                             fp.Read();
@@ -1559,17 +1626,17 @@ namespace MazeMaker
                     }
                 }
             }
-        
+
             catch//(Exception ex)
             {
                 //MessageBox.Show(ex.Message);
             }
-                fp.Close();
+            fp.Close();
             return true;
         }
+
         public bool ReadClassicFormat(ref StreamReader fp)
         {
-
             string buf = "";
             
             int cmd = 0;
@@ -1683,8 +1750,10 @@ namespace MazeMaker
                                 {
                                     //new floor
                                     tFloor = new Floor(scale, label, id);
-                                    //tFloor.TextureIndex = texture;
-                                    tFloor.FloorTexture = GetTexture(texture);
+                                    //tFloor.floorTexID = texture;
+                                    //tFloor.FloorTexture = GetTexture(texture);
+                                    if (cImages.ContainsKey(texture.ToString()))
+                                        tFloor.FloorTexture = cImages[texture.ToString()];
                                     tFloor.FloorColor = col;
                                     tFloor.MzPoint1 = tempPoint;
                                     tFloor.MzPoint2 = tempPoint2;
@@ -1710,8 +1779,9 @@ namespace MazeMaker
                                     {
                                         if (AreEqual(f.MzPoint1.X, tempPoint.X) && AreEqual(f.MzPoint1.Z, tempPoint.Z) && AreEqual(f.MzPoint2.X, tempPoint2.X) && AreEqual(f.MzPoint2.Z, tempPoint2.Z))
                                         {
-                                            //f.TextureIndex2 = texture;
-                                            f.CeilingTexture = GetTexture(texture);
+                                            //f.ceilingTexID = texture;
+                                            if (cImages.ContainsKey(texture.ToString()))
+                                                f.CeilingTexture = cImages[texture.ToString()];
                                             f.Ceiling = true;
                                             f.CeilingColor = col;
                                             f.CeilingVertex1 = new TPoint(tem.X, tem.Y);
@@ -1734,7 +1804,8 @@ namespace MazeMaker
                                 //wall                                
                                 tWall = new Wall(scale, label, id);
                                 //tWall.TextureIndex = texture;
-                                tWall.Texture = GetTexture(texture);
+                                if (cImages.ContainsKey(texture.ToString()))
+                                    tWall.Texture = cImages[texture.ToString()];
                                 tWall.Color = col;
                                 tWall.MzPoint1 = tempPoint;
                                 tWall.MzPoint2 = tempPoint2;
@@ -1750,7 +1821,8 @@ namespace MazeMaker
                                 {
                                     //this is in fact a Floor object!
                                     tFloor = new Floor(scale, label, id);
-                                    tFloor.FloorTexture = GetTexture(texture);
+                                    if (cImages.ContainsKey(texture.ToString()))
+                                        tFloor.FloorTexture = cImages[texture.ToString()];
                                     tFloor.FloorColor = col;
                                     tFloor.MzPoint1 = tempPoint;
                                     tFloor.MzPoint2 = tempPoint2;
@@ -1799,8 +1871,15 @@ namespace MazeMaker
                                 if (tab != -1)
                                 {
                                     cmd = int.Parse(buf.Substring(0, tab));
-                                    tTex = new Texture(cMazeDirectory, buf.Substring(tab + 1), cmd);
-                                    cImages.Add(tTex);
+                                    //tTex = new Texture(cMazeDirectory, buf.Substring(tab + 1), cmd);
+                                    //cImages.Add(tTex);
+                                    string filePath = buf.Substring(tab + 1);
+                                    string fileName = filePath.Substring(filePath.LastIndexOf("\\") + 1);
+                                    if (fileName == "")
+                                        fileName = filePath;
+
+                                    cImages[cmd.ToString()] = fileName;
+                                    ImagePathConverter.Paths[fileName] = filePath;
                                 }
                                 else
                                     break;
@@ -1982,7 +2061,8 @@ namespace MazeMaker
                             }
                             parsed = buf.Split('\t');
                             //sm.Model = GetModel(int.Parse(parsed[0]));
-                            sm.Model = cModels[parsed[0]];
+                            if (cModels.ContainsKey(parsed[0]))
+                                sm.Model = cModels[parsed[0]];
                             tempPoint = new MPoint();
                             tempPoint.X = double.Parse(parsed[1]);
                             tempPoint.Y = double.Parse(parsed[2]);
@@ -2018,7 +2098,8 @@ namespace MazeMaker
                             parsed = buf.Split('\t');
                             DynamicObject dm = new DynamicObject(scale, label, id);
                             //dm.Model = GetModel(int.Parse(parsed[0]));
-                            dm.Model = cModels[parsed[0]];
+                            if (cModels.ContainsKey(parsed[0]))
+                                dm.Model = cModels[parsed[0]];
                             tempPoint = new MPoint();
                             tempPoint.X = double.Parse(parsed[1]);
                             tempPoint.Y = double.Parse(parsed[2]);
@@ -2075,7 +2156,8 @@ namespace MazeMaker
                                 buf = fp.ReadLine(); lineNum++;
                                 parsed = buf.Split('\t');
                                 //dm.SwitchToModel = GetModel(int.Parse(parsed[0]));
-                                dm.SwitchToModel = cModels[parsed[0]];
+                                if (cModels.ContainsKey(parsed[0]))
+                                    dm.SwitchToModel = cModels[parsed[0]];
                                 dm.Phase1HighlightStyle = (DynamicObject.HighlightTypes)int.Parse(parsed[1]);
                             }
                             else
@@ -2087,7 +2169,8 @@ namespace MazeMaker
                                 dm.Phase1ActiveRadius = double.Parse(parsed[2]);
                                 dm.Phase1AutoTriggerTime = int.Parse(parsed[3]);
                                 //dm.Phase1HighlightAudio = GetAudio(int.Parse(parsed[4]));
-                                dm.Phase1HighlightAudio = cAudio[parsed[4]];
+                                if (cAudio.ContainsKey(parsed[4]))
+                                    dm.Phase1HighlightAudio = cAudio[parsed[4]];
                                 dm.Phase1HighlightAudioLoop = (int.Parse(parsed[5])>0);
                                 dm.Phase1HighlightAudioBehavior = (DynamicObject.AudioBehaviour)int.Parse(parsed[6]);
 
@@ -2098,7 +2181,8 @@ namespace MazeMaker
                                 dm.Phase2ActiveRadius = double.Parse(parsed[2]);
                                 dm.Phase2AutoTriggerTime = int.Parse(parsed[3]);
                                 //dm.Phase2EventAudio = GetAudio(int.Parse(parsed[4]));
-                                dm.Phase2EventAudio = cAudio[parsed[4]];
+                                if (cAudio.ContainsKey(parsed[4]))
+                                    dm.Phase2EventAudio = cAudio[parsed[4]];
                                 dm.Phase2EventAudioLoop = (int.Parse(parsed[5])>0);
                                 dm.Phase2EventAudioBehavior = int.Parse(parsed[6]);
 
@@ -2123,7 +2207,8 @@ namespace MazeMaker
                                 buf = fp.ReadLine(); lineNum++;
                                 parsed = buf.Split('\t');
                                 //dm.SwitchToModel = GetModel(int.Parse(parsed[0]));
-                                dm.SwitchToModel = cModels[parsed[0]];
+                                if (cModels.ContainsKey(parsed[0]))
+                                    dm.SwitchToModel = cModels[parsed[0]];
                             }
 
                             cDynamicObjects.Add(dm);
@@ -2135,9 +2220,11 @@ namespace MazeMaker
                             this.AmbientIntesity = float.Parse(parsed[3]);
                             break;
                         case -22:
-                             buf = fp.ReadLine(); lineNum++;
-                            parsed = buf.Split('\t');                            
-                            skyTexture = GetTexture(int.Parse(parsed[0]));
+                            buf = fp.ReadLine(); lineNum++;
+                            parsed = buf.Split('\t');
+                            //skyTexture = GetTexture(int.Parse(parsed[0]));
+                            if (cImages.ContainsKey(parsed[0]))
+                                skyTexture = cImages[parsed[0]];
                             break;
                         default:
                             tab2 = Int32.Parse(buf.Substring(tab + 1));
@@ -2269,8 +2356,14 @@ namespace MazeMaker
                         filePath = Tools.getStringFromAttribute(node, "file");
                         if (filePath.Length<2)
                             break;
-                        tTex = new Texture(cMazeDirectory, filePath, id); 
-                        cImages.Add(tTex);
+                        //tTex = new Texture(cMazeDirectory, filePath, id); 
+                        //cImages.Add(tTex);
+                        string fileName = filePath.Substring(filePath.LastIndexOf("\\") + 1);
+                        if (fileName == "")
+                            fileName = filePath;
+
+                        cImages[id.ToString()] = fileName;
+                        ImagePathConverter.Paths[fileName] = filePath;
                         break;
                     case "Model":
                         id = Tools.getIntFromAttribute(node, "id");
@@ -2279,7 +2372,7 @@ namespace MazeMaker
                             break;
                         //mMod = new Model(cMazeDirectory, filename, id); 
                         //cModels.Add(mMod);
-                        string fileName = filePath.Substring(filePath.LastIndexOf("\\") + 1);
+                        fileName = filePath.Substring(filePath.LastIndexOf("\\") + 1);
                         if (fileName == "")
                             fileName = filePath;
 
@@ -2798,7 +2891,9 @@ namespace MazeMaker
 
         private void ReassociatePositionsTexturesModelsAndAudio()
         {
-            this.skyTexture = this.GetTexture(this.skyTextureID);
+            //this.skyTexture = this.GetTexture(this.skyTextureID);
+            if (cImages.ContainsKey(skyTextureID.ToString()))
+                skyTexture = cImages[skyTextureID.ToString()];
             //this.AvatarModel = this.GetModel(this.avatarModelID);
             if (cModels.ContainsKey(avatarModelID.ToString()))
                 AvatarModel = cModels[avatarModelID.ToString()];
@@ -2811,11 +2906,15 @@ namespace MazeMaker
 
             foreach (Wall w in cWall)
             {
-                w.Texture = GetTexture(w.texID);
+                //w.Texture = GetTexture(w.texID);
+                if (cImages.ContainsKey(w.texID.ToString()))
+                    w.Texture = cImages[w.texID.ToString()];
             }
             foreach (CurvedWall w in cCurveWall)
             {
-                w.Texture = GetTexture(w.texID);
+                //w.Texture = GetTexture(w.texID);
+                if (cImages.ContainsKey(w.texID.ToString()))
+                    w.Texture = cImages[w.texID.ToString()];
             }
             foreach (StaticModel l in cStaticModels)
             {
@@ -2846,8 +2945,12 @@ namespace MazeMaker
             }
             foreach (Floor f in cFloor)
             {
-                f.FloorTexture = GetTexture(f.floorTexID);
-                f.CeilingTexture = GetTexture(f.ceilingTexID);
+                //f.FloorTexture = GetTexture(f.floorTexID);
+                //f.CeilingTexture = GetTexture(f.ceilingTexID);
+                if (cImages.ContainsKey(f.floorTexID.ToString()))
+                    f.FloorTexture = cImages[f.floorTexID.ToString()];
+                if (cImages.ContainsKey(f.ceilingTexID.ToString()))
+                    f.CeilingTexture = cImages[f.ceilingTexID.ToString()];
             }
             foreach (EndRegion en in cEndRegions)
             {
@@ -3363,11 +3466,11 @@ namespace MazeMaker
 
         }
 
-        public void FinalCheckBeforeWrite()
-        {
-            CheckForRemovedTextures();
-            //CheckForRemovedModels();
-        }
+        //public void FinalCheckBeforeWrite()
+        //{
+        //    CheckForRemovedTextures();
+        //    //CheckForRemovedModels();
+        //}
 
         //public void FinalCheckBeforeWrite()
         //{
@@ -3408,10 +3511,10 @@ namespace MazeMaker
 
         //For access members...
         static public Maze mzP;
-        static public List<Texture> GetImages()
-        {
-            return mzP.cImages;
-        }
+        //static public List<Texture> GetImages()
+        //{
+        //    return mzP.cImages;
+        //}
 
         static public List<StartPos> GetStartPositions()
         {
@@ -3435,28 +3538,28 @@ namespace MazeMaker
         //    return AudioPathConverter.Paths;
         //}
 
-        public void CheckForRemovedTextures()
-        {
-            foreach (Wall w in cWall)
-            {
-                if(cImages.Contains(w.Texture)==false)                    
-                {
-                    w.Texture = null;
-                }
-            }
+        //public void CheckForRemovedTextures()
+        //{
+        //    foreach (Wall w in cWall)
+        //    {
+        //        if(cImages.Contains(w.Texture)==false)                    
+        //        {
+        //            w.Texture = null;
+        //        }
+        //    }
 
-            foreach (Floor w in cFloor)
-            {
-                if (cImages.Contains(w.FloorTexture) == false)
-                {
-                    w.FloorTexture = null;
-                }
-                if (cImages.Contains(w.CeilingTexture) == false)
-                {
-                    w.CeilingTexture = null;
-                }
-            }
-        }
+        //    foreach (Floor w in cFloor)
+        //    {
+        //        if (cImages.Contains(w.FloorTexture) == false)
+        //        {
+        //            w.FloorTexture = null;
+        //        }
+        //        if (cImages.Contains(w.CeilingTexture) == false)
+        //        {
+        //            w.CeilingTexture = null;
+        //        }
+        //    }
+        //}
 
         //public void CheckForRemovedModels()
         //{

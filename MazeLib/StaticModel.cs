@@ -339,7 +339,7 @@ namespace MazeMaker
             {
                 fp.WriteLine("10\t3\t" + this.GetID().ToString() + "\t" + this.Label);
                 //fp.WriteLine( ((model==null)?"-1":model.Index.ToString()) + "\t" + mzPoint.X.ToString(".##;-.##;0") + "\t" + mzPoint.Y.ToString(".##;-.##;0") + "\t" + mzPoint.Z.ToString(".##;-.##;0"));
-                string modelID = "";
+                string modelID = "0";
                 if (cModels.ContainsKey(model))
                     modelID = cModels[model];
                 fp.WriteLine(modelID + "\t" + mzPoint.X.ToString(".##;-.##;0") + "\t" + mzPoint.Y.ToString(".##;-.##;0") + "\t" + mzPoint.Z.ToString(".##;-.##;0"));
