@@ -280,7 +280,7 @@ namespace MazeMaker
     {
         public static Dictionary<string, string> Paths = new Dictionary<string, string>();
         List<string> textures = new List<string>();
-        int memoryReset = 19;
+        int memoryReset = 2;
 
         public override bool GetStandardValuesSupported(ITypeDescriptorContext context) { return true; }
 
@@ -289,7 +289,7 @@ namespace MazeMaker
             if (memoryReset == 0)
             {
                 textures = new List<string>();
-                memoryReset += 20;
+                memoryReset += 3;
             }
             memoryReset--;
 
@@ -316,7 +316,7 @@ namespace MazeMaker
     {
         public static Dictionary<string, string> Paths = new Dictionary<string, string>();
         List<string> audios = new List<string>();
-        int memoryReset = 19;
+        int memoryReset = 2;
 
         public override bool GetStandardValuesSupported(ITypeDescriptorContext context) { return true; }
 
@@ -325,7 +325,7 @@ namespace MazeMaker
             if (memoryReset == 0)
             {
                 audios = new List<string>();
-                memoryReset += 20;
+                memoryReset += 3;
             }
             memoryReset--;
 
@@ -352,7 +352,7 @@ namespace MazeMaker
     {
         public static Dictionary<string, string> Paths = new Dictionary<string, string>();
         List<string> models = new List<string>();
-        int memoryReset = 19;
+        int memoryReset = 2;
 
         public override bool GetStandardValuesSupported(ITypeDescriptorContext context) { return true; }
 
@@ -361,7 +361,7 @@ namespace MazeMaker
             if (memoryReset == 0)
             {
                 models = new List<string>();
-                memoryReset += 20;
+                memoryReset += 3;
             }
             memoryReset--;
 

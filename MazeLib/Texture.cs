@@ -32,12 +32,12 @@ namespace MazeMaker
             if (a.ShowDialog() == DialogResult.OK)
             {
 
-                if (a.FileNames.Length > 0)
+                if (a.FileName.Length > 0)
                 {
-                    ext = a.FileNames[0].Substring(a.FileNames[0].LastIndexOf(".") + 1).ToLower();    //record extension in case..        
-                    Image img = Bitmap.FromFile((string)a.FileNames[0]);
-                    fname = a.FileNames[0];
-                    filePath = a.FileNames[0];
+                    ext = a.FileName.Substring(a.FileName.LastIndexOf(".") + 1).ToLower();    //record extension in case..        
+                    Image img = Bitmap.FromFile((string)a.FileName);
+                    fname = a.FileName;
+                    filePath = a.FileName;
                     if (ext != "jpg" && ext != "jpeg" && ext != "tga" && ext != "bmp" && ext != "png")  //Check if image is bitmap..
                     {
                         edited = true;
@@ -85,12 +85,12 @@ namespace MazeMaker
             if (a.ShowDialog() == DialogResult.OK)
             {
 
-                if (a.FileNames.Length > 0)
+                if (a.FileName.Length > 0)
                 {
-                    ext = a.FileNames[0].Substring(a.FileNames[0].LastIndexOf(".") + 1).ToLower();    //record extension in case..        
-                    Image img = Bitmap.FromFile((string)a.FileNames[0]);
-                    fname = a.FileNames[0];
-                    filePath = a.FileNames[0];
+                    ext = a.FileName.Substring(a.FileName.LastIndexOf(".") + 1).ToLower();    //record extension in case..        
+                    Image img = Bitmap.FromFile((string)a.FileName);
+                    fname = a.FileName;
+                    filePath = a.FileName;
                     if (ext != "jpg" && ext != "jpeg" && ext!="png" && ext != "tga" && ext != "bmp")  //Check if image is bitmap..
                     {
                         edited = true;
@@ -128,12 +128,14 @@ namespace MazeMaker
         {
             name = inpName;
             filePath = dir + "\\" + inpName;
+            if (dir == "")
+                filePath = inpName;
             index = fIndex;
-            if(dir==null)
-            {
-                Name= "[ none ]";
-                this.Image = MazeLib.Properties.Resources.delete; ;
-            }
+            //if(dir == null)
+            //{
+            //    Name = "[ none ]";
+            //    this.Image = MazeLib.Properties.Resources.delete; ;
+            //}
             if (File.Exists(dir + "\\" + inpName))
             {
                 try

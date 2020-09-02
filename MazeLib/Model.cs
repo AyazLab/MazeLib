@@ -83,6 +83,8 @@ namespace MazeMaker
         {
             name = inpName;
             filePath = dir + "\\" + inpName;
+            if (dir == "")
+                filePath = inpName;
             index = fIndex;
 
             string preview_name = inpName.Replace(".obj", "_preview.jpg");

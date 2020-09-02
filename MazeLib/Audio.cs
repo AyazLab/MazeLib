@@ -85,6 +85,8 @@ namespace MazeMaker
         {
             name = inpName;
             filePath = dir + "\\" + inpName;
+            if (dir == "")
+                filePath = inpName;
             index = fIndex;
 
             /*
