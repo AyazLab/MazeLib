@@ -19,7 +19,7 @@ namespace MazeMaker
         public Audio()
         {
             OpenFileDialog a = new OpenFileDialog();
-            a.Filter = "Supported Audio Files |*.wav;*.mp3";
+            a.Filter = "Audio File (*.wav,*.mp3)|*.wav;*.mp3";
             a.FilterIndex = 1;
             a.RestoreDirectory = true;
             if (a.ShowDialog() == DialogResult.OK)
@@ -159,6 +159,7 @@ namespace MazeMaker
         private int index;
         [Category("Options")]
         [Description("...")]
+        [Browsable(false)]
         public int Index
         {
             get { return index; }
@@ -177,6 +178,11 @@ namespace MazeMaker
             texNode.SetAttribute("file", this.Name);
 
             return texNode;
+        }
+
+        public override string ToString()
+        {
+            return Name;
         }
     }
 

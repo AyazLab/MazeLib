@@ -19,7 +19,7 @@ namespace MazeMaker
         public Model()
         {
             OpenFileDialog a = new OpenFileDialog();
-            a.Filter = "Supported Model Files |*.obj";
+            a.Filter = "Model File (*.obj)|*.obj";
             a.FilterIndex = 1;
             a.RestoreDirectory = true;
             if (a.ShowDialog() == DialogResult.OK)
@@ -94,30 +94,21 @@ namespace MazeMaker
             }
             catch
             {
-
-
                 try
                 {
                     img = Bitmap.FromFile(Settings.userLibraryFolder + "\\" + preview_name);
                     filePath = Settings.userLibraryFolder + "\\" + preview_name;
                 }
-                catch// (System.Exception ex)
+                catch
                 {
-
                     try
                     {
                         img = Bitmap.FromFile(Settings.standardLibraryFolder + "\\" + preview_name);
                         filePath = Settings.standardLibraryFolder + "\\" + preview_name;
                     }
-                    catch// (System.Exception ex)
-                    {
-
-                    }
-
+                    catch { }
                 }
-
             }
-
         }
 
         public string name = "";
@@ -158,6 +149,7 @@ namespace MazeMaker
         private int index;
         [Category("Options")]
         [Description("...")]
+        [Browsable(false)]
         public int Index
         {
             get { return index; }
@@ -176,6 +168,11 @@ namespace MazeMaker
             texNode.SetAttribute("file", this.Name);
 
             return texNode;
+        }
+
+        public override string ToString()
+        {
+            return Name;
         }
     }
 

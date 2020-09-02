@@ -23,7 +23,7 @@ namespace MazeMaker
         public Texture()
         {
             OpenFileDialog a = new OpenFileDialog();
-            a.Filter = "Supported Image Files |*.bmp;*.jpg;*.jpeg;*.gif;*png";
+            a.Filter = "Image File (*.bmp,*.jpg,*.jpeg,*.gif,*.png)|*.bmp;*.jpg;*.jpeg;*.gif;*.png";
             a.FilterIndex = 1;
             a.RestoreDirectory = true;
             a.Multiselect = false;
@@ -203,6 +203,7 @@ namespace MazeMaker
         private int index=0;
         [Category("Options")]
         [Description("...")]
+        [Browsable(false)]
         public int Index
         {
             get { return index; }
@@ -290,6 +291,11 @@ namespace MazeMaker
             texNode.SetAttribute("file", this.Name);
 
             return texNode;
+        }
+
+        public override string ToString()
+        {
+            return Name;
         }
     }
 
