@@ -420,6 +420,8 @@ namespace MazeLib
             //gr.DrawLine(p, 0, 0, 50, 50);
             for (int i = 1; i < cPoints.Count;i++)
             {
+                if (PathTeleports.Contains(cPoints[i]))
+                    continue;
                 gr.DrawLine(p, (float)(cPoints[i-1].X * scale), (float)(cPoints[i-1].Z * scale), (float)(cPoints[i].X * scale),(float) (cPoints[i].Z * scale));
                 if(bViewVector)// && bShowingAll==false)
                 {
