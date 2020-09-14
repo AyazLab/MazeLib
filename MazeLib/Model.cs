@@ -113,17 +113,21 @@ namespace MazeMaker
             }
         }
 
-        public string name = "";
-        [Category("Options")]
+        string name = "";
+        [Category("File Information")]
         [Description("Name of the Static Model")]
+        [ReadOnly(true)]
         public string Name
         {
             get { return name; }
             set { name = value; }
         }
 
-        public string filePath = "";
-        [Browsable(false)]
+        string filePath = "";
+        [Category("File Information")]
+        [Description("File Path of the Static Model")]
+        [DisplayName("File Path")]
+        [ReadOnly(true)]
         public string FilePath
         {
             get { return filePath; }
@@ -133,6 +137,7 @@ namespace MazeMaker
         private Image img = null;
         [Category("Options")]
         [Description("Preview image of the Model")]
+        [Browsable(false)]
         public Image Image
         {
             get { return img; }

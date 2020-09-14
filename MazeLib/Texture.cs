@@ -176,17 +176,21 @@ namespace MazeMaker
             { img = MazeLib.Properties.Resources.delete; }
         }
 
-        public string filePath = "";
-        [Browsable(false)]
+        string filePath = "";
+        [Category("File Information")]
+        [Description("File Path of the Texture Image")]
+        [DisplayName("File Path")]
+        [ReadOnly(true)]
         public string FilePath
         {
             get { return filePath; }
             set { filePath = value; }
         }
 
-        public string name = "";
-        [Category("Options")]
+        string name = "";
+        [Category("File Information")]
         [Description("Name of the Texture Image")]
+        [ReadOnly(true)]
         public string Name
         {
             get { return name; }
@@ -196,6 +200,7 @@ namespace MazeMaker
         private Image img=null;
         [Category("Options")]
         [Description("...")]
+        [Browsable(false)]
         public Image Image
         {
             get { return img; }

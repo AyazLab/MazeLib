@@ -123,17 +123,21 @@ namespace MazeMaker
 
         }
 
-        public string filePath = "";
-        [Browsable(false)]
+        string filePath = "";
+        [Category("File Information")]
+        [Description("File Path of the Audio Item")]
+        [DisplayName("File Path")]
+        [ReadOnly(true)]
         public string FilePath
         {
             get { return filePath; }
             set { filePath = value; }
         }
 
-        public string name = "";
-        [Category("Options")]
+        string name = "";
+        [Category("File Information")]
         [Description("Name of the Audio Item")]
+        [ReadOnly(true)]
         public string Name
         {
             get { return name; }
