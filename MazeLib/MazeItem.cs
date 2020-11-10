@@ -276,4 +276,111 @@ namespace MazeMaker
         }
     }
 
+    public class ImagePathConverter : StringConverter
+    {
+        public static Dictionary<string, string> Paths = new Dictionary<string, string>();
+        List<string> textures = new List<string>();
+        int memoryReset = 2;
+
+        public override bool GetStandardValuesSupported(ITypeDescriptorContext context) { return true; }
+
+        public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
+        {
+            if (memoryReset == 0)
+            {
+                textures = new List<string>();
+                memoryReset += 3;
+            }
+            memoryReset--;
+
+            if (!textures.Contains("[Import Item]"))
+            {
+                textures.Add("[Import Item]");
+                textures.Add("[Manage Items]");
+                textures.Add("----------------------------------------");
+            }
+
+            foreach (string texture in Paths.Keys)
+            {
+                if (!textures.Contains(texture))
+                {
+                    textures.Add(texture);
+                }
+            }
+
+            return new StandardValuesCollection(textures);
+        }
+    }
+
+    public class AudioPathConverter : StringConverter
+    {
+        public static Dictionary<string, string> Paths = new Dictionary<string, string>();
+        List<string> audios = new List<string>();
+        int memoryReset = 2;
+
+        public override bool GetStandardValuesSupported(ITypeDescriptorContext context) { return true; }
+
+        public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
+        {
+            if (memoryReset == 0)
+            {
+                audios = new List<string>();
+                memoryReset += 3;
+            }
+            memoryReset--;
+
+            if (!audios.Contains("[Import Item]"))
+            {
+                audios.Add("[Import Item]");
+                audios.Add("[Manage Items]");
+                audios.Add("----------------------------------------");
+            }
+
+            foreach (string audio in Paths.Keys)
+            {
+                if (!audios.Contains(audio))
+                {
+                    audios.Add(audio);
+                }
+            }
+
+            return new StandardValuesCollection(audios);
+        }
+    }
+
+    public class ModelPathConverter : StringConverter
+    {
+        public static Dictionary<string, string> Paths = new Dictionary<string, string>();
+        List<string> models = new List<string>();
+        int memoryReset = 2;
+
+        public override bool GetStandardValuesSupported(ITypeDescriptorContext context) { return true; }
+
+        public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
+        {
+            if (memoryReset == 0)
+            {
+                models = new List<string>();
+                memoryReset += 3;
+            }
+            memoryReset--;
+
+            if (!models.Contains("[Import Item]"))
+            {
+                models.Add("[Import Item]");
+                models.Add("[Manage Items]");
+                models.Add("----------------------------------------");
+            }
+
+            foreach (string model in Paths.Keys)
+            {
+                if (!models.Contains(model))
+                {
+                    models.Add(model);
+                }
+            }
+
+            return new StandardValuesCollection(models);
+        }
+    }
 }

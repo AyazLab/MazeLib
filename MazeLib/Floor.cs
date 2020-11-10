@@ -700,36 +700,49 @@ namespace MazeMaker
         }
 
         public int floorTexID = -999;
-        private Texture floorTexture=null;
+        private string floorTexture = "";
         [Category("4.Floor Properties")]
         [Description("Select texture to be used on the floor. List can be edited at Texture Collection")]
-        [TypeConverter(typeof(TextureConverter))]
-        public Texture FloorTexture
+        [TypeConverter(typeof(ImagePathConverter))]
+        public string FloorTexture
         {
             get { return floorTexture; }
-            set { floorTexture = value;
-                if (floorTexture == null)
-                    floorTexID = -999;
-                else
-                    floorTexID = floorTexture.Index;
-                OnPropertyChanged("TextureFloor"); }
+            set { floorTexture = value; OnPropertyChanged("TextureFloor"); }
+
+            //set
+            //{
+            //    floorTexture = value;
+            
+            //    if (floorTexture == null)
+            //        floorTexID = -999;
+            //    else
+            //        floorTexID = floorTexture.Index;
+                
+            //    OnPropertyChanged("TextureFloor");
+            //}
         }
 
         public int ceilingTexID = -999;
-        private Texture ceilingTexture=null;
+        private string ceilingTexture = "";
         [Category("5.Ceiling Properties")]
         [Description("Select texture to be used with the ceiling. List can be edited at Texture Collection")]
-        [TypeConverter(typeof(TextureConverter))]
-        public Texture CeilingTexture
+        [TypeConverter(typeof(ImagePathConverter))]
+        public string CeilingTexture
         {
             get { return ceilingTexture; }
-            set { ceilingTexture = value;
-                if (ceilingTexture == null)
-                    ceilingTexID = -999;
-                else
-                    ceilingTexID = ceilingTexture.Index;
-                OnPropertyChanged("TextureCeiling");
-            }
+            set { ceilingTexture = value; OnPropertyChanged("TextureCeiling"); }
+
+            //set
+            //{
+            //    ceilingTexture = value;
+            
+            //    if (ceilingTexture == null)
+            //        ceilingTexID = -999;
+            //    else
+            //        ceilingTexID = ceilingTexture.Index;
+                
+            //    OnPropertyChanged("TextureCeiling");
+            //}
         }
 
         private double ceilingHeight = 2.0;
@@ -1067,14 +1080,14 @@ namespace MazeMaker
                 str += "(Ceiling:Y)";
             else
                 str += "(Ceiling:N)";
-            if (this.FloorTexture != null)
+            if (FloorTexture != "")
             {
-                str += "(" + this.FloorTexture.Name + ")";
+                str += "(" + FloorTexture + ")";
             }
 
             return str;
         }
-        public bool PrintToFile(ref StreamWriter fp)
+        public bool PrintToFile(ref StreamWriter fp, Dictionary<string, string> cImages)
         {
             try
             {
@@ -1083,10 +1096,14 @@ namespace MazeMaker
                 r = FloorColor.R / 255.0;
                 g = FloorColor.G / 255.0;
                 b = FloorColor.B / 255.0;
-                int textureIndex = 0;
-                if (floorTexture != null) textureIndex = floorTexture.Index;
 
-                fp.WriteLine( textureIndex.ToString() + "\t" + r.ToString(".#;.#;0") + "\t" + g.ToString(".#;.#;0") + "\t" + b.ToString(".#;.#;0"));
+                //int textureIndex = 0;
+                //if (floorTexture != null) textureIndex = floorTexture.Index;
+                //fp.WriteLine( textureIndex.ToString() + "\t" + r.ToString(".#;.#;0") + "\t" + g.ToString(".#;.#;0") + "\t" + b.ToString(".#;.#;0"));
+                string imageID = "0";
+                if (cImages.ContainsKey(floorTexture))
+                    imageID = cImages[floorTexture];
+                fp.WriteLine(imageID + "\t" + r.ToString(".#;.#;0") + "\t" + g.ToString(".#;.#;0") + "\t" + b.ToString(".#;.#;0"));
 
                 fp.WriteLine(this.FloorVertex1.X.ToString(".##;-.##;0") + "\t" + this.FloorVertex1.Y.ToString(".##;-.##;0") + "\t" + this.mzPoint1.X.ToString(".##;-.##;0") + "\t" + this.mzPoint1.Y.ToString(".##;-.##;0") + "\t" + this.mzPoint1.Z.ToString(".##;-.##;0"));
                 fp.WriteLine(this.FloorVertex2.X.ToString(".##;-.##;0") + "\t" + this.FloorVertex2.Y.ToString(".##;-.##;0") + "\t" + this.mzPoint2.X.ToString(".##;-.##;0") + "\t" + this.mzPoint2.Y.ToString(".##;-.##;0") + "\t" + this.mzPoint2.Z.ToString(".##;-.##;0"));
@@ -1100,9 +1117,13 @@ namespace MazeMaker
                     r = CeilingColor.R / 255.0;
                     g = CeilingColor.G / 255.0;
                     b = CeilingColor.B / 255.0;
-                    textureIndex = 0;
-                    if (ceilingTexture != null) textureIndex = ceilingTexture.Index;
-                    fp.WriteLine( textureIndex.ToString() + "\t" + r.ToString(".#;.#;0") + "\t" + g.ToString(".#;.#;0") + "\t" + b.ToString(".#;.#;0"));
+                    //textureIndex = 0;
+                    //if (ceilingTexture != null) textureIndex = ceilingTexture.Index;
+                    //fp.WriteLine( textureIndex.ToString() + "\t" + r.ToString(".#;.#;0") + "\t" + g.ToString(".#;.#;0") + "\t" + b.ToString(".#;.#;0"));
+                    imageID = "0";
+                    if (cImages.ContainsKey(ceilingTexture))
+                        imageID = cImages[ceilingTexture];
+                    fp.WriteLine(imageID + "\t" + r.ToString(".#;.#;0") + "\t" + g.ToString(".#;.#;0") + "\t" + b.ToString(".#;.#;0"));
                     //r = -1 * this.mzPoint1.Y;
                     r = this.mzPoint1.Y + ceilingHeight;
                     fp.WriteLine(this.ceilingVertex1.X.ToString(".##;-.##;0") + "\t" + this.ceilingVertex1.Y.ToString(".##;-.##;0") + "\t" + this.mzPoint1.X.ToString(".##;-.##;0") + "\t" + r.ToString(".##;-.##;0") + "\t" + this.mzPoint1.Z.ToString(".##;-.##;0"));
@@ -1127,7 +1148,7 @@ namespace MazeMaker
             }
         }
 
-        public XmlElement toXMLnode(XmlDocument doc)
+        public XmlElement toXMLnode(XmlDocument doc, Dictionary<string, string> cImages)
         {
             XmlElement floorNode = doc.CreateElement(string.Empty, "Floor", string.Empty);
             floorNode.SetAttribute("label", this.Label);
@@ -1180,16 +1201,25 @@ namespace MazeMaker
             floorColorNode.SetAttribute("b", ((float)this.FloorColor.B / 255).ToString());
 
 
-            if (this.FloorTexture != null)
+            //if (this.FloorTexture != null)
+            //{
+            //    XmlElement floorTextureNode = doc.CreateElement(string.Empty, "FloorTexture", string.Empty);
+            //    floorNode.AppendChild(floorTextureNode);
+            //    floorTextureNode.SetAttribute("id", this.FloorTexture.Index.ToString());
+            //    floorTextureNode.SetAttribute("aspectRatio", this.AspectRatioFloor.ToString());
+            //    floorTextureNode.SetAttribute("mode", this.ModeFloor.ToString());
+            //    floorTextureNode.SetAttribute("rotation", this.mappingIndexCeiling.ToString());
+            //    floorTextureNode.SetAttribute("tileSize", this.TileSizeFloor.ToString());
+            //}
+            if (cImages.ContainsKey(FloorTexture))
             {
                 XmlElement floorTextureNode = doc.CreateElement(string.Empty, "FloorTexture", string.Empty);
                 floorNode.AppendChild(floorTextureNode);
-                floorTextureNode.SetAttribute("id", this.FloorTexture.Index.ToString());
-                floorTextureNode.SetAttribute("aspectRatio", this.AspectRatioFloor.ToString());
-                floorTextureNode.SetAttribute("mode", this.ModeFloor.ToString());
-                floorTextureNode.SetAttribute("rotation", this.mappingIndexCeiling.ToString());
-                floorTextureNode.SetAttribute("tileSize", this.TileSizeFloor.ToString());
-
+                floorTextureNode.SetAttribute("id", cImages[FloorTexture]);
+                floorTextureNode.SetAttribute("aspectRatio", AspectRatioFloor.ToString());
+                floorTextureNode.SetAttribute("mode", ModeFloor.ToString());
+                floorTextureNode.SetAttribute("rotation", mappingIndexCeiling.ToString());
+                floorTextureNode.SetAttribute("tileSize", TileSizeFloor.ToString());
             }
 
             XmlElement ceilingColorNode = doc.CreateElement(string.Empty, "CeilingColor", string.Empty);
@@ -1198,16 +1228,15 @@ namespace MazeMaker
             ceilingColorNode.SetAttribute("g", ((float)this.CeilingColor.G / 255).ToString());
             ceilingColorNode.SetAttribute("b", ((float)this.CeilingColor.B / 255).ToString());
 
-
-            if (this.CeilingTexture != null)
+            if (cImages.ContainsKey(CeilingTexture))
             {
                 XmlElement ceilingTextureNode = doc.CreateElement(string.Empty, "CeilingTexture", string.Empty);
                 floorNode.AppendChild(ceilingTextureNode);
-                ceilingTextureNode.SetAttribute("id", this.CeilingTexture.Index.ToString());
-                ceilingTextureNode.SetAttribute("aspectRatio", this.AspectRatioCeiling.ToString());
-                ceilingTextureNode.SetAttribute("mode", this.ModeCeiling.ToString());
-                ceilingTextureNode.SetAttribute("rotation", this.mappingIndexFloor.ToString());
-                ceilingTextureNode.SetAttribute("tileSize", this.TileSizeCeiling.ToString());
+                ceilingTextureNode.SetAttribute("id", cImages[CeilingTexture]);
+                ceilingTextureNode.SetAttribute("aspectRatio", AspectRatioCeiling.ToString());
+                ceilingTextureNode.SetAttribute("mode", ModeCeiling.ToString());
+                ceilingTextureNode.SetAttribute("rotation", mappingIndexFloor.ToString());
+                ceilingTextureNode.SetAttribute("tileSize", TileSizeCeiling.ToString());
             }
 
             XmlElement appearanceNode = doc.CreateElement(string.Empty, "Appearance", string.Empty);

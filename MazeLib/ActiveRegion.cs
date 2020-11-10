@@ -329,24 +329,24 @@ namespace MazeMaker
 
 
         public int phase1HighlightAudioID = -999;
-        private Audio phase1HighlightAudio = null;
+        private string phase1HighlightAudio = "";
         [Category("4.Phase 1: Highlight")]
         [Description("Select audio for highlight event. List can be edited from Maze Collection")]
-        [TypeConverter(typeof(AudioConverter))]
+        [TypeConverter(typeof(AudioPathConverter))]
         [DisplayName("Audio")]
-        public Audio Phase1HighlightAudio
+        public string Phase1HighlightAudio
         {
             get { return phase1HighlightAudio; }
             set { phase1HighlightAudio = value; OnPropertyChanged("HighlightAudio"); }
         }
 
         public int phase2EventAudioID = -999;
-        private Audio phase2EventAudio = null;
+        private string phase2EventAudio = "";
         [Category("5.Phase 2: Event")]
         [Description("Select audio for trigger event. List can be edited from Maze Collection")]
-        [TypeConverter(typeof(AudioConverter))]
+        [TypeConverter(typeof(AudioPathConverter))]
         [DisplayName("Audio")]
-        public Audio Phase2EventAudio
+        public string Phase2EventAudio
         {
             get { return phase2EventAudio; }
             set { phase2EventAudio = value; OnPropertyChanged("triggerAudio"); }
@@ -648,7 +648,7 @@ namespace MazeMaker
             return true;
         }
 
-        public override XmlElement toXMLnode(XmlDocument doc)
+        public XmlElement toXMLnode(XmlDocument doc, Dictionary<string, string> cAudio)
         {
             XmlElement actRegNode = doc.CreateElement(string.Empty, "ActiveRegion", string.Empty);
             actRegNode.SetAttribute("label", this.Label);
@@ -670,11 +670,17 @@ namespace MazeMaker
 
             XmlElement audioNode1 = doc.CreateElement(string.Empty, "Audio", string.Empty);
             phase1Node.AppendChild(audioNode1);
-            if (this.Phase1HighlightAudio != null)
+            //if (this.Phase1HighlightAudio != null)
+            //{
+            //    audioNode1.SetAttribute("id", this.Phase1HighlightAudio.Index.ToString());
+            //    audioNode1.SetAttribute("loop", this.Phase1HighlightAudioLoop.ToString());
+            //    audioNode1.SetAttribute("unhighlightBehavior", this.Phase1HighlightAudioBehavior.ToString());
+            //}
+            if (cAudio.ContainsKey(Phase1HighlightAudio))
             {
-                audioNode1.SetAttribute("id", this.Phase1HighlightAudio.Index.ToString());
-                audioNode1.SetAttribute("loop", this.Phase1HighlightAudioLoop.ToString());
-                audioNode1.SetAttribute("unhighlightBehavior", this.Phase1HighlightAudioBehavior.ToString());
+                audioNode1.SetAttribute("id", cAudio[Phase1HighlightAudio]);
+                audioNode1.SetAttribute("loop", Phase1HighlightAudioLoop.ToString());
+                audioNode1.SetAttribute("unhighlightBehavior", Phase1HighlightAudioBehavior.ToString());
             }
 
             XmlElement phase2Node = doc.CreateElement(string.Empty, "Phase2Event", string.Empty);
@@ -696,13 +702,17 @@ namespace MazeMaker
 
             XmlElement audioNode2 = doc.CreateElement(string.Empty, "Audio", string.Empty);
             phase2Node.AppendChild(audioNode2);
-            if (this.Phase2EventAudio != null)
+            //if (this.Phase2EventAudio != null)
+            //{
+            //    audioNode2.SetAttribute("id", this.Phase2EventAudio.Index.ToString());
+            //    audioNode2.SetAttribute("loop", this.Phase2EventAudioLoop.ToString());
+            //    //audioNode2.SetAttribute("audioBehavior", this.TriggerAudioBehaviour.ToString());
+            //}
+            if (cAudio.ContainsKey(Phase2EventAudio))
             {
-                audioNode2.SetAttribute("id", this.Phase2EventAudio.Index.ToString());
-                audioNode2.SetAttribute("loop", this.Phase2EventAudioLoop.ToString());
-                //audioNode2.SetAttribute("audioBehavior", this.TriggerAudioBehaviour.ToString());
+                audioNode2.SetAttribute("id", cAudio[Phase2EventAudio]);
+                audioNode2.SetAttribute("loop", Phase2EventAudioLoop.ToString());
             }
-
 
             return actRegNode;
         }

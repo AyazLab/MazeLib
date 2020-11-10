@@ -134,11 +134,11 @@ namespace MazeMaker
         }
 
         public int modelID = -999;
-        private Model model= null;
+        private string model = "";
         [Category("3.Model")]
         [Description("Select model to be used with this object. List can be edited from Maze 'models' properties")]
-        [TypeConverter(typeof(ModelConverter))]
-        public Model Model
+        [TypeConverter(typeof(ModelPathConverter))]
+        public string Model
         {
             get { return model; }
             set { model = value; OnPropertyChanged("Model"); }
@@ -326,19 +326,23 @@ namespace MazeMaker
             if (string.IsNullOrWhiteSpace(this.Label)==false)
                 str += " [" + this.Label + "]";
 
-            if(this.Model!=null)
+            if(this.Model != null)
             {
-                str += "(" + this.Model.Name + ")";
+                str += "(" + this.Model + ")";
             }
 
             return str;
         }
-        public bool PrintToFile(ref StreamWriter fp)
+        public bool PrintToFile(ref StreamWriter fp, Dictionary<string, string> cModels)
         {
             try
             {
                 fp.WriteLine("10\t3\t" + this.GetID().ToString() + "\t" + this.Label);
-                fp.WriteLine( ((model==null)?"-1":model.Index.ToString()) + "\t" + mzPoint.X.ToString(".##;-.##;0") + "\t" + mzPoint.Y.ToString(".##;-.##;0") + "\t" + mzPoint.Z.ToString(".##;-.##;0"));
+                //fp.WriteLine( ((model==null)?"-1":model.Index.ToString()) + "\t" + mzPoint.X.ToString(".##;-.##;0") + "\t" + mzPoint.Y.ToString(".##;-.##;0") + "\t" + mzPoint.Z.ToString(".##;-.##;0"));
+                string modelID = "0";
+                if (cModels.ContainsKey(model))
+                    modelID = cModels[model];
+                fp.WriteLine(modelID + "\t" + mzPoint.X.ToString(".##;-.##;0") + "\t" + mzPoint.Y.ToString(".##;-.##;0") + "\t" + mzPoint.Z.ToString(".##;-.##;0"));
                 fp.WriteLine(modelscale.ToString(".##;-.##;0") + "\t" + mzPointRot.X.ToString(".##;-.##;0") + "\t" + mzPointRot.Y.ToString(".##;-.##;0") + "\t" + mzPointRot.Z.ToString(".##;-.##;0"));
                 fp.WriteLine((enableCollision ? "1" : "0") + "\t" + (kinematic ? "1" : "0") + "\t" + mass);
                 return true;
@@ -350,7 +354,7 @@ namespace MazeMaker
             }
         }
 
-        public virtual XmlElement toXMLnode(XmlDocument doc)
+        public virtual XmlElement toXMLnode(XmlDocument doc, Dictionary<string, string> cModels)
         {
             XmlElement staticModelNode = doc.CreateElement(string.Empty, "StaticModel", string.Empty);
             staticModelNode.SetAttribute("label", this.Label);
@@ -364,10 +368,16 @@ namespace MazeMaker
 
             XmlElement modelNode = doc.CreateElement(string.Empty, "Model", string.Empty);
             staticModelNode.AppendChild(modelNode);
-            if(this.Model!=null)
-            { 
-                modelNode.SetAttribute("id", this.Model.Index.ToString());
-            }
+            //if(this.Model!=null)
+            //{ 
+            //    modelNode.SetAttribute("id", this.Model.Index.ToString());
+            //}
+            
+            string modelID = "";
+            if (cModels.ContainsKey(Model))
+                modelID = cModels[Model];
+            modelNode.SetAttribute("id", modelID);
+
             modelNode.SetAttribute("scale", this.ModelScale.ToString());
             modelNode.SetAttribute("rotX", this.MzPointRot.X.ToString());
             modelNode.SetAttribute("rotY", this.MzPointRot.Y.ToString());

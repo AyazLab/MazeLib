@@ -68,10 +68,10 @@ namespace MazeMaker
             XmlNode appearanceNode = wallNode.SelectSingleNode("Appearance");
             this.Visible = Tools.getBoolFromAttribute(appearanceNode,"visible",true);
             
-            tileSize = Texture.GetTileSize(this.Vertex1, this.Vertex2, this.Vertex3, this.Vertex4, this.MzPoint1, this.MzPoint2, this.MzPoint3, this.MzPoint4);
-            String mode = Texture.GetMode(this.Vertex1, this.Vertex2, this.Vertex3, this.Vertex4);
-            mappingIndex = Texture.GetMappingIndex(this.Vertex1, this.Vertex2, this.Vertex3, this.Vertex4);
-            aspectRatio = Texture.GetAspectRatio(this.Vertex1, this.Vertex2, this.Vertex3, this.Vertex4, this.MzPoint1, this.MzPoint2, this.MzPoint3, this.MzPoint4);
+            tileSize = MazeMaker.Texture.GetTileSize(this.Vertex1, this.Vertex2, this.Vertex3, this.Vertex4, this.MzPoint1, this.MzPoint2, this.MzPoint3, this.MzPoint4);
+            String mode = MazeMaker.Texture.GetMode(this.Vertex1, this.Vertex2, this.Vertex3, this.Vertex4);
+            mappingIndex = MazeMaker.Texture.GetMappingIndex(this.Vertex1, this.Vertex2, this.Vertex3, this.Vertex4);
+            aspectRatio = MazeMaker.Texture.GetAspectRatio(this.Vertex1, this.Vertex2, this.Vertex3, this.Vertex4, this.MzPoint1, this.MzPoint2, this.MzPoint3, this.MzPoint4);
 
             //Try to +
             mappingIndex = Tools.getIntFromAttribute(textureNode, "rotation", mappingIndex);
@@ -509,30 +509,34 @@ namespace MazeMaker
         }
 
         public new int texID = -999;
-        private Texture texture=null;
+        private string texture = "";
         [Category("3.Texture")]
         [Description("Select texture to be used with the wall. List can be edited at Texture Collection")]
-        [TypeConverter(typeof(TextureConverter))]
-        public new Texture Texture
+        [TypeConverter(typeof(ImagePathConverter))]
+        public new string Texture
         {
-
             get { return texture; }
-            set {
-                texture = value;
-                if (value == null)
-                    texID = -999;
-                else
-                    texID = texture.Index;
+            set { texture = value; OnPropertyChanged("Texture"); }
+
+            //set
+            //{
+            //    texture = value;
+            
+            //    if (value == null)
+            //        texID = -999;
+            //    else
+            //        texID = texture.Index;
                     
-                //if (texture.Image != null)
-                //{
-                //    double lenX = Math.Sqrt(Math.Pow(mzPoint1.X - mzPoint3.X, 2) + Math.Pow(mzPoint1.Y - mzPoint3.Y, 2) + Math.Pow(mzPoint1.Z - mzPoint3.Z, 2)) * 10;
-                //    double lenY = Math.Sqrt(Math.Pow(mzPoint1.X - mzPoint2.X, 2) + Math.Pow(mzPoint1.Y - mzPoint2.Y, 2) + Math.Pow(mzPoint1.Z - mzPoint2.Z, 2)) * 10;
-                //    MzTextureWidth = texture.Image.Width / lenX;
-                //    MzTextureHeight = texture.Image.Height / lenY;
-                //}
-                OnPropertyChanged("Texture");
-            }
+            //    //if (texture.Image != null)
+            //    //{
+            //    //    double lenX = Math.Sqrt(Math.Pow(mzPoint1.X - mzPoint3.X, 2) + Math.Pow(mzPoint1.Y - mzPoint3.Y, 2) + Math.Pow(mzPoint1.Z - mzPoint3.Z, 2)) * 10;
+            //    //    double lenY = Math.Sqrt(Math.Pow(mzPoint1.X - mzPoint2.X, 2) + Math.Pow(mzPoint1.Y - mzPoint2.Y, 2) + Math.Pow(mzPoint1.Z - mzPoint2.Z, 2)) * 10;
+            //    //    MzTextureWidth = texture.Image.Width / lenX;
+            //    //    MzTextureHeight = texture.Image.Height / lenY;
+            //    //}
+                
+            //    OnPropertyChanged("Texture");
+            //}
         }
 
         private bool flip = false;
@@ -1070,6 +1074,7 @@ namespace MazeMaker
 
             ConvertFromScreenCoordinates();
         }
+
         public override string PrintToTreeItem()
         {
             string str = this.ID;
@@ -1077,14 +1082,15 @@ namespace MazeMaker
             if (string.IsNullOrWhiteSpace(this.Label) == false)
                     str += " [" + this.Label + "]";
 
-            if (this.Texture != null)
+            if (Texture != "")
             {
-                str += "(" + this.Texture.Name + ")";
+                str += "(" + Texture + ")";
             }
 
             return str;
         }
-        public override bool PrintToFile(ref StreamWriter fp)
+
+        public bool PrintToFile(ref StreamWriter fp)
         {
             try
             {
@@ -1187,7 +1193,7 @@ namespace MazeMaker
             return indexText;
         }
 
-        public override XmlElement toXMLnode(XmlDocument doc)
+        public override XmlElement toXMLnode(XmlDocument doc, Dictionary<string, string> cImages)
         {
             XmlElement wallNode = doc.CreateElement(string.Empty, "CurvedWall", string.Empty);
             wallNode.SetAttribute("label", this.Label);
@@ -1245,7 +1251,10 @@ namespace MazeMaker
             {
                 XmlElement textureNode = doc.CreateElement(string.Empty, "Texture", string.Empty);
                 wallNode.AppendChild(textureNode);
-                textureNode.SetAttribute("id", this.Texture.Index.ToString());
+                string imageID = "";
+                if (cImages.ContainsKey(Texture))
+                    imageID = cImages[Texture];
+                textureNode.SetAttribute("id", imageID);
                 textureNode.SetAttribute("aspectRatio", this.AspectRatio.ToString());
                 textureNode.SetAttribute("flip", this.Flip.ToString());
                 textureNode.SetAttribute("mode", this.Mode.ToString());

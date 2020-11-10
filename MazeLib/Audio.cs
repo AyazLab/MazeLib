@@ -12,25 +12,27 @@ using System.Xml;
 
 namespace MazeMaker
 {
-    [TypeConverterAttribute(typeof(AudioConverter)), DescriptionAttribute("Audio Support")]
+    //[TypeConverterAttribute(typeof(AudioConverter)), DescriptionAttribute("Audio Support")]
     [Serializable]
     public class Audio
     {
         public Audio()
         {
             OpenFileDialog a = new OpenFileDialog();
-            a.Filter = "Supported Audio Files |*.wav;*.mp3";
+            a.Filter = "Audio File (*.wav,*.mp3)|*.wav;*.mp3";
             a.FilterIndex = 1;
             a.RestoreDirectory = true;
             if (a.ShowDialog() == DialogResult.OK)
             {                
-                this.name = a.FileName;               
+                this.name = a.FileName;
+                filePath = a.FileName;
                 int index = a.FileName.LastIndexOf('\\');
                 if (index == -1)
                     this.name = a.FileName;
                 else
-                    this.name = a.FileName.Substring(index + 1);  
-                this.index = AudioCounter.GetIndex();
+                    this.name = a.FileName.Substring(index + 1);
+                //this.index = AudioCounter.GetIndex();
+                this.index = 0;
 
                 //string preview_str = a.FileName.Replace(".obj", "_preview.jpg");
                 //if(Tools.FileExists(preview_str))
@@ -56,12 +58,14 @@ namespace MazeMaker
             if (a.ShowDialog() == DialogResult.OK)
             {
                 this.name = a.FileName;
+                filePath = a.FileName;
                 int index = a.FileName.LastIndexOf('\\');
                 if (index == -1)
                     this.name = a.FileName;
                 else
                     this.name = a.FileName.Substring(index + 1);
-                this.index = AudioCounter.GetIndex();
+                //this.index = AudioCounter.GetIndex();
+                this.index = 0;
 
                 //string preview_str = a.FileName.Replace(".obj", "_preview.jpg");
                 //if (Tools.FileExists(preview_str))
@@ -80,6 +84,9 @@ namespace MazeMaker
         public Audio(string dir, string inpName, int fIndex)
         {
             name = inpName;
+            filePath = dir + "\\" + inpName;
+            if (dir == "")
+                filePath = inpName;
             index = fIndex;
 
             /*
@@ -116,9 +123,21 @@ namespace MazeMaker
 
         }
 
-        public string name = "";
-        [Category("Options")]
+        string filePath = "";
+        [Category("File Information")]
+        [Description("File Path of the Audio Item")]
+        [DisplayName("File Path")]
+        [ReadOnly(true)]
+        public string FilePath
+        {
+            get { return filePath; }
+            set { filePath = value; }
+        }
+
+        string name = "";
+        [Category("File Information")]
         [Description("Name of the Audio Item")]
+        [ReadOnly(true)]
         public string Name
         {
             get { return name; }
@@ -146,6 +165,7 @@ namespace MazeMaker
         private int index;
         [Category("Options")]
         [Description("...")]
+        [Browsable(false)]
         public int Index
         {
             get { return index; }
@@ -165,111 +185,111 @@ namespace MazeMaker
 
             return texNode;
         }
-    }
 
-    public class AudioConverter : ExpandableObjectConverter
-    {
-        public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
+        public override string ToString()
         {
-            //true means show a combobox
-            return true;
-        }
-        public override bool GetStandardValuesExclusive(ITypeDescriptorContext context)
-        {
-            //true will limit to list. false will show the list, but allow free-form entry
-            return true;
-        }
-
-        public override
-        System.ComponentModel.TypeConverter.StandardValuesCollection
-        GetStandardValues(ITypeDescriptorContext context)
-        {
-            List<Audio> theArray = new List<Audio>();
-            //theArray.Add(new Texture(null,null,0));
-            theArray.Add(null);
-            List<Audio> list = MazeMaker.Maze.GetAudios();
-            foreach (Audio t in list)
-            {
-                theArray.Add(t);
-            }
-            return new StandardValuesCollection(theArray.ToArray());
-            //return new StandardValuesCollection(MazeMaker.Maze.GetModels().ToArray());
-            //return new StandardValuesCollection(new string[] { "entry1", "entry2", "entry3" });
-        }
-
-        public override bool CanConvertTo(ITypeDescriptorContext context, System.Type destinationType)
-        {
-            if (destinationType == typeof(Texture))
-                return true;
-
-            return base.CanConvertTo(context, destinationType);
-        }
-        public override bool CanConvertFrom(ITypeDescriptorContext context, System.Type sourceType)
-        {
-            if (sourceType == typeof(String))
-                return true;
-
-            return base.CanConvertFrom(context, sourceType);
-        }
-        public override object ConvertTo(ITypeDescriptorContext context,
-                               CultureInfo culture,
-                               object value,
-                               System.Type destinationType)
-        {
-            if (destinationType == typeof(System.String) &&
-                 value is Audio)
-            {
-                Audio so = (Audio)value;
-                return so.name;
-            }
-            return base.ConvertTo(context, culture, value, destinationType);
-        }
-        public override object ConvertFrom(ITypeDescriptorContext context,
-                              CultureInfo culture, object value)
-        {
-            if (value is string)
-            {
-                try
-                {
-                    if (value == null || (string)value == "")
-                        return null;
-                    List<Audio> cList = Maze.GetAudios();
-                    foreach (Audio t in cList)
-                    {
-                        if (t.Name.CompareTo(value) == 0)
-                            return t;
-                    }
-                }
-                catch
-                {
-                    throw new ArgumentException("Can not convert '" + (string)value + "' to type Audio Item");
-                }
-                return value;
-            }
-            return base.ConvertFrom(context, culture, value);
-        }
-
-    }
-
-
-    public class AudioCounter
-    {
-        static int curIndex = 99;
-        static public int GetIndex()
-        {
-            curIndex++;
-            foreach (Audio t in Maze.mzP.cAudio)
-            {
-                if (t.Index >= curIndex)
-                {
-                    curIndex = t.Index + 1;
-                }
-            }
-            return curIndex;
+            return Name;
         }
     }
 
+    //public class AudioConverter : ExpandableObjectConverter
+    //{
+    //    public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
+    //    {
+    //        //true means show a combobox
+    //        return true;
+    //    }
+    //    public override bool GetStandardValuesExclusive(ITypeDescriptorContext context)
+    //    {
+    //        //true will limit to list. false will show the list, but allow free-form entry
+    //        return true;
+    //    }
 
+    //    public override
+    //    System.ComponentModel.TypeConverter.StandardValuesCollection
+    //    GetStandardValues(ITypeDescriptorContext context)
+    //    {
+    //        List<Audio> theArray = new List<Audio>();
+    //        //theArray.Add(new Texture(null,null,0));
+    //        theArray.Add(null);
+    //        List<Audio> list = MazeMaker.Maze.GetAudios();
+    //        foreach (Audio t in list)
+    //        {
+    //            theArray.Add(t);
+    //        }
+    //        return new StandardValuesCollection(theArray.ToArray());
+    //        //return new StandardValuesCollection(MazeMaker.Maze.GetModels().ToArray());
+    //        //return new StandardValuesCollection(new string[] { "entry1", "entry2", "entry3" });
+    //    }
 
+    //    public override bool CanConvertTo(ITypeDescriptorContext context, System.Type destinationType)
+    //    {
+    //        if (destinationType == typeof(Texture))
+    //            return true;
 
+    //        return base.CanConvertTo(context, destinationType);
+    //    }
+    //    public override bool CanConvertFrom(ITypeDescriptorContext context, System.Type sourceType)
+    //    {
+    //        if (sourceType == typeof(String))
+    //            return true;
+
+    //        return base.CanConvertFrom(context, sourceType);
+    //    }
+    //    public override object ConvertTo(ITypeDescriptorContext context,
+    //                           CultureInfo culture,
+    //                           object value,
+    //                           System.Type destinationType)
+    //    {
+    //        if (destinationType == typeof(System.String) &&
+    //             value is Audio)
+    //        {
+    //            Audio so = (Audio)value;
+    //            return so.name;
+    //        }
+    //        return base.ConvertTo(context, culture, value, destinationType);
+    //    }
+    //    public override object ConvertFrom(ITypeDescriptorContext context,
+    //                          CultureInfo culture, object value)
+    //    {
+    //        if (value is string)
+    //        {
+    //            try
+    //            {
+    //                if (value == null || (string)value == "")
+    //                    return null;
+    //                List<Audio> cList = Maze.GetAudios();
+    //                foreach (Audio t in cList)
+    //                {
+    //                    if (t.Name.CompareTo(value) == 0)
+    //                        return t;
+    //                }
+    //            }
+    //            catch
+    //            {
+    //                throw new ArgumentException("Can not convert '" + (string)value + "' to type Audio Item");
+    //            }
+    //            return value;
+    //        }
+    //        return base.ConvertFrom(context, culture, value);
+    //    }
+
+    //}
+
+    //public class AudioCounter
+    //{
+    //    static int curIndex = 99;
+    //    static public int GetIndex()
+    //    {
+    //        curIndex++;
+    //        foreach (Audio t in Maze.mzP.cAudio)
+    //        {
+    //            if (t.Index >= curIndex)
+    //            {
+    //                curIndex = t.Index + 1;
+    //            }
+    //        }
+    //        return curIndex;
+    //    }
+    //}
 }

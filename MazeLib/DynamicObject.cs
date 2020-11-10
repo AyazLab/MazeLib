@@ -342,19 +342,25 @@ namespace MazeMaker
         }
 
         public int switchToModelID = -999;
-        private Model switchToModel = null;
+        private string switchToModel = "";
         [Category("6.Phase 2: Event")]
         [Description("Model to switch after the action. List can be edited from the Maze model collection")]
-        [TypeConverter(typeof(ModelConverter))]
-        public Model SwitchToModel
+        [TypeConverter(typeof(ModelPathConverter))]
+        public string SwitchToModel
         {
             get { return switchToModel; }
-            set { switchToModel = value;
-                if (switchToModel == null)
-                    switchToModelID = -999;
-                else
-                    switchToModelID = switchToModel.Index;
-                OnPropertyChanged("SwitchToModel"); }
+            set { switchToModel = value; OnPropertyChanged("SwitchToModel"); }
+
+            //set {
+            //    switchToModel = value;
+                
+            //    if (switchToModel == null)
+            //        switchToModelID = -999;
+            //    else
+            //        switchToModelID = switchToModel.Index;
+                
+            //    OnPropertyChanged("SwitchToModel");
+            //}
         }
 
         public enum HighlightTypes
@@ -577,37 +583,51 @@ namespace MazeMaker
 
 
         public int phase1HighlightAudioID = -999;
-        private Audio phase1HighlightAudio = null;
+        private string phase1HighlightAudio = "";
         [Category("5.Phase 1: Highlight")]
         [Description("Select audio for highlight event. List can be edited from Maze Collection")]
-        [TypeConverter(typeof(AudioConverter))]
+        [TypeConverter(typeof(AudioPathConverter))]
         [DisplayName("Audio")]
-        public Audio Phase1HighlightAudio
+        public string Phase1HighlightAudio
         {
             get { return phase1HighlightAudio; }
-            set { phase1HighlightAudio = value;
-                if (phase1HighlightAudio != null)
-                    phase1HighlightAudioID = phase1HighlightAudio.Index;
-                else
-                    phase1HighlightAudioID = -999;
-                OnPropertyChanged("Phase1HighlightAudio"); }
+            set { phase1HighlightAudio = value; OnPropertyChanged("Phase1HighlightAudio"); }
+
+            //set
+            //{
+            //    phase1HighlightAudio = value;
+                
+            //    if (phase1HighlightAudio != null)
+            //        phase1HighlightAudioID = phase1HighlightAudio.Index;
+            //    else
+            //        phase1HighlightAudioID = -999;
+                
+            //    OnPropertyChanged("Phase1HighlightAudio");
+            //}
         }
 
         public int phase2EventAudioID = -999;
-        private Audio phase2EventAudio = null;
+        private string phase2EventAudio = "";
         [Category("6.Phase 2: Event")]
         [Description("Select audio for trigger event. List can be edited from Maze Collection")]
-        [TypeConverter(typeof(AudioConverter))]
+        [TypeConverter(typeof(AudioPathConverter))]
         [DisplayName("Audio")]
-        public Audio Phase2EventAudio
+        public string Phase2EventAudio
         {
             get { return phase2EventAudio; }
-            set { phase2EventAudio = value;
-                if (phase2EventAudio != null)
-                    phase2EventAudioID = phase2EventAudio.Index;
-                else
-                    phase2EventAudioID = -999;
-                OnPropertyChanged("Phase2EventAudio"); }
+            set { phase2EventAudio = value; OnPropertyChanged("Phase2EventAudio"); }
+
+            //set
+            //{
+            //    phase2EventAudio = value;
+            
+            //    if (phase2EventAudio != null)
+            //        phase2EventAudioID = phase2EventAudio.Index;
+            //    else
+            //        phase2EventAudioID = -999;
+                
+            //    OnPropertyChanged("Phase2EventAudio");
+            //}
         }
 
         private bool phase1HighlightAudioLoop = false;
@@ -798,7 +818,7 @@ namespace MazeMaker
 
         }
 
-        public new bool PrintToFile(ref StreamWriter fp)
+        public bool PrintToFile(ref StreamWriter fp, Dictionary<string, string> cAudio, Dictionary<string, string> cModels)
         {
             try
             {
@@ -828,7 +848,11 @@ namespace MazeMaker
                 //  phase2_endModel_ID 
 
                 fp.WriteLine("11\t8\t" + this.GetID().ToString() + "\t" + this.Label);
-                fp.WriteLine(((Model == null) ? "-1" : Model.Index.ToString()) + "\t" + this.MzPoint.X.ToString(".##;-.##;0") + "\t" + this.MzPoint.Y.ToString(".##;-.##;0") + "\t" + this.MzPoint.Z.ToString(".##;-.##;0"));
+                //fp.WriteLine(((Model == null) ? "-1" : Model.Index.ToString()) + "\t" + this.MzPoint.X.ToString(".##;-.##;0") + "\t" + this.MzPoint.Y.ToString(".##;-.##;0") + "\t" + this.MzPoint.Z.ToString(".##;-.##;0"));
+                string modelID = "0";
+                if (cModels.ContainsKey(Model))
+                    modelID = cModels[Model];
+                fp.WriteLine(modelID + "\t" + this.MzPoint.X.ToString(".##;-.##;0") + "\t" + this.MzPoint.Y.ToString(".##;-.##;0") + "\t" + this.MzPoint.Z.ToString(".##;-.##;0"));
                 fp.WriteLine(this.ModelScale.ToString(".##;-.##;0") + "\t" + this.MzPointRot.X.ToString(".##;-.##;0") + "\t" + this.MzPointRot.Y.ToString(".##;-.##;0") + "\t" + this.MzPointRot.Z.ToString(".##;-.##;0"));
                 //fp.WriteLine((this.Collision ? "1" : "0"));
                 fp.WriteLine((this.Collision ? "1" : "0") + "\t" + (this.Kinematic ? "1" : "0") + "\t" + this.Mass);
@@ -839,7 +863,11 @@ namespace MazeMaker
                 }
                 else
                 {
-                    fp.WriteLine(phase1HighlightAudio.Index + "\t" + (phase1HighlightAudioLoop ? "1" : "0") + "\t" + phase1HighlightAudioBehavior);
+                    //fp.WriteLine(phase1HighlightAudio.Index + "\t" + (phase1HighlightAudioLoop ? "1" : "0") + "\t" + phase1HighlightAudioBehavior);
+                    string audioID = "0";
+                    if (cAudio.ContainsKey(phase1HighlightAudio))
+                        audioID = cAudio[phase1HighlightAudio];
+                    fp.WriteLine(audioID + "\t" + (phase1HighlightAudioLoop ? "1" : "0") + "\t" + phase1HighlightAudioBehavior);
                 }
                 fp.Write(phase2Criteria + "\t" + eventAction + "\t" + phase2ActiveRadius.ToString(".##;-.##;0") + "\t" + phase2AutoTriggerTime + "\t");
                 if (phase2EventAudio == null)
@@ -848,14 +876,22 @@ namespace MazeMaker
                 }
                 else
                 {
-                    fp.WriteLine(phase2EventAudio.Index + "\t" + (phase2EventAudioLoop?"1":"0") + "\t" + phase2EventAudioBehavior);
+                    //fp.WriteLine(phase2EventAudio.Index + "\t" + (phase2EventAudioLoop?"1":"0") + "\t" + phase2EventAudioBehavior);
+                    string audioID = "0";
+                    if (cAudio.ContainsKey(phase2EventAudio))
+                        audioID = cAudio[phase2EventAudio];
+                    fp.WriteLine(audioID + "\t" + (phase2EventAudioLoop?"1":"0") + "\t" + phase2EventAudioBehavior);
                 }
                 fp.WriteLine(endScale.ToString(".##;-.##;0") + "\t" + (this.MzEndPoint.X + this.MzPoint.X).ToString(".##;-.##;0") + "\t" + (this.MzEndPoint.Y + this.MzPoint.Y).ToString(".##;-.##;0") + "\t" + (this.MzEndPoint.Z + this.MzPoint.Z).ToString(".##;-.##;0"));
                 fp.WriteLine(actionTime.ToString(".##;-.##;0") + "\t" + this.MzEndRot.X.ToString(".##;-.##;0") + "\t" + this.MzEndRot.Y.ToString(".##;-.##;0") + "\t" + this.MzEndRot.Z.ToString(".##;-.##;0"));
                 if (switchToModel == null)
                     fp.WriteLine("0");
                 else
-                    fp.WriteLine(switchToModel.Index.ToString());
+                    //fp.WriteLine(switchToModel.Index.ToString());
+                    modelID = "0";
+                    if (cModels.ContainsKey(switchToModel))
+                        modelID = cModels[switchToModel];
+                    fp.WriteLine(modelID);
                 return true;
             }
             catch
@@ -865,7 +901,7 @@ namespace MazeMaker
             }
         }
 
-        public override XmlElement toXMLnode(XmlDocument doc)
+        public XmlElement toXMLnode(XmlDocument doc, Dictionary<string, string> cAudio, Dictionary<string, string> cModels)
         {
             XmlElement dynamicObjectNode = doc.CreateElement(string.Empty, "DynamicObject", string.Empty);
             dynamicObjectNode.SetAttribute("label", this.Label);
@@ -879,10 +915,16 @@ namespace MazeMaker
 
             XmlElement modelNode = doc.CreateElement(string.Empty, "Model", string.Empty);
             dynamicObjectNode.AppendChild(modelNode);
-            if(this.Model!=null)
-            { 
-                modelNode.SetAttribute("id", this.Model.Index.ToString());
-            }
+            //if (this.Model != null)
+            //{
+            //    modelNode.SetAttribute("id", this.Model.Index.ToString());
+            //}
+
+            string modelID = "";
+            if (cModels.ContainsKey(Model))
+                modelID = cModels[Model];
+            modelNode.SetAttribute("id", modelID);
+
             modelNode.SetAttribute("scale", this.ModelScale.ToString());
             modelNode.SetAttribute("rotX", this.MzPointRot.X.ToString());
             modelNode.SetAttribute("rotY", this.MzPointRot.Y.ToString());
@@ -904,11 +946,17 @@ namespace MazeMaker
 
             XmlElement audioNode1 = doc.CreateElement(string.Empty, "Audio", string.Empty);
             phase1Node.AppendChild(audioNode1);
-            if(this.Phase1HighlightAudio!=null)
-            { 
-                audioNode1.SetAttribute("id", this.Phase1HighlightAudio.Index.ToString());
-                audioNode1.SetAttribute("loop", this.Phase1HighlightAudioLoop.ToString());
-                audioNode1.SetAttribute("unhighlightBehavior", this.Phase1HighlightAudioBehavior.ToString());
+            //if (this.Phase1HighlightAudio != null)
+            //{
+            //    audioNode1.SetAttribute("id", this.Phase1HighlightAudio.Index.ToString());
+            //    audioNode1.SetAttribute("loop", this.Phase1HighlightAudioLoop.ToString());
+            //    audioNode1.SetAttribute("unhighlightBehavior", this.Phase1HighlightAudioBehavior.ToString());
+            //}
+            if (cAudio.ContainsKey(Phase1HighlightAudio))
+            {
+                audioNode1.SetAttribute("id", cAudio[Phase1HighlightAudio]);
+                audioNode1.SetAttribute("loop", Phase1HighlightAudioLoop.ToString());
+                audioNode1.SetAttribute("unhighlightBehavior", Phase1HighlightAudioBehavior.ToString());
             }
 
             XmlElement phase2Node = doc.CreateElement(string.Empty, "Phase2Event", string.Empty);
@@ -923,11 +971,17 @@ namespace MazeMaker
 
             XmlElement audioNode2 = doc.CreateElement(string.Empty, "Audio", string.Empty);
             phase2Node.AppendChild(audioNode2);
-            if (this.Phase2EventAudio != null)
+            //if (this.Phase2EventAudio != null)
+            //{
+            //    audioNode2.SetAttribute("id", this.Phase2EventAudio.Index.ToString());
+            //    audioNode2.SetAttribute("loop", this.Phase2EventAudioLoop.ToString());
+            //    audioNode2.SetAttribute("audioBehavior", this.Phase2EventAudioBehavior.ToString());
+            //}
+            if (cAudio.ContainsKey(Phase2EventAudio))
             {
-                audioNode2.SetAttribute("id", this.Phase2EventAudio.Index.ToString());
-                audioNode2.SetAttribute("loop", this.Phase2EventAudioLoop.ToString());
-                audioNode2.SetAttribute("audioBehavior", this.Phase2EventAudioBehavior.ToString());
+                audioNode2.SetAttribute("id", cAudio[Phase2EventAudio]);
+                audioNode2.SetAttribute("loop", Phase2EventAudioLoop.ToString());
+                audioNode2.SetAttribute("audioBehavior", Phase2EventAudioBehavior.ToString());
             }
 
             XmlElement endPosNode = doc.CreateElement(string.Empty, "EndMzPoint", string.Empty);
@@ -941,8 +995,14 @@ namespace MazeMaker
             endRotNode.SetAttribute("rotX", this.MzEndRot.X.ToString());
             endRotNode.SetAttribute("rotY", this.MzEndRot.Y.ToString());
             endRotNode.SetAttribute("rotZ", this.MzEndRot.Z.ToString());
-            if (this.SwitchToModel != null)
-                endRotNode.SetAttribute("switchModelID", this.SwitchToModel.Index.ToString());
+            //if (this.SwitchToModel != null)
+            //    endRotNode.SetAttribute("switchModelID", this.SwitchToModel.Index.ToString());
+
+            modelID = "";
+            if (cModels.ContainsKey(SwitchToModel))
+                modelID = cModels[SwitchToModel];
+            endRotNode.SetAttribute("switchModelID", modelID);
+
             endRotNode.SetAttribute("endScale", this.EndScale.ToString());
 
             return dynamicObjectNode;
