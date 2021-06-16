@@ -2752,15 +2752,103 @@ namespace MazeMaker
                         break;
 
                 }
-
-                
-
             }
             return true;
         }
-        
 
-        
+        private void Package(object sender, EventArgs e, string mazPath)
+        {
+            string directory = Path.GetDirectoryName(mazPath);
+            string assetsPath = mazPath + "_assets";
+            if (File.Exists(mazPath))   //TODO: save maze
+            {
+
+                //curMaze.Package(mazPath, zip);   //Make Package function in maze.cs with everything below here
+                string tempPath = directory + "\\Temp";
+                if (Directory.Exists(tempPath))
+                    Directory.Delete(tempPath, true);
+                Directory.CreateDirectory(assetsPath + "\\image");
+                Directory.CreateDirectory(assetsPath + "\\audio");
+                Directory.CreateDirectory(assetsPath + "\\model");
+
+                foreach (Floor floor in this.cFloor)  //????
+                {
+                    if (!CopyFile(floor.FloorTexture, mazPath, "image"))
+                        return;
+                    if (!CopyFile(floor.CeilingTexture, mazPath, "image"))
+                        return;
+                }
+                foreach (CurvedWall curvedWall in this.cCurveWall)
+                {
+                    if (!CopyFile(curvedWall.Texture, mazPath, "image"))
+                        return;
+                }
+                foreach (Wall wall in this.cWall)
+                {
+                    if (!CopyFile(wall.Texture, mazPath, "image"))
+                        return;
+                }
+                foreach (ActiveRegion activeRegion in this.cActRegions)
+                {
+                    if (!CopyFile(activeRegion.Phase1HighlightAudio, mazPath, "audio"))
+                        return;
+                    if (!CopyFile(activeRegion.Phase2EventAudio, mazPath, "audio"))
+                        return;
+                }
+                foreach (DynamicObject dynamicObject in this.cDynamicObjects)
+                {
+                    if (!CopyFile(dynamicObject.Phase1HighlightAudio, mazPath, "audio"))
+                        return;
+                    if (!CopyFile(dynamicObject.Phase2EventAudio, mazPath, "audio"))
+                        return;
+                    if (!CopyFile(dynamicObject.Model, mazPath, "model"))
+                        return;
+                    if (!CopyFile(dynamicObject.SwitchToModel, mazPath, "model"))
+                        return;
+                }
+                foreach (StaticModel staticModel in this.cStaticModels)
+                {
+                    if (!CopyFile(staticModel.Model, mazPath, "model"))
+                        return;
+                }
+                if (!CopyFile(this.SkyBoxTexture, mazPath, "image"))
+                    return;
+                if (!CopyFile(this.AvatarModel, mazPath, "model"))
+                    return;
+                this.SaveToMazeXML(mazPath);
+            }
+        }
+        public static bool CopyFile(string file, string mazPath, string type)
+        {
+            //string copiedFile = "no new file";
+
+            string oldFilePath = "should fall in one switch case or everything will break";
+            string newFilePath = mazPath + "_assets\\" + type + "\\" + file;
+            string mazDirectory = Path.GetDirectoryName(mazPath);
+            string oldFileName = oldFilePath.Substring(oldFilePath.LastIndexOf("\\") + 1);
+            // copiedFile = MazeListBuilder.RecursiveFileCopy(oldFilePath, mazPath, type, newFilePath);
+            if (oldFilePath != newFilePath)
+            {
+                if (oldFilePath[0] == '.' && oldFilePath[1] == '.')
+                    oldFilePath = mazDirectory + "\\" + oldFilePath;
+                //MessageBox.Show(oldFilePath);
+                if (File.Exists(oldFilePath))
+                {
+                    File.Copy(oldFilePath, newFilePath);
+                    return true;
+                }
+
+                oldFilePath = mazDirectory + "\\" + oldFileName;
+                //MessageBox.Show(oldFilePath);
+                if (File.Exists(oldFilePath))
+                {
+                    File.Copy(oldFilePath, newFilePath);
+                    return true;
+                }
+            }
+            return false;
+        }
+
 
 
         public bool ReadXMLformat(string inp)
@@ -2888,72 +2976,6 @@ namespace MazeMaker
 
             }
         }
-
-      /*  private void Package(object sender, EventArgs e, string mazPath)
-        {
-            string directory = Path.GetDirectoryName(mazPath);
-            string assetsPath = mazPath + "_assets";
-            if (File.Exists(mazPath))   //TODO: save maze
-            {
-
-                //curMaze.Package(mazPath, zip);   //Make Package function in maze.cs with everything below here
-                string tempPath = directory + "\\Temp";
-                if (Directory.Exists(tempPath))
-                    Directory.Delete(tempPath, true);
-                Directory.CreateDirectory(assetsPath + "\\image");
-                Directory.CreateDirectory(assetsPath + "\\audio");
-                Directory.CreateDirectory(assetsPath + "\\model");
-
-                foreach (Floor floor in this.cFloor)  //????
-                {
-                    if (!CopyFile(floor.FloorTexture, mazPath, "image", ref copiedFiles))
-                        return;
-                    if (!CopyFile(floor.CeilingTexture, mazPath, "image", ref copiedFiles))
-                        return;
-                }
-                foreach (CurvedWall curvedWall in this.cCurveWall)
-                {
-                    if (!CopyFile(curvedWall.Texture, mazPath, "image", ref copiedFiles))
-                        return;
-                }
-                foreach (Wall wall in this.cWall)
-                {
-                    if (!CopyFile(wall.Texture, mazPath, "image", ref copiedFiles))
-                        return;
-                }
-                foreach (ActiveRegion activeRegion in this.cActRegions)
-                {
-                    if (!CopyFile(activeRegion.Phase1HighlightAudio, mazPath, "audio", ref copiedFiles))
-                        return;
-                    if (!CopyFile(activeRegion.Phase2EventAudio, mazPath, "audio", ref copiedFiles))
-                        return;
-                }
-                foreach (DynamicObject dynamicObject in this.cDynamicObjects)
-                {
-                    if (!CopyFile(dynamicObject.Phase1HighlightAudio, mazPath, "audio", ref copiedFiles))
-                        return;
-                    if (!CopyFile(dynamicObject.Phase2EventAudio, mazPath, "audio", ref copiedFiles))
-                        return;
-                    if (!CopyFile(dynamicObject.Model, mazPath, "model", ref copiedFiles))
-                        return;
-                    if (!CopyFile(dynamicObject.SwitchToModel, mazPath, "model", ref copiedFiles))
-                        return;
-                }
-                foreach (StaticModel staticModel in this.cStaticModels)
-                {
-                    if (!CopyFile(staticModel.Model, mazPath, "model", ref copiedFiles))
-                        return;
-                }
-                if (!CopyFile(this.SkyBoxTexture, mazPath, "image", ref copiedFiles))
-                    return;
-                if (!CopyFile(this.AvatarModel, mazPath, "model", ref copiedFiles))
-                    return;
-                this.SaveToMazeXML(mazPath);
-            }
-        }*/
-
-
-
         private void ReassociatePositionsTexturesModelsAndAudio()
         {
             //this.skyTexture = this.GetTexture(this.skyTextureID);
