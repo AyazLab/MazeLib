@@ -1,23 +1,10 @@
 
-MazeLib/.vs/MazeLib/v15/.suo
-MazeLib/.vs/MazeLib/v15/Server/sqlite3/db.lock
-MazeLib/.vs/MazeLib/v15/Server/sqlite3/storage.ide
-MazeLib/.vs/MazeLib/v15/Server/sqlite3/storage.ide-shm
-MazeLib/.vs/MazeLib/v15/Server/sqlite3/storage.ide-wal
-MazeLib/bin/Debug/MazeLib.dll
-MazeLib/bin/Debug/MazeLib.pdb
-MazeLib/bin/Release/MazeLib.dll
-MazeLib/bin/Release/MazeLib.pdb
-MazeLib/obj/*
+MazeLib/.vs/
+MazeLib/bin/
+MazeLib/obj/
 MazeLib/obj/
 *.cache
-MazeLib/obj/Debug/MazeLib.csproj.FileListAbsolute.txt
 *.cache
 *.pdb
-MazeLib/obj/Debug/MazeLib.dll
-MazeLib/obj/Release/MazeLib.pdb
-MazeLib/obj/Release/MazeLib.dll
-MazeLib/obj/Debug/MazeLib.dll
 *.vsidx
 *.lock
-MazeLib/.vs/MazeLib/v17/.suo
