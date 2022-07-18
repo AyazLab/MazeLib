@@ -55,6 +55,11 @@ namespace MazeMaker
             this.ReturnValue = Tools.getIntFromAttribute(actionNode, "returnValue");
             this.SuccessMessage = Tools.getStringFromAttribute(actionNode, "successMessage");
             this.pointThreshold = Tools.getIntFromAttribute(actionNode, "pointThreshold");
+            ThresholdComparator cType;
+
+            if (Enum.TryParse(Tools.getStringFromAttribute(actionNode, "pointThresholdOperator", this.pointThresholdOperator.ToString()), out cType))
+                this.pointThresholdOperator = cType;
+
             this.moveToPosID = Tools.getIntFromAttribute(actionNode, "moveToPos", -999);
             itemType = MazeItemType.End;
         }
@@ -74,6 +79,12 @@ namespace MazeMaker
                 OnPropertyChanged("Scale");
             }
         }
+
+        public enum ThresholdComparator
+        {
+            GreaterThan, GreaterThanEqual, EqualTo, LessThan, LessThanEqual, NotEqual
+        }
+
 
         public virtual void CalculateModifiedScaleMazeCoordinates(double newScale)
         {
@@ -223,6 +234,16 @@ namespace MazeMaker
         {
             get { return pointThreshold; }
             set { pointThreshold = value; OnPropertyChanged("PointThreshold"); }
+        }
+
+        private ThresholdComparator pointThresholdOperator = ThresholdComparator.GreaterThanEqual;
+        [Category("4.Action")]
+        [Description("Comparison applied to point threshold. Ex requires exactly 10 points, more than 10 points, or less than 10 points")]
+        [DisplayName("Point Threshold Operator")]
+        public ThresholdComparator PointThresholdOperator
+        {
+            get { return pointThresholdOperator; }
+            set { pointThresholdOperator = value; OnPropertyChanged("PointThresholdOperator"); }
         }
 
         public virtual bool InRegion(int x1, int y1, int x2, int y2) //currently requires entire area to encompase selection
@@ -434,6 +455,7 @@ namespace MazeMaker
                 actionNode.SetAttribute("moveToPos", this.MoveToPos.GetID().ToString());
             actionNode.SetAttribute("returnValue", this.ReturnValue.ToString());
             actionNode.SetAttribute("pointThreshold", this.PointThreshold.ToString());
+            actionNode.SetAttribute("pointThresholdOperator", this.PointThresholdOperator.ToString());
             actionNode.SetAttribute("successMessage", this.SuccessMessage);
 
 

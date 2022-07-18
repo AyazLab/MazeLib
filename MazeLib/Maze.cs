@@ -156,12 +156,27 @@ namespace MazeMaker
 
         private int pointOutThreshold =0;
         [Category("5.Point Options")]
-        [Description("Exit Maze when Treshold Reached")]
+        [Description("Exit Maze when Point Treshold Reached")]
         [DisplayName("Point Exit Threshold")]
         public int PointOutThreshold
         {
             get { return pointOutThreshold; }
             set { pointOutThreshold = value; }
+        }
+
+        public enum ThresholdComparator
+        {
+            GreaterThan, GreaterThanEqual, EqualTo, LessThan, LessThanEqual, NotEqual
+        }
+
+        private ThresholdComparator pointOutThresholdOperator = ThresholdComparator.GreaterThanEqual;
+        [Category("5.Point Options")]
+        [Description("Comparison applied to point threshold. Ex requires exactly 10 points, more than 10 points, or less than 10 points")]
+        [DisplayName("Point Exit Threshold Operator")]
+        public ThresholdComparator PointOutThresholdOperator
+        {
+            get { return pointOutThresholdOperator; }
+            set { pointOutThresholdOperator = value; }
         }
 
         private int defaultStartPosID = -999;
@@ -821,6 +836,7 @@ namespace MazeMaker
             XmlElement pointOptionsNode = doc.CreateElement(string.Empty, "PointOptions", string.Empty);
             globalNode.AppendChild(pointOptionsNode);
             pointOptionsNode.SetAttribute("exitThreshold", this.PointOutThreshold.ToString());
+            pointOptionsNode.SetAttribute("exitThresholdOperator", this.PointOutThresholdOperator.ToString());
             pointOptionsNode.SetAttribute("messageText", this.PointOutMessageText);
 
             //if (this.skyTexture != null)
@@ -2308,6 +2324,9 @@ namespace MazeMaker
                     case "PointOptions":
                         this.pointOutMessageText = Tools.getStringFromAttribute(node, "messageText", this.pointOutMessageText);
                         this.pointOutThreshold = Tools.getIntFromAttribute(node, "exitThreshold", this.pointOutThreshold);
+                        ThresholdComparator eComp;
+                        if (Enum.TryParse(Tools.getStringFromAttribute(node, "exitThresholdOperator", this.pointOutThresholdOperator.ToString()), out eComp))
+                            this.pointOutThresholdOperator = eComp;
                         this.TimeoutValue = Tools.getDoubleFromAttribute(node, "timeoutValue", this.TimeoutValue);
                         break;
                     case "Skybox":

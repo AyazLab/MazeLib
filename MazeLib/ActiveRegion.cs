@@ -53,6 +53,15 @@ namespace MazeMaker
             this.Phase1AutoTriggerTime = Tools.getDoubleFromAttribute(phase1Node, "timeElapsedThreshold", 0);
             this.Phase1PointThreshold = Tools.getIntFromAttribute(phase1Node, "pointThreshold", this.Phase1PointThreshold);
 
+            ThresholdComparator cType;
+
+            if (Enum.TryParse(Tools.getStringFromAttribute(phase1Node, "pointThresholdOperator", this.Phase1PointThresholdOperator.ToString()), out cType))
+                this.Phase1PointThresholdOperator = cType;
+
+            if (Enum.TryParse(Tools.getStringFromAttribute(phase1Node, "timeElapsedThresholdOperator", this.Phase1TimeThresholdOperator.ToString()), out cType))
+                this.Phase1TimeThresholdOperator = cType;
+
+
             AudioBehaviour aType;
             if (phase1Node != null)
             {
@@ -69,11 +78,26 @@ namespace MazeMaker
             this.phase2PointThreshold = Tools.getIntFromAttribute(phase2Node, "pointThreshold", this.phase2PointThreshold);
             this.pointsGranted = Tools.getDoubleFromAttribute(phase2Node, "pointsGranted", this.pointsGranted);
 
+            PointsGrantedBehavior pMode;
+            if (Enum.TryParse(Tools.getStringFromAttribute(phase2Node, "pointsGrantedMode", this.PointsGrantedMode.ToString()), out pMode))
+                this.PointsGrantedMode = pMode;
+
             this.InteractRequired = Tools.getBoolFromAttribute(phase2Node, "interactRequired", this.InteractRequired);
             this.Phase2AutoTriggerTime = Tools.getDoubleFromAttribute(phase2Node, "highlightTimeElapsedThreshold", this.Phase2AutoTriggerTime);
             this.ActivatedMessage = Tools.getStringFromAttribute(phase2Node, "activatedMessageText", this.ActivatedMessage);
             this.moveToPosID = Tools.getIntFromAttribute(phase2Node, "moveToPos", -999);
             this.activatedObjectID = Tools.getIntFromAttribute(phase2Node, "activatedObjectID", -999);
+
+            this.RepeatableActivation = Tools.getBoolFromAttribute(phase2Node, "repeatableActivation", false);
+
+            if (Enum.TryParse(Tools.getStringFromAttribute(phase2Node, "pointThresholdOperator", this.Phase2PointThresholdOperator.ToString()), out cType))
+                this.Phase2PointThresholdOperator = cType;
+
+            if (Enum.TryParse(Tools.getStringFromAttribute(phase2Node, "highlightTimeElapsedThresholdOperator", this.Phase2TimeThresholdOperator.ToString()), out cType))
+                this.Phase2TimeThresholdOperator = cType;
+
+            
+
 
             if (phase2Node != null)
             {
@@ -156,7 +180,10 @@ namespace MazeMaker
             set { scrRect = value; ConvertFromScreenCoordinates(); }
         }
 
-
+        public enum ThresholdComparator
+        {
+            GreaterThan, GreaterThanEqual, EqualTo, LessThan, LessThanEqual, NotEqual
+        }
 
 
 
@@ -293,6 +320,18 @@ namespace MazeMaker
             set { phase1PointThreshold = value; OnPropertyChanged("Point Threshold Highlight"); }
         }
 
+        private ThresholdComparator phase1PointThresholdOperator = ThresholdComparator.GreaterThanEqual;
+        [Category("4.Phase 1: Highlight")]
+        [Description("Comparison applied to point threshold. Ex requires exactly 10 points, more than 10 points, or less than 10 points")]
+        [DisplayName("Point Threshold Operator")]
+        public ThresholdComparator Phase1PointThresholdOperator
+        {
+            get { return phase1PointThresholdOperator; }
+            set { phase1PointThresholdOperator = value; OnPropertyChanged("Point Threshold Highlight Operator"); }
+        }
+
+        
+
         private double phase1AutoTriggerTime = 0;
         [Category("4.Phase 1: Highlight")]
         [Description("Time in seconds relative to beginning of maze required to Highlight")]
@@ -310,9 +349,19 @@ namespace MazeMaker
             }
         }
 
+        private ThresholdComparator phase1TimeThresholdOperator = ThresholdComparator.GreaterThan;
+        [Category("4.Phase 1: Highlight")]
+        [Description("Comparison applied to Maze Time Elapsed value. Ex: runs when time exceeds 10s, runs only before first 30s")]
+        [DisplayName("Maze Time Elapsed Operator")]
+        public ThresholdComparator Phase1TimeThresholdOperator
+        {
+            get { return phase1TimeThresholdOperator; }
+            set { phase1TimeThresholdOperator = value; OnPropertyChanged("TriggerTimeElapsedOperator"); }
+        }
+
         private double phase2AutoTriggerTime = 0;
         [Category("5.Phase 2: Event")]
-        [Description("Time in seconds relative to Region Highlighing required before Region is Activaed")]
+        [Description("Time in seconds relative to Region Highlighting required before Region is Activated")]
         [DisplayName("Highlight Time Elapsed")]
         public double Phase2AutoTriggerTime
         {
@@ -327,6 +376,15 @@ namespace MazeMaker
             }
         }
 
+        private ThresholdComparator phase2TimeThresholdOperator = ThresholdComparator.GreaterThan;
+        [Category("5.Phase 2: Event")]
+        [Description("Comparison applied to Maze Time Elapsed value. Ex: runs when time exceeds 10s, runs only before first 30s")]
+        [DisplayName("Highlight Time Elapsed Operator")]
+        public ThresholdComparator Phase2TimeThresholdOperator
+        {
+            get { return phase2TimeThresholdOperator; }
+            set { phase2TimeThresholdOperator = value; OnPropertyChanged("TriggerTimeHighlightOperator"); }
+        }
 
         public int phase1HighlightAudioID = -999;
         private string phase1HighlightAudio = "";
@@ -479,6 +537,17 @@ namespace MazeMaker
             set { activatedMessage = value; OnPropertyChanged("ActiveRegionText"); }
         }
 
+        private ThresholdComparator phase2PointThresholdOperator = ThresholdComparator.GreaterThanEqual;
+        [Category("5.Phase 2: Event")]
+        [Description("Comparison applied to point threshold. Ex requires exactly 10 points, more than 10 points, or less than 10 points")]
+        [DisplayName("Point Threshold Operator")]
+        public ThresholdComparator Phase2PointThresholdOperator
+        {
+            get { return phase2PointThresholdOperator; }
+            set { phase2PointThresholdOperator = value; OnPropertyChanged("PointThresholdEventOperator"); }
+        }
+
+
         private int phase2PointThreshold = 0;
         [Category("5.Phase 2: Event")]
         [Description("MazePoints required to activate")]
@@ -489,10 +558,6 @@ namespace MazeMaker
             set { phase2PointThreshold = value; OnPropertyChanged("PointThreshold"); }
         }
         
-
-        
-
-
         private double pointsGranted = 1;
         [Category("5.Phase 2: Event")]
         [Description("Points added to Maze Points when activated")]
@@ -501,6 +566,38 @@ namespace MazeMaker
         {
             get { return pointsGranted; }
             set { pointsGranted = value; OnPropertyChanged("Points Granted"); }
+        }
+
+        public enum PointsGrantedBehavior
+        {
+            Add, SetTo
+        }
+
+        private PointsGrantedBehavior pointsGrantedMode = PointsGrantedBehavior.Add;
+        [Category("5.Phase 2: Event")]
+        [Description("Comparison applied to point threshold. Ex requires exactly 10 points, more than 10 points, or less than 10 points")]
+        [DisplayName("Points Granted Mode")]
+        public PointsGrantedBehavior PointsGrantedMode
+        {
+            get { return pointsGrantedMode; }
+            set { pointsGrantedMode = value; OnPropertyChanged("PointsGrantedMode"); }
+        }
+
+        private bool repeatableActivation = false;
+        [Category("5.Phase 2: Event")]
+        [Description("If true Activation can occur more than one time")]
+        [DisplayName("Repeatable Activation")]
+        public bool RepeatableActivation
+        {
+            get
+            {
+                return repeatableActivation;
+            }
+            set
+            {
+                repeatableActivation = value;
+                OnPropertyChanged("RepeatableActivation");
+            }
         }
 
         public override void Move(float mzXdir, float mzZdir)
@@ -666,7 +763,10 @@ namespace MazeMaker
             XmlElement phase1Node = doc.CreateElement(string.Empty, "Phase1Highlight", string.Empty);
             actRegNode.AppendChild(phase1Node);
             phase1Node.SetAttribute("timeElapsedThreshold", this.phase1AutoTriggerTime.ToString());
+            phase1Node.SetAttribute("timeElapsedThresholdOperator", this.phase1TimeThresholdOperator.ToString());
+
             phase1Node.SetAttribute("pointThreshold", this.phase1PointThreshold.ToString());
+            phase1Node.SetAttribute("pointThresholdOperator", this.phase1PointThresholdOperator.ToString());
 
             XmlElement audioNode1 = doc.CreateElement(string.Empty, "Audio", string.Empty);
             phase1Node.AppendChild(audioNode1);
@@ -686,7 +786,10 @@ namespace MazeMaker
             XmlElement phase2Node = doc.CreateElement(string.Empty, "Phase2Event", string.Empty);
             actRegNode.AppendChild(phase2Node);
             phase2Node.SetAttribute("interactRequired", this.InteractRequired.ToString());
+
             phase2Node.SetAttribute("highlightTimeElapsedThreshold", this.phase2AutoTriggerTime.ToString());
+            phase2Node.SetAttribute("highlightTimeElapsedThresholdOperator", this.phase2TimeThresholdOperator.ToString());
+
             phase2Node.SetAttribute("activatedMessageText", this.ActivatedMessage);
             if (this.ActivatedObject!=null)
             {
@@ -697,7 +800,12 @@ namespace MazeMaker
                 phase2Node.SetAttribute("moveToPos", this.MoveToPos.GetID().ToString());
             }
             phase2Node.SetAttribute("pointThreshold", this.phase2PointThreshold.ToString());
+            phase2Node.SetAttribute("pointThresholdOperator", this.phase2PointThresholdOperator.ToString());
+
             phase2Node.SetAttribute("pointsGranted", this.PointsGranted.ToString());
+            phase2Node.SetAttribute("pointsGrantedMode", this.PointsGrantedMode.ToString());
+
+            phase2Node.SetAttribute("repeatableActivation", this.RepeatableActivation.ToString());
 
 
             XmlElement audioNode2 = doc.CreateElement(string.Empty, "Audio", string.Empty);
@@ -739,15 +847,25 @@ namespace MazeMaker
             
             temp.phase1PointThreshold = this.phase1PointThreshold;
             temp.phase2PointThreshold = this.phase2PointThreshold;
+            temp.phase1PointThresholdOperator = this.phase1PointThresholdOperator;
+            temp.phase2PointThresholdOperator = this.phase2PointThresholdOperator;
+
+            temp.PointsGranted = this.PointsGranted;
+            temp.PointsGrantedMode = this.PointsGrantedMode;
 
             temp.Phase1HighlightAudio = this.Phase1HighlightAudio;
             temp.Phase1HighlightAudioBehavior = this.Phase1HighlightAudioBehavior;
             temp.Phase1HighlightAudioLoop = this.Phase1HighlightAudioLoop;
             temp.Phase1AutoTriggerTime = this.Phase1AutoTriggerTime;
             temp.Phase2AutoTriggerTime = this.Phase2AutoTriggerTime;
+            temp.phase1TimeThresholdOperator = this.phase1TimeThresholdOperator;
+            temp.phase2TimeThresholdOperator = this.phase2TimeThresholdOperator;
             temp.Phase2EventAudio = this.Phase2EventAudio;
             temp.Phase2EventAudioLoop = this.Phase2EventAudioLoop;
             temp.activatedObject = this.ActivatedObject;
+
+            temp.RepeatableActivation = this.RepeatableActivation;
+            
 
             temp.Rect = new RectangleF(this.Rect.X + offsetX, this.Rect.Y + offsetY, this.Rect.Width, this.Rect.Height);
             if (clone)
