@@ -298,6 +298,17 @@ namespace MazeMaker
             set { pointThreshold = value; OnPropertyChanged("PointThreshold"); }
         }
 
+        private ThresholdComparator pointThresholdOperator = ThresholdComparator.GreaterThanEqual;
+        [Category("4.Action")]
+        [Description("Comparison applied to point threshold. Ex requires exactly 10 points, more than 10 points, or less than 10 points")]
+        [DisplayName("Point Threshold Operator")]
+        [Browsable(false)]
+        public ThresholdComparator PointThresholdOperator
+        {
+            get { return pointThresholdOperator; }
+            set { pointThresholdOperator = value; OnPropertyChanged("PointThresholdOperator"); }
+        }
+
 
         private string successMessage = "";
         [Category("4.Phase 1: Highlight")]
@@ -317,7 +328,7 @@ namespace MazeMaker
         public int Phase1PointThreshold
         {
             get { return phase1PointThreshold; }
-            set { phase1PointThreshold = value; OnPropertyChanged("Point Threshold Highlight"); }
+            set { phase1PointThreshold = value; OnPropertyChanged("PointThresholdHighlight"); }
         }
 
         private ThresholdComparator phase1PointThresholdOperator = ThresholdComparator.GreaterThanEqual;
@@ -327,7 +338,7 @@ namespace MazeMaker
         public ThresholdComparator Phase1PointThresholdOperator
         {
             get { return phase1PointThresholdOperator; }
-            set { phase1PointThresholdOperator = value; OnPropertyChanged("Point Threshold Highlight Operator"); }
+            set { phase1PointThresholdOperator = value; OnPropertyChanged("PointThresholdHighlightOperator"); }
         }
 
         
