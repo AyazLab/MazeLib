@@ -22,6 +22,8 @@ namespace MazeMaker
             NameFactory.Reset();
         }
 
+
+
         public bool changed = false;
         
         public List<Wall> cWall = new List<Wall>();
@@ -2775,13 +2777,433 @@ namespace MazeMaker
             return true;
         }
 
-        private void Package(object sender, EventArgs e, string mazPath)
+        bool TryCopyFileDir(List<string> dirsToTry, string file, string mazPath, string typeToCopy, ref string copiedFiles, List<string[]> replaceOrder)
         {
+            bool ret = false;
+            List<string> localDirsToTry;
+            switch(typeToCopy)
+            {
+                case "image":
+                    localDirsToTry = new List<string> {"Img","Images","Image","Textures","Tex","Texture" };
+                    break;
+                case "model":
+                    localDirsToTry = new List<string> { "Model","Models","Obj","Objs"};
+                    break;
+                case "audio":
+                    localDirsToTry = new List<string> { "Audio", "Sound", "Sounds" };
+                    break;
+                default:
+                    return false;
+
+            }
+            ret = CopyFile(file, mazPath, typeToCopy, ref copiedFiles, replaceOrder);
+            if (!ret)
+            {
+                foreach (string dir in dirsToTry)
+                {
+                    ret = CopyFile(dir+"\\" + file, mazPath, typeToCopy, ref copiedFiles, replaceOrder);
+                    if (ret)
+                    {
+                        return true;
+                    }
+
+                    foreach (string dirLocal in localDirsToTry)
+                    {
+                        ret = CopyFile(dir + "\\"+dirLocal+ "\\" + file, mazPath, typeToCopy, ref copiedFiles, replaceOrder);
+                        if (ret)
+                        {
+                            return true;
+                        }
+                    }
+                }
+                ret = CopyFile(file, mazPath, typeToCopy, ref copiedFiles, replaceOrder,true);
+                if (ret)
+                {
+                    return true;
+                }
+                else
+                    return false;
+                
+            }
+            else
+                return true;
+
+
+
+        }
+
+        bool CopyFile(string file, string mazPath, string type, ref string copiedFiles, List<string[]> replaceOrder,bool searchForFile=false)
+        {
+            string copiedFile = "no new file";
+
+            if (file != "")
+            {
+                string oldFilePath = "should fall in one switch case or everything will break";
+
+        
+                string fileName = Path.GetFileName(file);
+                string newFilePath = mazPath + "_assets\\" + type + "\\" + fileName;
+                switch (type)
+                {
+                    case "image":
+                        oldFilePath = ImagePathConverter.Paths[fileName];
+                        ImagePathConverter.Paths[fileName] = newFilePath;
+                        break;
+
+                    case "audio":
+                        oldFilePath = AudioPathConverter.Paths[fileName];
+                        AudioPathConverter.Paths[fileName] = newFilePath;
+                        break;
+
+                    case "model":
+                        oldFilePath = ModelPathConverter.Paths[fileName];
+                        ModelPathConverter.Paths[fileName] = newFilePath;
+                        break;
+                }
+
+                copiedFile = this.RecursiveFileCopy(file, mazPath, type, newFilePath, ref replaceOrder, searchForFile);
+                
+                this.ReplaceFiles(replaceOrder);
+            }
+
+            if (!this.AddToLog(copiedFile, ref copiedFiles))
+            {
+                //MazeListBuilder.ShowPM(mazPath, "\nPackage failed.", copiedFiles);
+                return false;
+            }
+
+            return true;
+        }
+
+        public string RecursiveFileCopy(string oldFilePath, string mazXpath, string type, string newFilePath, ref List<string[]> replaceOrder, bool searchForFile = false)
+        {
+            string oldFileName = oldFilePath.Substring(oldFilePath.LastIndexOf("\\") + 1);
+            if (oldFileName == "")
+                oldFileName = oldFilePath;
+            string mazxDirectory = Path.GetDirectoryName(mazXpath);
+
+            // file already exists in assets
+            if (File.Exists(newFilePath))
+            {
+                return "no new file";
+            }
+
+            // checks original location
+            if (oldFilePath[0] == '.' && oldFilePath[1] == '.')
+                oldFilePath = mazxDirectory + "\\" + oldFilePath;
+            //MessageBox.Show(oldFilePath);
+            if (File.Exists(oldFilePath))
+            {
+                File.Copy(oldFilePath, newFilePath);
+                return oldFilePath;
+            }
+
+            // checks './fileName'
+            oldFilePath = mazxDirectory + "\\" + oldFileName;
+            //MessageBox.Show(oldFilePath);
+            if (File.Exists(oldFilePath))
+            {
+                File.Copy(oldFilePath, newFilePath);
+                return oldFilePath;
+            }
+
+            // checks './image/fileName'
+            oldFilePath = mazxDirectory + "\\" + type + "\\" + oldFileName;
+            //MessageBox.Show(oldFilePath);
+            if (File.Exists(oldFilePath))
+            {
+                File.Copy(oldFilePath, newFilePath);
+                return oldFilePath;
+            }
+
+            // checks './images/fileName'
+            oldFilePath = mazxDirectory + "\\" + type + "s\\" + oldFileName;
+            //MessageBox.Show(oldFilePath);
+            if (File.Exists(oldFilePath))
+            {
+                File.Copy(oldFilePath, newFilePath);
+                return oldFilePath;
+            }
+
+            // checks '../image/fileName'
+            oldFilePath = mazxDirectory + "\\..\\" + type + "\\" + oldFileName;
+            //MessageBox.Show(oldFilePath);
+            if (File.Exists(oldFilePath))
+            {
+                File.Copy(oldFilePath, newFilePath);
+                return oldFilePath;
+            }
+
+            // checks '../images/fileName'
+            oldFilePath = mazxDirectory + "\\..\\" + type + "s\\" + oldFileName;
+            //MessageBox.Show(oldFilePath);
+            if (File.Exists(oldFilePath))
+            {
+                File.Copy(oldFilePath, newFilePath);
+                return oldFilePath;
+            }
+
+            // give up
+            if (searchForFile)
+            { 
+                MessageBox.Show("\'" + oldFileName + "\' could not be found. If it can't be found, the package will be abandoned");
+                while (true)
+                {
+                    string fileExt = Path.GetExtension(oldFileName).ToLower();
+                    List<string> imageExt = new List<string> { ".bmp", ".jpg", ".jpeg", ".gif", ".png" };
+
+                    OpenFileDialog ofd = new OpenFileDialog();
+                    if (fileExt == ".maz" || fileExt == ".mazx")
+                        ofd.Filter = "Maze Files (*.maz;*.mazx)|*.maz;*.mazx";
+                    else if (imageExt.Contains(fileExt))
+                        ofd.Filter = "Image Files (*.bmp;*.jpg;*.jpeg;*.gif;*.png)|*.bmp;*.jpg;*.jpeg;*.gif;*.png";
+                    else if (fileExt == ".wav" || fileExt == ".mp3")
+                        ofd.Filter = "Audio Files (*.wav;*.mp3)|*.wav;*.mp3";
+                    else if (fileExt == ".obj")
+                        ofd.Filter = "Model Files (*.obj)|*.obj";
+                    ofd.Title = "Finding/Replacing " + oldFileName;
+
+                    if (ofd.ShowDialog() == DialogResult.OK)
+                    {
+                        string newFileName = ofd.FileName.Substring(ofd.FileName.LastIndexOf("\\") + 1);
+                        if (newFileName == "")
+                            newFileName = ofd.FileName;
+
+                        if (newFileName.Split('.')[0] != oldFileName.Split('.')[0])
+                        {
+                            switch (MessageBox.Show("The new file \'" + newFileName + "\' is different from \'" + oldFileName + "\'. Are you sure you want to use this file? Press \'No\' to search again! Press \'Cancel\' to abandon package!", "Are you sure?", MessageBoxButtons.YesNoCancel))
+                            {
+                                case DialogResult.Yes:
+                                    break;
+
+                                case DialogResult.No: // search again
+                                    continue;
+
+                                default:
+                                    return "Failed";
+                            }
+                        }
+
+                        newFilePath = newFilePath.Substring(0, newFilePath.Length - newFilePath.Substring(newFilePath.LastIndexOf("\\") + 1).Length) + newFileName;
+
+                        if (File.Exists(newFilePath))
+                        {
+                            return "no new file";
+                        }
+
+                        File.Copy(ofd.FileName, newFilePath);
+                        replaceOrder.Add(new string[] { type, oldFileName, newFileName, ofd.FileName });
+                        return ofd.FileName;
+                    }
+
+                    return "Failed";
+                }
+            }
+            return "Failed";
+        }
+            
+        
+
+
+        private bool AddToLog(string copiedFile, ref string copiedFiles)
+        {
+            switch (copiedFile)
+            {
+                case "no new file":
+                    return true;
+
+                case "Failed":
+                    copiedFiles += "\nCopy Failed: " + copiedFile;
+                    return false;
+
+                default:
+                    copiedFiles += "\n" + copiedFile;
+                    return true;
+            }
+        }
+
+
+        public void ReplaceFiles(List<string[]> replaceOrder)
+        {
+            if (replaceOrder.Count != 0)
+            {
+                foreach (Floor floor in this.cFloor)
+                {
+                    foreach (string[] replaceInfo in replaceOrder)
+                    {
+                        if (replaceInfo[0] == "image" && floor.FloorTexture == replaceInfo[1])
+                        {
+                            ImagePathConverter.Paths.Remove(replaceInfo[1]);
+                            floor.FloorTexture = replaceInfo[2];
+                            if (replaceInfo[2] != "")
+                                ImagePathConverter.Paths[replaceInfo[2]] = replaceInfo[3];
+                        }
+                        if (replaceInfo[0] == "image" && floor.CeilingTexture == replaceInfo[1])
+                        {
+                            ImagePathConverter.Paths.Remove(replaceInfo[1]);
+                            floor.CeilingTexture = replaceInfo[2];
+                            if (replaceInfo[2] != "")
+                                ImagePathConverter.Paths[replaceInfo[2]] = replaceInfo[3];
+                        }
+                    }
+                }
+
+                foreach (CurvedWall curvedWall in this.cCurveWall)
+                {
+                    foreach (string[] replaceInfo in replaceOrder)
+                    {
+                        if (replaceInfo[0] == "image" && curvedWall.Texture == replaceInfo[1])
+                        {
+                            ImagePathConverter.Paths.Remove(replaceInfo[1]);
+                            curvedWall.Texture = replaceInfo[2];
+                            if (replaceInfo[2] != "")
+                                ImagePathConverter.Paths[replaceInfo[2]] = replaceInfo[3];
+                        }
+                    }
+                }
+
+                foreach (Wall wall in this.cWall)
+                {
+                    foreach (string[] replaceInfo in replaceOrder)
+                    {
+                        if (replaceInfo[0] == "image" && wall.Texture == replaceInfo[1])
+                        {
+                            ImagePathConverter.Paths.Remove(replaceInfo[1]);
+                            wall.Texture = replaceInfo[2];
+                            if (replaceInfo[2] != "")
+                                ImagePathConverter.Paths[replaceInfo[2]] = replaceInfo[3];
+                        }
+                    }
+                }
+
+                foreach (ActiveRegion activeRegion in this.cActRegions)
+                {
+                    foreach (string[] replaceInfo in replaceOrder)
+                    {
+                        if (replaceInfo[0] == "audio" && activeRegion.Phase1HighlightAudio == replaceInfo[1])
+                        {
+                            AudioPathConverter.Paths.Remove(replaceInfo[1]);
+                            activeRegion.Phase1HighlightAudio = replaceInfo[2];
+                            if (replaceInfo[2] != "")
+                                AudioPathConverter.Paths[replaceInfo[2]] = replaceInfo[3];
+                        }
+                        if (replaceInfo[0] == "audio" && activeRegion.Phase2EventAudio == replaceInfo[1])
+                        {
+                            AudioPathConverter.Paths.Remove(replaceInfo[1]);
+                            activeRegion.Phase2EventAudio = replaceInfo[2];
+                            if (replaceInfo[2] != "")
+                                AudioPathConverter.Paths[replaceInfo[2]] = replaceInfo[3];
+                        }
+                    }
+                }
+
+                foreach (DynamicObject dynamicObject in this.cDynamicObjects)
+                {
+                    foreach (string[] replaceInfo in replaceOrder)
+                    {
+                        if (replaceInfo[0] == "audio" && dynamicObject.Phase1HighlightAudio == replaceInfo[1])
+                        {
+                            AudioPathConverter.Paths.Remove(replaceInfo[1]);
+                            dynamicObject.Phase1HighlightAudio = replaceInfo[2];
+                            if (replaceInfo[2] != "")
+                                AudioPathConverter.Paths[replaceInfo[2]] = replaceInfo[3];
+                        }
+                        if (replaceInfo[0] == "audio" && dynamicObject.Phase2EventAudio == replaceInfo[1])
+                        {
+                            AudioPathConverter.Paths.Remove(replaceInfo[1]);
+                            dynamicObject.Phase2EventAudio = replaceInfo[2];
+                            if (replaceInfo[2] != "")
+                                AudioPathConverter.Paths[replaceInfo[2]] = replaceInfo[3];
+                        }
+                        if (replaceInfo[0] == "model" && dynamicObject.Model == replaceInfo[1])
+                        {
+                            ModelPathConverter.Paths.Remove(replaceInfo[1]);
+                            dynamicObject.Model = replaceInfo[2];
+                            if (replaceInfo[2] != "")
+                                ModelPathConverter.Paths[replaceInfo[2]] = replaceInfo[3];
+                        }
+                        if (replaceInfo[0] == "model" && dynamicObject.SwitchToModel == replaceInfo[1])
+                        {
+                            ModelPathConverter.Paths.Remove(replaceInfo[1]);
+                            dynamicObject.SwitchToModel = replaceInfo[2];
+                            if (replaceInfo[2] != "")
+                                ModelPathConverter.Paths[replaceInfo[2]] = replaceInfo[3];
+                        }
+                    }
+                }
+
+                foreach (StaticModel staticModel in this.cStaticModels)
+                {
+                    foreach (string[] replaceInfo in replaceOrder)
+                    {
+                        if (replaceInfo[0] == "model" && staticModel.Model == replaceInfo[1])
+                        {
+                            ModelPathConverter.Paths.Remove(replaceInfo[1]);
+                            staticModel.Model = replaceInfo[2];
+                            if (replaceInfo[2] != "")
+                                ModelPathConverter.Paths[replaceInfo[2]] = replaceInfo[3];
+                        }
+                    }
+                }
+
+                foreach (string[] replaceInfo in replaceOrder)
+                {
+                    if (replaceInfo[0] == "image" && this.SkyBoxTexture == replaceInfo[1])
+                    {
+                        ImagePathConverter.Paths.Remove(replaceInfo[1]);
+                        this.SkyBoxTexture = replaceInfo[2];
+                        if (replaceInfo[2] != "")
+                            ImagePathConverter.Paths[replaceInfo[2]] = replaceInfo[3];
+                    }
+                    if (replaceInfo[0] == "model" && this.AvatarModel == replaceInfo[1])
+                    {
+                        ModelPathConverter.Paths.Remove(replaceInfo[1]);
+                        this.AvatarModel = replaceInfo[2];
+                        if (replaceInfo[2] != "")
+                            ModelPathConverter.Paths[replaceInfo[2]] = replaceInfo[3];
+                    }
+                    if (replaceInfo[0] == "image") // unused files
+                    {
+                        ImagePathConverter.Paths.Remove(replaceInfo[1]);
+                        if (replaceInfo[2] != "")
+                            ImagePathConverter.Paths[replaceInfo[2]] = replaceInfo[3];
+                    }
+                    if (replaceInfo[0] == "audio")
+                    {
+                        AudioPathConverter.Paths.Remove(replaceInfo[1]);
+                        if (replaceInfo[2] != "")
+                            AudioPathConverter.Paths[replaceInfo[2]] = replaceInfo[3];
+                    }
+                    if (replaceInfo[0] == "model")
+                    {
+                        ModelPathConverter.Paths.Remove(replaceInfo[1]);
+                        if (replaceInfo[2] != "")
+                            ModelPathConverter.Paths[replaceInfo[2]] = replaceInfo[3];
+                    }
+                }
+
+                replaceOrder.Clear();
+            }
+        }
+
+        public bool Package(string mazPath, out string copiedFiles, List<string[]> replaceOrder)
+        {
+            return Package(this, null, mazPath, out copiedFiles, replaceOrder);
+        }
+
+        private bool Package(object sender, EventArgs e, string mazPath, out string copiedFiles, List<string[]> replaceOrder)
+        {
+            
+            copiedFiles = "";
             string directory = Path.GetDirectoryName(mazPath);
             string assetsPath = mazPath + "_assets";
-            if (File.Exists(mazPath))   //TODO: save maze
+            if (!File.Exists(mazPath))   //TODO: save maze
             {
+                this.SaveToMazeXML(mazPath);
+            }
 
+            if (File.Exists(mazPath))
+            { 
                 //curMaze.Package(mazPath, zip);   //Make Package function in maze.cs with everything below here
                 string tempPath = directory + "\\Temp";
                 if (Directory.Exists(tempPath))
@@ -2790,51 +3212,217 @@ namespace MazeMaker
                 Directory.CreateDirectory(assetsPath + "\\audio");
                 Directory.CreateDirectory(assetsPath + "\\model");
 
-                foreach (Floor floor in this.cFloor)  //????
+                List<string> copiedFilesList = new List<string>();
+                string fileToCopy = "";
+                string typeToCopy = "";
+
+                List<string> dirsToTry = new List<string> { Settings.userLibraryFolder, Settings.standardLibraryFolder, mazPath };
+                
+                foreach (Floor floor in this.cFloor) 
                 {
-                    if (!CopyFile(floor.FloorTexture, mazPath, "image"))
-                        return;
-                    if (!CopyFile(floor.CeilingTexture, mazPath, "image"))
-                        return;
+                    if(floor.FloorTexture.Length>0)
+                    {
+                        fileToCopy = floor.FloorTexture;
+                        typeToCopy = "image";
+                        if (!TryCopyFileDir(dirsToTry,fileToCopy, mazPath, typeToCopy, ref copiedFiles, replaceOrder))
+                        {
+                            copiedFiles += "\nError Copying " + fileToCopy + "!\nPackage aborted";
+                            return false;
+                        }
+                        else
+                            copiedFiles += " " + fileToCopy;
+                    }
+                    if (floor.CeilingTexture.Length > 0)
+                    {
+                        fileToCopy = floor.CeilingTexture;
+                        typeToCopy = "image";
+                        if (!TryCopyFileDir(dirsToTry, fileToCopy, mazPath, typeToCopy, ref copiedFiles, replaceOrder))
+                        {
+                            copiedFiles += "\nError Copying " + floor.CeilingTexture + "!\nPackage aborted";
+                            return false;
+                        }
+                        else
+                        {
+                            copiedFiles += " " + floor.CeilingTexture;
+                        }
+                    }
                 }
                 foreach (CurvedWall curvedWall in this.cCurveWall)
                 {
-                    if (!CopyFile(curvedWall.Texture, mazPath, "image"))
-                        return;
+                    if (curvedWall.Texture.Length > 0)
+                    {
+                        fileToCopy = curvedWall.Texture;
+                        typeToCopy = "image";
+                        if (!TryCopyFileDir(dirsToTry, fileToCopy, mazPath, typeToCopy, ref copiedFiles, replaceOrder))
+                        {
+                            copiedFiles += "\nError Copying " + curvedWall.Texture + "!\nPackage aborted";
+                            return false;
+                        }
+                        else
+                        {
+                            copiedFiles += " " + curvedWall.Texture;
+                        }
+                    }
                 }
                 foreach (Wall wall in this.cWall)
                 {
-                    if (!CopyFile(wall.Texture, mazPath, "image"))
-                        return;
+                    if (wall.Texture.Length > 0)
+                    {
+                        fileToCopy = wall.Texture;
+                        typeToCopy = "image";
+                        if (!TryCopyFileDir(dirsToTry, fileToCopy, mazPath, typeToCopy, ref copiedFiles, replaceOrder))
+                        {
+                            copiedFiles += "\nError Copying " + wall.Texture + "!\nPackage aborted";
+                            return false;
+                        }
+                        else
+                        {
+                            copiedFiles += " " + wall.Texture;
+                        }
+                    }
                 }
                 foreach (ActiveRegion activeRegion in this.cActRegions)
                 {
-                    if (!CopyFile(activeRegion.Phase1HighlightAudio, mazPath, "audio"))
-                        return;
-                    if (!CopyFile(activeRegion.Phase2EventAudio, mazPath, "audio"))
-                        return;
+                    
+                    if (activeRegion.Phase1HighlightAudio.Length > 0)
+                    {
+                        fileToCopy = activeRegion.Phase1HighlightAudio;
+                        typeToCopy = "audio";
+                        if (!TryCopyFileDir(dirsToTry, fileToCopy, mazPath, typeToCopy, ref copiedFiles, replaceOrder))
+                        {
+                            copiedFiles += "\nError Copying " + activeRegion.Phase1HighlightAudio + "!\nPackage aborted";
+                            return false;
+                        }
+                        else
+                        {
+                            copiedFiles += " " + activeRegion.Phase1HighlightAudio;
+                        }
+                    }
+                    if (activeRegion.Phase2EventAudio.Length > 0)
+                    {
+                        fileToCopy = activeRegion.Phase2EventAudio;
+                        typeToCopy = "audio";
+                        if (!TryCopyFileDir(dirsToTry, fileToCopy, mazPath, typeToCopy, ref copiedFiles, replaceOrder))
+                        {
+                            copiedFiles += "\nError Copying " + activeRegion.Phase2EventAudio + "!\nPackage aborted";
+                            return false;
+                        }
+                        else
+                        {
+                            copiedFiles += " " + activeRegion.Phase2EventAudio;
+                        }
+                    }
                 }
                 foreach (DynamicObject dynamicObject in this.cDynamicObjects)
                 {
-                    if (!CopyFile(dynamicObject.Phase1HighlightAudio, mazPath, "audio"))
-                        return;
-                    if (!CopyFile(dynamicObject.Phase2EventAudio, mazPath, "audio"))
-                        return;
-                    if (!CopyFile(dynamicObject.Model, mazPath, "model"))
-                        return;
-                    if (!CopyFile(dynamicObject.SwitchToModel, mazPath, "model"))
-                        return;
+                    if (dynamicObject.Phase1HighlightAudio.Length > 0)
+                    {
+                        fileToCopy = dynamicObject.Phase1HighlightAudio;
+                        typeToCopy = "audio";
+                        if (!TryCopyFileDir(dirsToTry, fileToCopy, mazPath, typeToCopy, ref copiedFiles, replaceOrder))
+                        {
+                            copiedFiles += "\nError Copying " + dynamicObject.Phase1HighlightAudio + "!\nPackage aborted";
+                            return false;
+                        }
+                        else
+                        {
+                            copiedFiles += " " + dynamicObject.Phase1HighlightAudio;
+                        }
+                    }
+                    if (dynamicObject.Phase2EventAudio.Length > 0)
+                    {
+                        fileToCopy = dynamicObject.Phase2EventAudio;
+                        typeToCopy = "audio";
+                        if (!TryCopyFileDir(dirsToTry, fileToCopy, mazPath, typeToCopy, ref copiedFiles, replaceOrder))
+                        {
+                            copiedFiles += "\nError Copying " + dynamicObject.Phase2EventAudio + "!\nPackage aborted";
+                            return false;
+                        }
+                        else
+                        {
+                            copiedFiles += " " + dynamicObject.Phase2EventAudio;
+                        }
+                    }
+                    if (dynamicObject.Model.Length > 0)
+                    {
+                        fileToCopy = dynamicObject.Model;
+                        typeToCopy = "model";
+                        if (!TryCopyFileDir(dirsToTry, fileToCopy, mazPath, typeToCopy, ref copiedFiles, replaceOrder))
+                        {
+                            copiedFiles += "\nError Copying " + dynamicObject.Model + "!\nPackage aborted";
+                            return false;
+                        }
+                        else
+                        {
+                            copiedFiles += " " + dynamicObject.Model;
+                        }
+                    }
+                    if (dynamicObject.SwitchToModel.Length > 0)
+                    {
+                        fileToCopy = dynamicObject.SwitchToModel;
+                        typeToCopy = "model";
+                        if (!TryCopyFileDir(dirsToTry, fileToCopy, mazPath, typeToCopy, ref copiedFiles, replaceOrder))
+                        {
+                            copiedFiles += "\nError Copying " + dynamicObject.SwitchToModel + "!\nPackage aborted";
+                            return false;
+                        }
+                        else
+                        {
+                            copiedFiles += " " + dynamicObject.SwitchToModel;
+                        }
+                    }
                 }
                 foreach (StaticModel staticModel in this.cStaticModels)
                 {
-                    if (!CopyFile(staticModel.Model, mazPath, "model"))
-                        return;
+                    if (staticModel.Model.Length > 0)
+                    {
+                        fileToCopy = staticModel.Model;
+                        typeToCopy = "model";
+                        if (!TryCopyFileDir(dirsToTry, fileToCopy, mazPath, typeToCopy, ref copiedFiles, replaceOrder))
+                        {
+                            copiedFiles += "\nError Copying " + staticModel.Model + "!\nPackage aborted";
+                            return false;
+                        }
+                        else
+                        {
+                            copiedFiles += " " + staticModel.Model;
+                        }
+                    }
                 }
-                if (!CopyFile(this.SkyBoxTexture, mazPath, "image"))
-                    return;
-                if (!CopyFile(this.AvatarModel, mazPath, "model"))
-                    return;
+                if (this.SkyBoxTexture.Length > 0)
+                {
+                    fileToCopy = this.SkyBoxTexture;
+                    typeToCopy = "image";
+                    if (!TryCopyFileDir(dirsToTry, fileToCopy, mazPath, typeToCopy, ref copiedFiles, replaceOrder))
+                    {
+                        copiedFiles += "\nError Copying " + this.SkyBoxTexture + "!\nPackage aborted";
+                        return false;
+                    }
+                    else
+                    {
+                        copiedFiles += " " + this.SkyBoxTexture;
+                    }
+                }
+                if (this.AvatarModel.Length > 0)
+                {
+                    fileToCopy = this.AvatarModel;
+                    typeToCopy = "model";
+                    if (!TryCopyFileDir(dirsToTry, fileToCopy, mazPath, typeToCopy, ref copiedFiles, replaceOrder))
+                    {
+                        copiedFiles += "\nError Copying " + this.AvatarModel + "!\nPackage aborted";
+                        return false;
+                    }
+                    else
+                    {
+                        copiedFiles += " " + this.AvatarModel;
+                    }
+                }
                 this.SaveToMazeXML(mazPath);
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
         public static bool CopyFile(string file, string mazPath, string type)
@@ -2845,6 +3433,9 @@ namespace MazeMaker
             string newFilePath = mazPath + "_assets\\" + type + "\\" + file;
             string mazDirectory = Path.GetDirectoryName(mazPath);
             string oldFileName = oldFilePath.Substring(oldFilePath.LastIndexOf("\\") + 1);
+
+            if (file.Length == 0)
+                return true;
             // copiedFile = MazeListBuilder.RecursiveFileCopy(oldFilePath, mazPath, type, newFilePath);
             if (oldFilePath != newFilePath)
             {
@@ -2864,8 +3455,10 @@ namespace MazeMaker
                     File.Copy(oldFilePath, newFilePath);
                     return true;
                 }
+
+                return false;
             }
-            return false;
+            return true;
         }
 
 
