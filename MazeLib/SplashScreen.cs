@@ -53,6 +53,7 @@ namespace MazeLib
             updateTimer.Start();
             this.ProgressColor1 = Color.FromArgb(58, 96, 151);
             this.ProgressColor2 = Color.FromArgb(181, 237, 254);
+
         }
 
         #region Public Static Methods
