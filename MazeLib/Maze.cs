@@ -3679,7 +3679,7 @@ namespace MazeMaker
                 }
             }
 
-            if (imageFiles.Count > materialFiles.Count)
+            if (imageFiles.Count > imageIdx.Count)
                 return false;
 
             for (int j = 0; j < imageFiles.Count; j++)
