@@ -10,6 +10,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
 using System.Xml;
+using System.IO.Compression;
 
 #endregion
 
@@ -3194,9 +3195,47 @@ namespace MazeMaker
             }
         }
 
-        public bool Package(string mazPath, out string copiedFiles, List<string[]> replaceOrder)
+        public bool Package(string mazPath, out string copiedFiles, List<string[]> replaceOrder, bool zipMazX)
         {
-            return Package(this, null, mazPath, out copiedFiles, replaceOrder);
+            bool ret;
+            string directory = Path.GetDirectoryName(mazPath);
+            string fileName = Path.GetFileName(mazPath);
+            string fileNameNoExt = Path.GetFileNameWithoutExtension(mazPath);
+            ret = Package(this, null, mazPath, out copiedFiles, replaceOrder);
+
+            if (!ret)
+                return false;
+            else
+            {
+                if(!zipMazX)
+                    return true;
+                else
+                {
+                    string tempPath = directory + "\\Temp"; // make temp dir
+                    if (Directory.Exists(tempPath))
+                        Directory.Delete(tempPath, true);
+                    Directory.CreateDirectory(tempPath);
+
+                    string newMazPath = tempPath + "\\" + fileName; // move stuff into temp dir
+                    string assetsPath = mazPath + "_assets";
+                    string newAssetsPath = tempPath + "\\" + fileName + "_assets";
+
+                    Directory.Move(mazPath, newMazPath);
+                    Directory.Move(assetsPath, newAssetsPath);
+
+                    string zipPath = directory + "\\" + fileNameNoExt + ".mazx"; // zip stuff in temp dir
+                    if (File.Exists(zipPath))
+                        File.Delete(zipPath);
+
+                    ZipFile.CreateFromDirectory(tempPath, zipPath);
+
+                    Directory.Delete(tempPath, true); // delete temp dir
+
+                    return true;
+                }
+                
+            }
+
         }
 
         private bool Package(object sender, EventArgs e, string mazPath, out string copiedFiles, List<string[]> replaceOrder)
