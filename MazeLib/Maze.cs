@@ -3612,6 +3612,9 @@ namespace MazeMaker
             FileInfo fi = new FileInfo(origModelPath);
             StreamReader reader = fi.OpenText();
 
+            materialFiles.Clear();
+            imageFiles.Clear();
+
             string origModelDir=System.IO.Path.GetDirectoryName(origModelPath);
             string line;
 
