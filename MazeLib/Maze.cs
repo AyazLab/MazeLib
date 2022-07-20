@@ -2777,9 +2777,10 @@ namespace MazeMaker
             return true;
         }
 
-        bool TryCopyFileDir(List<string> dirsToTry, string file, string mazPath, string typeToCopy, ref string copiedFiles, List<string[]> replaceOrder)
+        string TryCopyFileDir(List<string> dirsToTry, string file, string mazPath, string typeToCopy, ref string copiedFiles, List<string[]> replaceOrder)
         {
             bool ret = false;
+            string origCopyFile = "";
             List<string> localDirsToTry;
             switch(typeToCopy)
             {
@@ -2793,50 +2794,50 @@ namespace MazeMaker
                     localDirsToTry = new List<string> { "Audio", "Sound", "Sounds" };
                     break;
                 default:
-                    return false;
+                    return "";
 
             }
-            ret = CopyFile(file, mazPath, typeToCopy, ref copiedFiles, replaceOrder);
+            ret = CopyFile(file, mazPath, typeToCopy, ref copiedFiles, replaceOrder,out origCopyFile, false);
             if (!ret)
             {
                 foreach (string dir in dirsToTry)
                 {
-                    ret = CopyFile(dir+"\\" + file, mazPath, typeToCopy, ref copiedFiles, replaceOrder);
+                    ret = CopyFile(dir+"\\" + file, mazPath, typeToCopy, ref copiedFiles, replaceOrder, out origCopyFile, false);
                     if (ret)
                     {
-                        return true;
+                        return origCopyFile;
                     }
 
                     foreach (string dirLocal in localDirsToTry)
                     {
-                        ret = CopyFile(dir + "\\"+dirLocal+ "\\" + file, mazPath, typeToCopy, ref copiedFiles, replaceOrder);
+                        ret = CopyFile(dir + "\\"+dirLocal+ "\\" + file, mazPath, typeToCopy, ref copiedFiles, replaceOrder,out origCopyFile, false);
                         if (ret)
                         {
-                            return true;
+                            return origCopyFile;
                         }
                     }
                 }
-                ret = CopyFile(file, mazPath, typeToCopy, ref copiedFiles, replaceOrder,true);
+                ret = CopyFile(file, mazPath, typeToCopy, ref copiedFiles, replaceOrder,out origCopyFile, true);
                 if (ret)
                 {
                     copiedFiles += "\n Manually selected replacement for " + file + "\n";
-                    return true;
+                    return origCopyFile;
                 }
                 else
                 {
                     copiedFiles += "\n Copy Failed: Could not find " + file + "\n";
-                    return false;
+                    return "";
                 }
 
             }
             else
-                return true;
+                return origCopyFile;
 
 
 
         }
 
-        bool CopyFile(string file, string mazPath, string type, ref string copiedFiles, List<string[]> replaceOrder,bool searchForFile=false)
+        bool CopyFile(string file, string mazPath, string type, ref string copiedFiles, List<string[]> replaceOrder, out string origCopyFile, bool searchForFile=false)
         {
             string copiedFile = "no new file";
 
@@ -2872,9 +2873,12 @@ namespace MazeMaker
 
             if (!this.AddToLog(copiedFile, ref copiedFiles))
             {
+                origCopyFile = "";
                 //MazeListBuilder.ShowPM(mazPath, "\nPackage failed.", copiedFiles);
                 return false;
             }
+
+            origCopyFile = copiedFile;
 
             return true;
         }
@@ -3219,6 +3223,10 @@ namespace MazeMaker
                 List<string> copiedFilesList = new List<string>();
                 string fileToCopy = "";
                 string typeToCopy = "";
+                string oldFilePath = "";
+                List<string> modelMaterialFileList = new List<string>();
+                List<string> modelTextureFileList = new List<string>();
+                bool ret = true;
 
                 List<string> dirsToTry = new List<string> { Settings.userLibraryFolder, Settings.standardLibraryFolder, mazPath };
                 
@@ -3228,30 +3236,43 @@ namespace MazeMaker
                     {
                         fileToCopy = floor.FloorTexture;
                         typeToCopy = "image";
-                        if (!copiedFilesList.Contains(fileToCopy)&&!TryCopyFileDir(dirsToTry,fileToCopy, mazPath, typeToCopy, ref copiedFiles, replaceOrder))
+                        if (!copiedFilesList.Contains(fileToCopy))
                         {
-                            copiedFiles += "\nError Copying " + fileToCopy + "!\nPackage aborted";
-                            return false;
+
+                            oldFilePath = TryCopyFileDir(dirsToTry, fileToCopy, mazPath, typeToCopy, ref copiedFiles, replaceOrder);
+
+                            if (oldFilePath.Length == 0)
+                            {
+                                copiedFiles += "\nError Copying " + fileToCopy + "!\nPackage aborted";
+                                return false;
+                            }
+                            else
+                            {
+                                copiedFilesList.Add(fileToCopy);
+                                copiedFiles += ": " + fileToCopy;
+                            }
                         }
-                        else
-                        {
-                            copiedFilesList.Add(fileToCopy);
-                            copiedFiles += " " + fileToCopy;
-                        }
+                        
                     }
                     if (floor.CeilingTexture.Length > 0)
                     {
                         fileToCopy = floor.CeilingTexture;
                         typeToCopy = "image";
-                        if (!copiedFilesList.Contains(fileToCopy) && !TryCopyFileDir(dirsToTry, fileToCopy, mazPath, typeToCopy, ref copiedFiles, replaceOrder))
+                        if (!copiedFilesList.Contains(fileToCopy))
                         {
-                            copiedFiles += "\nError Copying " + fileToCopy + "!\nPackage aborted";
-                            return false;
-                        }
-                        else
-                        {
-                            copiedFilesList.Add(fileToCopy);
-                            copiedFiles += " " + fileToCopy;
+
+                            oldFilePath = TryCopyFileDir(dirsToTry, fileToCopy, mazPath, typeToCopy, ref copiedFiles, replaceOrder);
+
+                            if (oldFilePath.Length == 0)
+                            {
+                                copiedFiles += "\nError Copying " + fileToCopy + "!\nPackage aborted";
+                                return false;
+                            }
+                            else
+                            {
+                                copiedFilesList.Add(fileToCopy);
+                                copiedFiles += ": " + fileToCopy;
+                            }
                         }
                     }
                 }
@@ -3261,15 +3282,21 @@ namespace MazeMaker
                     {
                         fileToCopy = curvedWall.Texture;
                         typeToCopy = "image";
-                        if (!copiedFilesList.Contains(fileToCopy) && !TryCopyFileDir(dirsToTry, fileToCopy, mazPath, typeToCopy, ref copiedFiles, replaceOrder))
+                        if (!copiedFilesList.Contains(fileToCopy))
                         {
-                            copiedFiles += "\nError Copying " + fileToCopy + "!\nPackage aborted";
-                            return false;
-                        }
-                        else
-                        {
-                            copiedFilesList.Add(fileToCopy);
-                            copiedFiles += " " + fileToCopy;
+
+                            oldFilePath = TryCopyFileDir(dirsToTry, fileToCopy, mazPath, typeToCopy, ref copiedFiles, replaceOrder);
+
+                            if (oldFilePath.Length == 0)
+                            {
+                                copiedFiles += "\nError Copying " + fileToCopy + "!\nPackage aborted";
+                                return false;
+                            }
+                            else
+                            {
+                                copiedFilesList.Add(fileToCopy);
+                                copiedFiles += ": " + fileToCopy;
+                            }
                         }
                     }
                 }
@@ -3279,15 +3306,21 @@ namespace MazeMaker
                     {
                         fileToCopy = wall.Texture;
                         typeToCopy = "image";
-                        if (!copiedFilesList.Contains(fileToCopy) && !TryCopyFileDir(dirsToTry, fileToCopy, mazPath, typeToCopy, ref copiedFiles, replaceOrder))
+                        if (!copiedFilesList.Contains(fileToCopy))
                         {
-                            copiedFiles += "\nError Copying " + fileToCopy + "!\nPackage aborted";
-                            return false;
-                        }
-                        else
-                        {
-                            copiedFilesList.Add(fileToCopy);
-                            copiedFiles += " " + fileToCopy;
+
+                            oldFilePath = TryCopyFileDir(dirsToTry, fileToCopy, mazPath, typeToCopy, ref copiedFiles, replaceOrder);
+
+                            if (oldFilePath.Length == 0)
+                            {
+                                copiedFiles += "\nError Copying " + fileToCopy + "!\nPackage aborted";
+                                return false;
+                            }
+                            else
+                            {
+                                copiedFilesList.Add(fileToCopy);
+                                copiedFiles += ": " + fileToCopy;
+                            }
                         }
                     }
                 }
@@ -3298,30 +3331,42 @@ namespace MazeMaker
                     {
                         fileToCopy = activeRegion.Phase1HighlightAudio;
                         typeToCopy = "audio";
-                        if (!copiedFilesList.Contains(fileToCopy) && !TryCopyFileDir(dirsToTry, fileToCopy, mazPath, typeToCopy, ref copiedFiles, replaceOrder))
+                        if (!copiedFilesList.Contains(fileToCopy))
                         {
-                            copiedFiles += "\nError Copying " + fileToCopy + "!\nPackage aborted";
-                            return false;
-                        }
-                        else
-                        {
-                            copiedFilesList.Add(fileToCopy);
-                            copiedFiles += " " + fileToCopy;
+
+                            oldFilePath = TryCopyFileDir(dirsToTry, fileToCopy, mazPath, typeToCopy, ref copiedFiles, replaceOrder);
+
+                            if (oldFilePath.Length == 0)
+                            {
+                                copiedFiles += "\nError Copying " + fileToCopy + "!\nPackage aborted";
+                                return false;
+                            }
+                            else
+                            {
+                                copiedFilesList.Add(fileToCopy);
+                                copiedFiles += ": " + fileToCopy;
+                            }
                         }
                     }
                     if (activeRegion.Phase2EventAudio.Length > 0)
                     {
                         fileToCopy = activeRegion.Phase2EventAudio;
                         typeToCopy = "audio";
-                        if (!copiedFilesList.Contains(fileToCopy) && !TryCopyFileDir(dirsToTry, fileToCopy, mazPath, typeToCopy, ref copiedFiles, replaceOrder))
+                        if (!copiedFilesList.Contains(fileToCopy))
                         {
-                            copiedFiles += "\nError Copying " + fileToCopy + "!\nPackage aborted";
-                            return false;
-                        }
-                        else
-                        {
-                            copiedFilesList.Add(fileToCopy);
-                            copiedFiles += " " + fileToCopy;
+
+                            oldFilePath = TryCopyFileDir(dirsToTry, fileToCopy, mazPath, typeToCopy, ref copiedFiles, replaceOrder);
+
+                            if (oldFilePath.Length == 0)
+                            {
+                                copiedFiles += "\nError Copying " + fileToCopy + "!\nPackage aborted";
+                                return false;
+                            }
+                            else
+                            {
+                                copiedFilesList.Add(fileToCopy);
+                                copiedFiles += ": " + fileToCopy;
+                            }
                         }
                     }
                 }
@@ -3331,60 +3376,84 @@ namespace MazeMaker
                     {
                         fileToCopy = dynamicObject.Phase1HighlightAudio;
                         typeToCopy = "audio";
-                        if (!copiedFilesList.Contains(fileToCopy) && !TryCopyFileDir(dirsToTry, fileToCopy, mazPath, typeToCopy, ref copiedFiles, replaceOrder))
+                        if (!copiedFilesList.Contains(fileToCopy))
                         {
-                            copiedFiles += "\nError Copying " + fileToCopy + "!\nPackage aborted";
-                            return false;
-                        }
-                        else
-                        {
-                            copiedFilesList.Add(fileToCopy);
-                            copiedFiles += " " + fileToCopy;
+
+                            oldFilePath = TryCopyFileDir(dirsToTry, fileToCopy, mazPath, typeToCopy, ref copiedFiles, replaceOrder);
+
+                            if (oldFilePath.Length == 0)
+                            {
+                                copiedFiles += "\nError Copying " + fileToCopy + "!\nPackage aborted";
+                                return false;
+                            }
+                            else
+                            {
+                                copiedFilesList.Add(fileToCopy);
+                                copiedFiles += ": " + fileToCopy;
+                            }
                         }
                     }
                     if (dynamicObject.Phase2EventAudio.Length > 0)
                     {
                         fileToCopy = dynamicObject.Phase2EventAudio;
                         typeToCopy = "audio";
-                        if (!copiedFilesList.Contains(fileToCopy) && !TryCopyFileDir(dirsToTry, fileToCopy, mazPath, typeToCopy, ref copiedFiles, replaceOrder))
+                        if (!copiedFilesList.Contains(fileToCopy))
                         {
-                            copiedFiles += "\nError Copying " + fileToCopy + "!\nPackage aborted";
-                            return false;
-                        }
-                        else
-                        {
-                            copiedFilesList.Add(fileToCopy);
-                            copiedFiles += " " + fileToCopy;
+
+                            oldFilePath = TryCopyFileDir(dirsToTry, fileToCopy, mazPath, typeToCopy, ref copiedFiles, replaceOrder);
+
+                            if (oldFilePath.Length == 0)
+                            {
+                                copiedFiles += "\nError Copying " + fileToCopy + "!\nPackage aborted";
+                                return false;
+                            }
+                            else
+                            {
+                                copiedFilesList.Add(fileToCopy);
+                                copiedFiles += ": " + fileToCopy;
+                            }
                         }
                     }
                     if (dynamicObject.Model.Length > 0)
                     {
                         fileToCopy = dynamicObject.Model;
                         typeToCopy = "model";
-                        if (!copiedFilesList.Contains(fileToCopy) && !TryCopyFileDir(dirsToTry, fileToCopy, mazPath, typeToCopy, ref copiedFiles, replaceOrder))
+                        if (!copiedFilesList.Contains(fileToCopy))
                         {
-                            copiedFiles += "\nError Copying " + fileToCopy + "!\nPackage aborted";
-                            return false;
-                        }
-                        else
-                        {
-                            copiedFilesList.Add(fileToCopy);
-                            copiedFiles += " " + fileToCopy;
+
+                            oldFilePath = TryCopyFileDir(dirsToTry, fileToCopy, mazPath, typeToCopy, ref copiedFiles, replaceOrder);
+
+                            if (oldFilePath.Length == 0)
+                            {
+                                copiedFiles += "\nError Copying " + fileToCopy + "!\nPackage aborted";
+                                return false;
+                            }
+                            else
+                            {
+                                copiedFilesList.Add(fileToCopy);
+                                copiedFiles += ": " + fileToCopy;
+                            }
                         }
                     }
                     if (dynamicObject.SwitchToModel.Length > 0)
                     {
                         fileToCopy = dynamicObject.SwitchToModel;
                         typeToCopy = "model";
-                        if (!copiedFilesList.Contains(fileToCopy) && !TryCopyFileDir(dirsToTry, fileToCopy, mazPath, typeToCopy, ref copiedFiles, replaceOrder))
+                        if (!copiedFilesList.Contains(fileToCopy))
                         {
-                            copiedFiles += "\nError Copying " + fileToCopy + "!\nPackage aborted";
-                            return false;
-                        }
-                        else
-                        {
-                            copiedFilesList.Add(fileToCopy);
-                            copiedFiles += " " + fileToCopy;
+
+                            oldFilePath = TryCopyFileDir(dirsToTry, fileToCopy, mazPath, typeToCopy, ref copiedFiles, replaceOrder);
+
+                            if (oldFilePath.Length == 0)
+                            {
+                                copiedFiles += "\nError Copying " + fileToCopy + "!\nPackage aborted";
+                                return false;
+                            }
+                            else
+                            {
+                                copiedFilesList.Add(fileToCopy);
+                                copiedFiles += ": " + fileToCopy;
+                            }
                         }
                     }
                 }
@@ -3394,15 +3463,27 @@ namespace MazeMaker
                     {
                         fileToCopy = staticModel.Model;
                         typeToCopy = "model";
-                        if (!copiedFilesList.Contains(fileToCopy) && !TryCopyFileDir(dirsToTry, fileToCopy, mazPath, typeToCopy, ref copiedFiles, replaceOrder))
+                        if (!copiedFilesList.Contains(fileToCopy))
                         {
-                            copiedFiles += "\nError Copying " + fileToCopy + "!\nPackage aborted";
-                            return false;
-                        }
-                        else
-                        {
-                            copiedFilesList.Add(fileToCopy);
-                            copiedFiles += " " + fileToCopy;
+
+                            oldFilePath = TryCopyFileDir(dirsToTry, fileToCopy, mazPath, typeToCopy, ref copiedFiles, replaceOrder);
+
+                            if (oldFilePath.Length == 0)
+                            {
+                                copiedFiles += "\nError Copying " + fileToCopy + "!\nPackage aborted";
+                                return false;
+                            }
+                            else
+                            {
+                                copiedFilesList.Add(fileToCopy);
+                                copiedFiles += ": " + fileToCopy;
+
+                                ret = RecursiveModelCopy(oldFilePath, mazPath, ref modelMaterialFileList, ref modelTextureFileList,ref copiedFiles);
+                                if(!ret)
+                                {
+                                    copiedFiles += "\nError while copying Model assets" + fileToCopy + "!\nPackage aborted";
+                                }
+                            }
                         }
                     }
                 }
@@ -3410,30 +3491,42 @@ namespace MazeMaker
                 {
                     fileToCopy = this.SkyBoxTexture;
                     typeToCopy = "image";
-                    if (!copiedFilesList.Contains(fileToCopy) && !TryCopyFileDir(dirsToTry, fileToCopy, mazPath, typeToCopy, ref copiedFiles, replaceOrder))
+                    if (!copiedFilesList.Contains(fileToCopy))
                     {
-                        copiedFiles += "\nError Copying " + fileToCopy + "!\nPackage aborted";
-                        return false;
-                    }
-                    else
-                    {
-                        copiedFilesList.Add(fileToCopy);
-                        copiedFiles += " " + fileToCopy;
+
+                        oldFilePath = TryCopyFileDir(dirsToTry, fileToCopy, mazPath, typeToCopy, ref copiedFiles, replaceOrder);
+
+                        if (oldFilePath.Length == 0)
+                        {
+                            copiedFiles += "\nError Copying " + fileToCopy + "!\nPackage aborted";
+                            return false;
+                        }
+                        else
+                        {
+                            copiedFilesList.Add(fileToCopy);
+                            copiedFiles += ": " + fileToCopy;
+                        }
                     }
                 }
                 if (this.AvatarModel.Length > 0)
                 {
                     fileToCopy = this.AvatarModel;
                     typeToCopy = "model";
-                    if (!copiedFilesList.Contains(fileToCopy) && !TryCopyFileDir(dirsToTry, fileToCopy, mazPath, typeToCopy, ref copiedFiles, replaceOrder))
+                    if (!copiedFilesList.Contains(fileToCopy))
                     {
-                        copiedFiles += "\nError Copying " + fileToCopy + "!\nPackage aborted";
-                        return false;
-                    }
-                    else
-                    {
-                        copiedFilesList.Add(fileToCopy);
-                        copiedFiles += " " + fileToCopy;
+
+                        oldFilePath = TryCopyFileDir(dirsToTry, fileToCopy, mazPath, typeToCopy, ref copiedFiles, replaceOrder);
+
+                        if (oldFilePath.Length == 0)
+                        {
+                            copiedFiles += "\nError Copying " + fileToCopy + "!\nPackage aborted";
+                            return false;
+                        }
+                        else
+                        {
+                            copiedFilesList.Add(fileToCopy);
+                            copiedFiles += ": " + fileToCopy;
+                        }
                     }
                 }
                 this.SaveToMazeXML(mazPath);
@@ -3444,12 +3537,140 @@ namespace MazeMaker
                 return false;
             }
         }
-        public static bool CopyFile(string file, string mazPath, string type)
+
+        public static bool RecursiveModelCopy(string origModelPath, string mazPath, ref List<string> materialFiles, ref List<string> imageFiles, ref string copiedFiles)
+        {
+            FileInfo fi = new FileInfo(origModelPath);
+            StreamReader reader = fi.OpenText();
+
+            string origModelDir=System.IO.Path.GetDirectoryName(origModelPath);
+            string line;
+
+            while ((line = reader.ReadLine()) != null)
+            {
+                string[] items = line.Split('\t');
+                if(items.Length > 0 && items[0].Contains("mtllib"))
+                {
+                    if (items.Length > 1 && items[1].ToLower().Contains(".mtl"))
+                    {
+                        materialFiles.Add(items[1]);
+                    }
+                    else if(items.Length ==1)
+                    {
+                        string[] itemsSpace = items[0].Split(' ');
+
+                        string matFileName = "";
+                        for (int j=1; j<itemsSpace.Length;j++)
+                        {
+                            matFileName = matFileName + itemsSpace[j];
+                            if (matFileName.ToLower().Contains(".mtl"))
+                            {
+                                materialFiles.Add(origModelDir+"\\"+matFileName);
+                                break;
+                            }
+                                
+
+                        }
+                        
+                            
+                    }
+                }
+            }
+
+            for (int j = 0; j < materialFiles.Count; j++)
+            {
+                string origMaterialDir = System.IO.Path.GetDirectoryName(materialFiles[j]);
+                fi = new FileInfo(materialFiles[j]);
+                reader = fi.OpenText();
+
+                while ((line = reader.ReadLine()) != null)
+                {
+                    string[] items = line.Split(' ');
+                    if (items.Length > 0 &&
+                        (items[0].Contains("map") || items[0].Contains("disp") || items[0].Contains("bump") || items[0].Contains("decal")|| items[0].Contains("refl")))
+                    {
+                        if (items.Length > 1 && items[items.Length-1].ToLower().Contains("."))
+                        {
+                            imageFiles.Add(origMaterialDir+"\\"+items[items.Length - 1]);
+                        }
+                        /*else
+                        {
+                            string[] itemsSpace = items[0].Split(' ');
+
+                            string matFileName = "";
+                            for (int j = 1; j < itemsSpace.Length; j++)
+                            {
+                                matFileName = matFileName + itemsSpace[j];
+                                if (matFileName.ToLower().Contains(".mtl"))
+                                {
+                                    materialFiles.Add(matFileName);
+                                    break;
+                                }
+
+
+                            }
+
+
+                        }*/
+                    }
+                }
+            }
+
+            bool ret = true;
+            for (int j = 0; j < materialFiles.Count; j++) {
+                ret=CopyFile(materialFiles[j], mazPath, "model", origModelDir);
+                if (!ret)
+                {
+                    return false;
+                }
+                else
+                {
+                    copiedFiles += "\n  Material: "+materialFiles[j];
+                }
+            }
+            for (int j = 0; j < imageFiles.Count; j++)
+            {
+                string origMaterialDir = System.IO.Path.GetDirectoryName(materialFiles[j]);
+                ret =CopyFile(imageFiles[j], mazPath, "model", origMaterialDir);
+                if (!ret)
+                {
+                    return false;
+                }
+                else
+                {
+                    copiedFiles += "\n  Texture: "+imageFiles[j];
+                }
+            }
+
+            return true;
+        }
+        public static bool CopyFile(string file, string mazPath, string type,string origFileRootDir="")
         {
             //string copiedFile = "no new file";
 
-            string oldFilePath = "should fall in one switch case or everything will break";
-            string newFilePath = mazPath + "_assets\\" + type + "\\" + file;
+
+            if(origFileRootDir.Length>0)
+            {
+                //origFileRootDir = Path.GetDirectoryName(file);
+                if (file.Contains(":") && origFileRootDir.Contains(":"));
+                    file = file.Substring(origFileRootDir.Length);
+
+                file=file.Replace("/", "\\");
+                if (file.StartsWith("\\"))
+                {
+                    file=file.Substring(1);
+                }
+            }
+            else if (file.Contains(":"))
+            {
+                origFileRootDir = Path.GetDirectoryName(file);
+                file = Path.GetFileName(file);
+            }
+
+            string oldFilePath = origFileRootDir + "\\" + file;
+            
+            string newRootMazPath = mazPath + "_assets\\" + type;
+            string newFilePath = newRootMazPath+ "\\" + file;
             string mazDirectory = Path.GetDirectoryName(mazPath);
             string oldFileName = oldFilePath.Substring(oldFilePath.LastIndexOf("\\") + 1);
 
@@ -3463,6 +3684,16 @@ namespace MazeMaker
                 //MessageBox.Show(oldFilePath);
                 if (File.Exists(oldFilePath))
                 {
+                    string[] newDirs = file.Split('\\');
+                    string newDir = newRootMazPath;
+                    for (int d=0;d<newDirs.Length-1; d++)
+                    {
+                        if (newDirs[d].Length > 0)
+                        {
+                            newDir = newDir + "\\" + newDirs[d];
+                            Directory.CreateDirectory(newDir);
+                        }
+                    }
                     File.Copy(oldFilePath, newFilePath);
                     return true;
                 }
@@ -3471,6 +3702,16 @@ namespace MazeMaker
                 //MessageBox.Show(oldFilePath);
                 if (File.Exists(oldFilePath))
                 {
+                    string[] newDirs = file.Split('\\');
+                    string newDir = newRootMazPath;
+                    for (int d = 0; d < newDirs.Length - 1; d++)
+                    {
+                        if (newDirs[d].Length > 0)
+                        {
+                            newDir = newDir + "\\" + newDirs[d];
+                            Directory.CreateDirectory(newDir);
+                        }
+                    }
                     File.Copy(oldFilePath, newFilePath);
                     return true;
                 }
