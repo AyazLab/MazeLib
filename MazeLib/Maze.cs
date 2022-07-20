@@ -3624,7 +3624,9 @@ namespace MazeMaker
                     {
                         if(items[j].ToLower().Contains(".mtl"))
                         {
-                            materialFiles.Add(origModelDir + "\\" + items[j]);
+                            string matFilePath = origModelDir + "\\" + items[j];
+                            if (!materialFiles.Contains(matFilePath))
+                                materialFiles.Add(matFilePath);
                             break;
                         }
                     }    
@@ -3648,28 +3650,18 @@ namespace MazeMaker
                     {
                         if (items.Length > 1 && items[items.Length-1].ToLower().Contains("."))
                         {
-                            imageFiles.Add(origMaterialDir+"\\"+items[items.Length - 1]);
-                            imageIdx.Add(j);
-                        }
-                        /*else
-                        {
-                            string[] itemsSpace = items[0].Split(' ');
-
-                            string matFileName = "";
-                            for (int j = 1; j < itemsSpace.Length; j++)
-                            {
-                                matFileName = matFileName + itemsSpace[j];
-                                if (matFileName.ToLower().Contains(".mtl"))
-                                {
-                                    materialFiles.Add(matFileName);
-                                    break;
-                                }
-
-
+                            string imgFilePath = origMaterialDir + "\\" + items[items.Length - 1];
+                            if (!imageFiles.Contains(imgFilePath))
+                            { 
+                                imageFiles.Add(imgFilePath);
+                                imageIdx.Add(j);
                             }
+                            break;
 
-
-                        }*/
+                         
+                            
+                        }
+                       
                     }
                 }
             }
@@ -3686,6 +3678,10 @@ namespace MazeMaker
                     copiedFiles += "\n  Material: "+materialFiles[j];
                 }
             }
+
+            if (imageFiles.Count > materialFiles.Count)
+                return false;
+
             for (int j = 0; j < imageFiles.Count; j++)
             {
                 string origMaterialDir = System.IO.Path.GetDirectoryName(materialFiles[imageIdx[j]]);
