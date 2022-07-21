@@ -704,60 +704,216 @@ namespace MazeMaker
                 useXRayDisplay = value;
             }
         }
-        //private Color ambientColor = Color.White;
-        //[Category("Global Light")]
-        //[Description("Ambient light color of the current light source")]
-        //public Color AmbientColor
-        //{
-        //    get { return ambientColor; }
-        //    set { ambientColor = value; }
-        //}
 
-        //private float ambientIntensity = 0.1f;
-        //[Category("Global Light")]
-        //[Description("Ambient light intensity of the current light source. Min=0.0f, Max=1.0f")]
-        //public float AmbientIntesity
-        //{
-        //    get { return ambientIntensity; }
-        //    set { ambientIntensity = value; }
-        //}
+        public Dictionary<string,string> usedImageAssets;
+        public Dictionary<string, string> usedModelAssets;
+        public Dictionary<string, string> usedAudioAssets;
 
-        //private Color diffuseColor = Color.White;
-        //[Category("Global Light")]
-        //[Description("Diffuse light color of the current light source")]
-        //public Color DiffuseColor
-        //{
-        //    get { return diffuseColor; }
-        //    set { diffuseColor = value; }
-        //}
+        public void CheckUsed()
+        {
+            usedImageAssets = ImagePathConverter.Paths;
+            usedModelAssets = ModelPathConverter.Paths;
+            usedAudioAssets = AudioPathConverter.Paths;
 
-        //private float diffuseIntensity = 1.0f;
-        //[Category("Global Light")]
-        //[Description("Diffuse light intensity of the current light source. Min=0.0f, Max=1.0f")]
-        //public float DiffuseIntesity
-        //{
-        //    get { return diffuseIntensity; }
-        //    set { diffuseIntensity = value; }
-        //}
-        //private int type = 0;
-        //[Category("Global Light")]
-        //[Description("Type of light. 0->Torch and 1->Regular")]
-        //public int Type
-        //{
-        //    get { return type; }
-        //    set { type = value; }
-        //}
-        //private int attenuation = 0;
-        //[Category("Global Light")]
-        //[Description("Attenuation of the light. 0->None, 1->Constant, 2->Linear, 3->Quadratic")]
-        //public int Attenuation
-        //{
-        //    get { return attenuation; }
-        //    set { attenuation = value; }
-        //}
+            List<string> imagesToRemove = new List<string>();
+
+            foreach (string image in usedImageAssets.Keys)
+            {
+                if (image != "") // true
+                {
+
+                    //check weather the texture is in the list...
+
+                    bool used = false;
+
+                    if(skyTexture == image)
+                    {
+                        used = true;
+                    }
+
+                    if (used == false)
+                    {
+                        foreach (Wall wall in cWall)
+                        {
+                            if (wall.Texture == image)
+                            {
+                                used = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (used == false)
+                    {
+                        foreach (CurvedWall curveWall in cCurveWall)
+                        {
+                            if (curveWall.Texture == image)
+                            {
+
+                                used = true;
+                                break;
+                            }
+
+                        }
+                    }
+
+                    if (used == false)
+                    {
+                        foreach (Floor floor in cFloor)
+                        {
+                            if (floor.FloorTexture == image)
+                            {
+
+                                used = true;
+                                break;
+                            }
+                            else if (floor.CeilingTexture == image)
+                            {
+                                used = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    //string filePath = MakeRelativePath(inp, ImagePathConverter.Paths[image]);
+                    if (!used)
+                    {
+                        imagesToRemove.Add(image);
+                        
+                    }
+                   
+                }
+            }
+
+            foreach (string image in imagesToRemove)
+                usedImageAssets.Remove(image);
+
+            List<string> modelsToRemove = new List<string>();
+            foreach (string model in usedModelAssets.Keys)
+            {
+                if (model != "") // true
+                {
+
+                    bool used = false;
+
+                    if (avatarModel == model)
+                    {
+                        used = true;
+                    }
+
+                    foreach (StaticModel staticModel in cStaticModels)
+                    {
+                        //if (s.Model!= null && s.Model.Index == model.Index)
+                        if (staticModel.Model == model)
+                        {
+
+                            used = true;
+                            break;
+                        }
+                    }
+
+                    if (used == false)
+                    {
+                        foreach (DynamicObject dynamicObject in cDynamicObjects)
+                        {
+                            //if (d.Model != null && d.Model.Index == model.Index)
+                            if (dynamicObject.Model == model)
+                            {
+
+                                used = true;
+                                break;
+                            }
+                            //else if (dynamicObject.SwitchToModel != null && dynamicObject.SwitchToModel.Index == model.Index)
+                            else if (dynamicObject.SwitchToModel == model)
+                            {
+
+                                used = true;
+                                break;
+                            }
+                        }
+                    }
+
+
+                    if (!used)
+                    {
+                        modelsToRemove.Add(model);
+                        
+                    }
+
+                }
+ 
+            }
+
+            foreach (string model in modelsToRemove)
+                usedModelAssets.Remove(model);
+
+
+            List<string> audioToRemove = new List<string>();
+
+            foreach (string audio in usedAudioAssets.Keys)
+            {
+                if (audio != "")
+                {
+
+                    //check weather the texture is in the list...
+
+                    bool used = false;
+                    if (used == false)
+                    {
+                        foreach (DynamicObject dynamicObject in cDynamicObjects)
+                        {
+                            if (dynamicObject.Phase1HighlightAudio == audio)
+                            {
+
+                                used = true;
+                                break;
+                            }
+                            if (dynamicObject.Phase2EventAudio == audio)
+                            {
+                               
+                                used = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (used == false)
+                    {
+                        foreach (ActiveRegion activeRegion in cActRegions)
+                        {
+                            if (activeRegion.Phase1HighlightAudio == audio)
+                            {
+
+                                used = true;
+                                break;
+                            }
+                            if (activeRegion.Phase2EventAudio == audio)
+                            {
+
+                                used = true;
+                                break;
+                            }
+                        }
+                    }
+
+
+                    if (!used)
+                    {
+                        audioToRemove.Add(audio);
+                    }
+                    
+
+                }
+
+            }
+            foreach (string audio in audioToRemove)
+                usedAudioAssets.Remove(audio);
+        }
 
         public bool SaveToMazeXML(string inp)
         {
+            CheckUsed();
+
             XmlDocument doc = new XmlDocument();
 
             SetName(inp);
@@ -876,7 +1032,7 @@ namespace MazeMaker
             mazeXMLnode.AppendChild(imageLibraryNode);
 
             XmlElement imageLibraryItem;
-            foreach (string image in ImagePathConverter.Paths.Keys)
+            foreach (string image in usedImageAssets.Keys)
             {
                 //imageLibraryItem = image.toXMLnode(doc);
                 imageLibraryItem = doc.CreateElement(string.Empty, "Image", string.Empty);
@@ -888,7 +1044,7 @@ namespace MazeMaker
                 }
                 imageLibraryItem.SetAttribute("id", cImages[image]);
 
-                string filePath = ImagePathConverter.Paths[image];
+                string filePath = usedImageAssets[image];
                 if (filePath[1] == ':')
                 {
                     filePath = MakeRelativePath(inp, filePath);
@@ -902,7 +1058,7 @@ namespace MazeMaker
             mazeXMLnode.AppendChild(modelLibraryNode);
 
             XmlElement modelLibraryItem;
-            foreach (string model in ModelPathConverter.Paths.Keys)
+            foreach (string model in usedModelAssets.Keys)
             {
                 //modelNode = m.toXMLnode(doc);
                 modelLibraryItem = doc.CreateElement(string.Empty, "Model", string.Empty);
@@ -914,7 +1070,7 @@ namespace MazeMaker
                 }
                 modelLibraryItem.SetAttribute("id", cModels[model]);
 
-                string filePath = ModelPathConverter.Paths[model];
+                string filePath = usedModelAssets[model];
                 if (filePath[1] == ':')
                 {
                     filePath = MakeRelativePath(inp, filePath);
@@ -929,7 +1085,7 @@ namespace MazeMaker
 
             XmlElement audioLibraryItem;
             //foreach (Audio a in cAudio)
-            foreach (string audio in AudioPathConverter.Paths.Keys)
+            foreach (string audio in usedAudioAssets.Keys)
             {
                 //audioLibraryItem = a.toXMLnode(doc);
                 audioLibraryItem = doc.CreateElement(string.Empty, "Sound", string.Empty);
@@ -941,7 +1097,7 @@ namespace MazeMaker
                 }
                 audioLibraryItem.SetAttribute("id", cAudio[audio]);
 
-                string filePath = AudioPathConverter.Paths[audio];
+                string filePath = usedAudioAssets[audio];
                 if (filePath[1] == ':')
                 {
                     filePath = MakeRelativePath(inp, filePath);

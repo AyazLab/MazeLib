@@ -1161,7 +1161,7 @@ namespace MazeMaker
             temp.ScrPoint = new PointF(this.ScrPoint.X + offsetX, this.ScrPoint.Y + offsetY);
             if (clone)
             {
-                temp.SetID(this.GetID());
+                temp.SetID(this.GetID(),true);
             }
             else
             {

@@ -103,24 +103,13 @@ namespace MazeMaker
 
         }
 
-        public void SetID(int inp=0)
+        public void SetID(int inp=0,bool copy=false)
         {
-            if (inp > 0) //assign ID, but increment next valid IDs in case
-            {
+            if (copy||inp==-1)
                 this.id = inp;
-
-                NameFactory.SetNextID(this.GetType().Name.ToString(), inp);
-            }
-            else if (inp == -1) //key for invalid IDs
-            {
-                this.id = -1;
-                //if (incrementIDs)
-                //{
-                //    this.id = NameFactory.GetNextID(this.GetType().Name.ToString());
-                //}
-            }
-            else //assign new value
-                this.id=NameFactory.GetNextID(this.GetType().Name.ToString());
+            else
+                this.id = NameFactory.SetID(this.GetType().Name.ToString(), inp);
+            
         }
 
         public int GetID()
@@ -144,76 +133,165 @@ namespace MazeMaker
 
     public static class NameFactory
     {
+        static List<int> wallIds = new List<int>();
+        static List<int> curvedWallIds = new List<int>();
+        static List<int> floorIds = new List<int>();
+        static List<int> lightIds = new List<int>();
+        static List<int> endRegionIds = new List<int>();
+        static List<int> activeRegionIds = new List<int>();
+        static List<int> staticModelIds = new List<int>();
+        static List<int> dynamicObjectIds = new List<int>();
+        static List<int> startPosIds = new List<int>();
+
         static public int GetNextID(string itemType)
         {
             switch (itemType)
             {
                 case "Wall":
-                    return (++indexWall);
+                    return (indexWall+1);
                 case "CurvedWall":
-                    return (++indexCurvedWall);
+                    return (indexCurvedWall+1);
                 case "Floor":
-                    return (++indexFloor);
+                    return (indexFloor+1);
                 case "Light":
-                    return (++indexLight);
+                    return (indexLight+1);
                 case "EndRegion":
-                    return (++indexEnd);
+                    return (indexEnd+1);
                 case "ActiveRegion":
-                    return (++indexActive);
+                    return (indexActive+1);
                 case "StaticModel":
-                    return (++indexStatic);
+                    return (indexStatic+1);
                 case "DynamicObject":
-                    return (++indexDynamic);
+                    return (indexDynamic+1);
                 case "StartPos":
-                    return (++indexStart);
+                    return (indexStart+1);
 
             }
             return 0;
         }
 
-        static public void SetNextID(string itemType, int i)
+        static public int SetID(string itemType, int i=-1)
         {
+            int nextId = GetNextID(itemType);
+            if (i == 0)
+                i = nextId;
+
             switch (itemType)
             {
                 case "Wall":
-                    if(i >indexWall)
-                    indexWall = i ;
+                    if (wallIds.Contains(i))
+                    { 
+                        i = nextId;
+                    }
+                    else
+                    {
+                        wallIds.Add(i);
+                    }
+                    if (i >indexWall)
+                        indexWall = i ;
                     break;
                 case "CurvedWall":
+                    if (curvedWallIds.Contains(i))
+                    {
+                        i = nextId;
+                    }
+                    else
+                    {
+                        curvedWallIds.Add(i);
+                    }
                     if (i > indexCurvedWall)
                         indexCurvedWall = i;
                     break;
                 case "Floor":
+                    if (floorIds.Contains(i))
+                    {
+                        i = nextId;
+                    }
+                    else
+                    {
+                        floorIds.Add(i);
+                    }
                     if (i > indexFloor)
-                    indexFloor = i ;
+                        indexFloor = i ;
                     break;
                 case "Light":
+                    if (lightIds.Contains(i))
+                    {
+                        i = nextId;
+                    }
+                    else
+                    {
+                        lightIds.Add(i);
+                    }
                     if (i > indexLight)
-                    indexLight = i;
+                        indexLight = i;
                     break;
                 case "EndRegion":
+                    if (endRegionIds.Contains(i))
+                    {
+                        i = nextId;
+                    }
+                    else
+                    {
+                        endRegionIds.Add(i);
+                    }
                     if (i  > indexEnd)
-                    indexEnd = i ;
+                        indexEnd = i ;
                     break;
                 case "StaticModel":
+                    if (staticModelIds.Contains(i))
+                    {
+                        i = nextId;
+                    }
+                    else
+                    {
+                        staticModelIds.Add(i);
+                    }
                     if (i > indexStatic)
-                    indexStatic = i ;
+                        indexStatic = i ;
                     break;
-                case "DynamicModel":
+                case "DynamicObject":
+                    if (dynamicObjectIds.Contains(i))
+                    {
+                        i = nextId;
+                    }
+                    else
+                    {
+                        dynamicObjectIds.Add(i);
+                    }
                     if (i  > indexDynamic)
-                    indexDynamic = i ;
+                        indexDynamic = i ;
                     break;
                 case "StartPos":
+                    if (startPosIds.Contains(i))
+                    {
+                        i = nextId;
+                    }
+                    else
+                    {
+                        startPosIds.Add(i);
+                    }
                     if (i > indexStart)
                         indexStart = i;
                     break;
                 case "ActiveRegion":
-                    if (i > indexStart)
-                        indexStart = i;
+                    if (activeRegionIds.Contains(i))
+                    {
+                        i = nextId;
+                    }
+                    else
+                    {
+                        activeRegionIds.Add(i);
+                    }
+                    if (i > indexActive)
+                        indexActive = i;
                     break;
 
             }
+            return i;
         }
+
+
 
         static int indexLight =0;
         //public static string GetNextNameLight()
@@ -273,6 +351,16 @@ namespace MazeMaker
             indexLight = 0;
             indexActive = 0;
             indexStart = 0;
+
+            wallIds.Clear();
+            curvedWallIds.Clear();
+            floorIds.Clear();
+            lightIds.Clear();
+            endRegionIds.Clear();
+            activeRegionIds.Clear();
+            staticModelIds.Clear();
+            dynamicObjectIds.Clear();
+            startPosIds.Clear();
         }
     }
 

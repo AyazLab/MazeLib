@@ -414,7 +414,7 @@ namespace MazeMaker
             temp.justCreated = this.justCreated;
             if (clone)
             {
-                temp.SetID(this.GetID());
+                temp.SetID(this.GetID(), true);
             }
             else
             {

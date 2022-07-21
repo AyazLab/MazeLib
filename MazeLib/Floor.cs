@@ -1297,7 +1297,7 @@ namespace MazeMaker
             temp.Rect = new RectangleF(this.Rect.X + offsetX, this.Rect.Y + offsetY, this.Rect.Width, this.Rect.Height);
             if (clone)
             {
-                temp.SetID(this.GetID());
+                temp.SetID(this.GetID(),true);
             }
             else
             {

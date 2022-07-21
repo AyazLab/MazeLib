@@ -1340,7 +1340,7 @@ namespace MazeMaker
 
             if (clone)
             {
-                temp.SetID(this.GetID());
+                temp.SetID(this.GetID(),true);
             }
             else
             {
