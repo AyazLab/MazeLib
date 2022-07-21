@@ -942,7 +942,7 @@ namespace MazeMaker
             mzPoint4.Z = scrRect.Bottom / scale;
             CalculateFromTextureCoordinates();
         }
-        private void ConvertFromMazeCoordinates()
+        public void ConvertFromMazeCoordinates()
         {
             mzPoint2.Z = mzPoint1.Z;
             mzPoint2.X = mzPoint3.X;

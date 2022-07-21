@@ -207,7 +207,7 @@ namespace MazeMaker
             //mzPoint.Y = 0;
             mzPoint.Z = scrPoint.Y / scale;
         }
-        protected void ConvertFromMazeCoordinates()
+        public void ConvertFromMazeCoordinates()
         {
             scrPoint.X = (float)(mzPoint.X * scale);
             scrPoint.Y = (float)(mzPoint.Z * scale);

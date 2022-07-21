@@ -862,7 +862,7 @@ namespace MazeMaker
             ReMeasure();
             CalculateFromTextureCoordinates();
         }
-        private void ConvertFromMazeCoordinates()
+        public void ConvertFromMazeCoordinates()
         {
             scrPoint1.X = (float)((mzPoint1.X + MzPoint2.X) / 2.0 * scale);
             scrPoint1.Y = (float)((mzPoint1.Z + mzPoint2.Z) / 2.0 * scale);

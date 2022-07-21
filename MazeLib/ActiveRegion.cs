@@ -227,7 +227,7 @@ namespace MazeMaker
             minZ = (float)(scrRect.Top / scale);
             maxZ = (float)(scrRect.Bottom / scale);
         }
-        private void ConvertFromMazeCoordinates()
+        public void ConvertFromMazeCoordinates()
         {
             scrRect.X = (float)(minX * scale);
             scrRect.Y = (float)(minZ * scale);
