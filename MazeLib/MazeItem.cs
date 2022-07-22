@@ -79,7 +79,10 @@ namespace MazeMaker
         public bool ItemVisible
         {
             get { return itemVisible; }
-            set { itemVisible = value; }
+            set { itemVisible = value;
+                OnPropertyChanged("itemVisible", true);
+            }
+
         }
 
         protected bool itemLocked = false;
@@ -89,7 +92,9 @@ namespace MazeMaker
         public bool ItemLocked
         {
             get { return itemLocked; }
-            set { itemLocked = value; }
+            set { itemLocked = value;
+                OnPropertyChanged("itemLocked", true);
+            }
         }
 
 
