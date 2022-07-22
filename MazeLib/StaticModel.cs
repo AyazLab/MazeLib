@@ -31,6 +31,8 @@ namespace MazeMaker
         {
             this.SetID(Tools.getIntFromAttribute(sModelNode, "id", -1));
             this.Label = Tools.getStringFromAttribute(sModelNode, "label", "");
+            this.itemLocked = Tools.getBoolFromAttribute(sModelNode, "itemLocked", false);
+            this.itemVisible = Tools.getBoolFromAttribute(sModelNode, "itemVisible", true);
 
             this.MzPoint = Tools.getXYZfromNode(sModelNode, 0);
             XmlNode modelNode = sModelNode.SelectSingleNode("Model");
@@ -214,6 +216,9 @@ namespace MazeMaker
         }
         public override void Paint(ref Graphics gr)
         {
+            if (!itemVisible&&!selected)
+                return;
+
             Brush br;
             //Pen p;
             if (selected == true)
@@ -291,6 +296,9 @@ namespace MazeMaker
 
         public bool InRegion(int x1, int y1, int x2, int y2)
         {
+            if (!itemVisible)
+                return false;
+
             int iconTolerence = 15;
             x1 = x1 - iconTolerence;
             x2 = x2 + iconTolerence;
@@ -322,6 +330,10 @@ namespace MazeMaker
         public string PrintToTreeItem()
         {
             string str = this.ID;
+            if (!this.itemVisible)
+                str += "👁";
+            if (this.itemLocked)
+                str += "🔒";
 
             if (string.IsNullOrWhiteSpace(this.Label)==false)
                 str += " [" + this.Label + "]";
@@ -359,6 +371,8 @@ namespace MazeMaker
             XmlElement staticModelNode = doc.CreateElement(string.Empty, "StaticModel", string.Empty);
             staticModelNode.SetAttribute("label", this.Label);
             staticModelNode.SetAttribute("id", this.GetID().ToString());
+            staticModelNode.SetAttribute("itemLocked", this.itemLocked.ToString());
+            staticModelNode.SetAttribute("itemVisible", this.itemVisible.ToString());
 
             XmlElement mzPointnode = doc.CreateElement(string.Empty, "MzPoint", string.Empty);
             staticModelNode.AppendChild(mzPointnode);
@@ -400,6 +414,10 @@ namespace MazeMaker
         public StaticModel Copy(bool clone,int offsetX=0, int offsetY=0)
         {
             StaticModel temp = new StaticModel(this.scale, this.Label, -1);
+
+            temp.itemLocked = this.itemLocked;
+            temp.itemVisible = this.itemVisible;
+
             //temp.ID = this.ID;
             temp.Collision = this.Collision;
             temp.Kinematic = this.Kinematic;

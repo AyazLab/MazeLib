@@ -75,11 +75,21 @@ namespace MazeMaker
         protected bool itemVisible = true;
         [Category("0.Show/Hide")]
         [Description("Shows if Item is rendered and interactable on MazeMaker")]
-        [Browsable(false)]
+        [Browsable(true)]
         public bool ItemVisible
         {
             get { return itemVisible; }
             set { itemVisible = value; }
+        }
+
+        protected bool itemLocked = false;
+        [Category("0.Show/Hide")]
+        [Description("Shows if Item is rendered and interactable on MazeMaker")]
+        [Browsable(true)]
+        public bool ItemLocked
+        {
+            get { return itemLocked; }
+            set { itemLocked = value; }
         }
 
 
@@ -100,7 +110,8 @@ namespace MazeMaker
 
         public virtual void Paint(ref Graphics gr)
         {
-
+            if (!itemVisible&&!selected)
+                return;
         }
 
         public void SetID(int inp=0,bool copy=false)

@@ -39,6 +39,10 @@ namespace MazeMaker
         {
             this.SetID(Tools.getIntFromAttribute(wallNode, "id", -1));
             this.Label = Tools.getStringFromAttribute(wallNode, "label","");
+
+            this.itemLocked = Tools.getBoolFromAttribute(wallNode, "itemLocked", false);
+            this.itemVisible = Tools.getBoolFromAttribute(wallNode, "itemVisible", true);
+
             XmlNode textureNode = wallNode.SelectSingleNode("Texture");
             this.texID = Tools.getIntFromAttribute(textureNode, "id", -999);
             this.Flip = Tools.getBoolFromAttribute(textureNode, "flip", false);
@@ -662,6 +666,9 @@ namespace MazeMaker
 
         public override void Paint(ref Graphics gr)
         {
+            if (!itemVisible&&!selected)
+                return;
+
             Pen p;
             Brush br;
 
@@ -1078,6 +1085,10 @@ namespace MazeMaker
         public override string PrintToTreeItem()
         {
             string str = this.ID;
+            if (!this.itemVisible)
+                str += "👁";
+            if (this.itemLocked)
+                str += "🔒";
 
             if (string.IsNullOrWhiteSpace(this.Label) == false)
                     str += " [" + this.Label + "]";
@@ -1198,6 +1209,8 @@ namespace MazeMaker
             XmlElement wallNode = doc.CreateElement(string.Empty, "CurvedWall", string.Empty);
             wallNode.SetAttribute("label", this.Label);
             wallNode.SetAttribute("id", this.GetID().ToString());
+            wallNode.SetAttribute("itemLocked", this.itemLocked.ToString());
+            wallNode.SetAttribute("itemVisible", this.itemVisible.ToString());
 
             XmlElement geometryNode = doc.CreateElement(string.Empty, "Geometry", string.Empty);
             wallNode.AppendChild(geometryNode);
@@ -1306,6 +1319,10 @@ namespace MazeMaker
         public new CurvedWall Copy(bool clone, int offsetX=0, int offsetY=0)
         {
             CurvedWall temp = new CurvedWall(this.scale, this.Label, -1);
+
+            temp.itemLocked = this.itemLocked;
+            temp.itemVisible = this.itemVisible;
+
             temp.Vertex1 = new TPoint(this.Vertex1);
             temp.Vertex2 = new TPoint(this.Vertex2);
             temp.Vertex3 = new TPoint(this.Vertex3);

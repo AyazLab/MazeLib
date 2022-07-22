@@ -34,7 +34,9 @@ namespace MazeMaker
         {
             this.SetID(Tools.getIntFromAttribute(startNode, "id", -1));
             this.Label = Tools.getStringFromAttribute(startNode, "label", "");
-            
+            this.itemLocked = Tools.getBoolFromAttribute(startNode, "itemLocked", false);
+            this.itemVisible = Tools.getBoolFromAttribute(startNode, "itemVisible", true);
+
             this.MzPoint = Tools.getXYZfromNode(startNode, 0);
             XmlNode viewAngleNode = startNode.SelectSingleNode("ViewAngle");
             this.AngleYaw = Tools.getIntFromAttribute(viewAngleNode, "angle",this.AngleYaw);
@@ -222,6 +224,9 @@ namespace MazeMaker
         }
         public override void Paint(ref Graphics gr)
         {
+            if (!itemVisible&&!selected)
+                return;
+
             Brush br;
             Pen p;
 
@@ -326,6 +331,9 @@ namespace MazeMaker
         }
         public bool InRegion(int x1, int y1, int x2, int y2)
         {
+            if (!itemVisible)
+                return false;
+
             int iconTolerence = 15;
             x1 = x1 - iconTolerence;
             x2 = x2 + iconTolerence;
@@ -343,14 +351,18 @@ namespace MazeMaker
         }
         public string PrintToTreeItem()
         {
-            String treeLabel = this.ID;
-            
+            String str = this.ID;
+            if (!this.itemVisible)
+                str += "👁";
+            if (this.itemLocked)
+                str += "🔒";
+
             if (!string.IsNullOrWhiteSpace(this.Label))
-                treeLabel += "[" + this.Label + "]";
+                str += "[" + this.Label + "]";
             if (this.isDefaultStartPos)
-                return treeLabel + " (Active)";
+                return str + " (Active)";
             else
-                return treeLabel;
+                return str;
         }
         public virtual bool PrintToFile(ref StreamWriter fp)
         {
@@ -373,6 +385,8 @@ namespace MazeMaker
             XmlElement startPosNode = doc.CreateElement(string.Empty, "StartPosition", string.Empty);
             startPosNode.SetAttribute("label", this.Label);
             startPosNode.SetAttribute("id", this.GetID().ToString());
+            startPosNode.SetAttribute("itemLocked", this.itemLocked.ToString());
+            startPosNode.SetAttribute("itemVisible", this.itemVisible.ToString());
 
             XmlElement mzPointNode = doc.CreateElement(string.Empty, "MzPoint", string.Empty);
             startPosNode.AppendChild(mzPointNode);
@@ -403,6 +417,10 @@ namespace MazeMaker
         public StartPos Copy(bool clone=false,int offsetX=0, int offsetY=0)
         {
             StartPos temp = new StartPos(this.scale, this.Label, -1);
+
+            temp.itemLocked = this.itemLocked;
+            temp.itemVisible = this.itemVisible;
+
             temp.AnglePitch = this.AnglePitch;
             temp.AnglePitch = this.AngleYaw;
            // temp.ID = this.ID;

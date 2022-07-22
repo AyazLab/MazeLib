@@ -34,6 +34,8 @@ namespace MazeMaker
         {
             this.SetID(Tools.getIntFromAttribute(actRegNode, "id", -1));
             this.Label = Tools.getStringFromAttribute(actRegNode, "label", "");
+            this.itemLocked = Tools.getBoolFromAttribute(actRegNode, "itemLocked", false);
+            this.itemVisible = Tools.getBoolFromAttribute(actRegNode, "itemVisible", true);
 
             MPoint temp1 = Tools.getXYZfromNode(actRegNode, -2, "MzCoord");
             MPoint temp2 = Tools.getXYZfromNode(actRegNode, -3, "MzCoord");
@@ -43,6 +45,8 @@ namespace MazeMaker
             this.MaxZ = (float)temp2.Z;
             this.Height = (float)temp2.Y - (float)temp1.Y;
             this.Offset = (float)(temp2.Y + temp1.Y) / 2;
+
+            
 
             //XmlNode parameterNode = actRegNode.SelectSingleNode("Parameters");
             //this.ReturnValue = Tools.getIntFromAttribute(parameterNode, "returnValue");
@@ -705,6 +709,9 @@ namespace MazeMaker
 
         public override void Paint(ref Graphics gr)
         {
+            if (!itemVisible&&!selected)
+                return;
+
             Brush br;
             Pen p = new Pen(Color.Aquamarine, 4);
             if (selected == false)
@@ -761,6 +768,8 @@ namespace MazeMaker
             XmlElement actRegNode = doc.CreateElement(string.Empty, "ActiveRegion", string.Empty);
             actRegNode.SetAttribute("label", this.Label);
             actRegNode.SetAttribute("id", this.GetID().ToString());
+            actRegNode.SetAttribute("itemLocked", this.itemLocked.ToString());
+            actRegNode.SetAttribute("itemVisible", this.itemVisible.ToString());
 
             XmlElement mzCoordNode = doc.CreateElement(string.Empty, "MzCoord", string.Empty);
             actRegNode.AppendChild(mzCoordNode);
@@ -844,6 +853,9 @@ namespace MazeMaker
         new public  ActiveRegion Copy(bool clone, int offsetX=0, int offsetY=0)
         {
             ActiveRegion temp = new ActiveRegion(this.scale, this.Label,-1);
+
+            temp.itemLocked = this.itemLocked;
+            temp.itemVisible = this.itemVisible;
             //temp.ID = this.ID;
             temp.Height = this.Height;
             temp.MaxX = this.MaxX;

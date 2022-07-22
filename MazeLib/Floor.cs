@@ -35,12 +35,16 @@ namespace MazeMaker
         {
             this.SetID(Tools.getIntFromAttribute(floorNode, "id", -1));
             this.Label = Tools.getStringFromAttribute(floorNode, "label", "");
+            this.itemLocked = Tools.getBoolFromAttribute(floorNode, "itemLocked", false);
+            this.itemVisible = Tools.getBoolFromAttribute(floorNode, "itemVisible", true);
+
             XmlNode floorTextureNode = floorNode.SelectSingleNode("FloorTexture");
             this.floorTexID = Tools.getIntFromAttribute(floorTextureNode, "id", -999);
             //this.floorFlip = Tools.getBoolFromAttribute(floorTextureNode, "flip", false);
             XmlNode ceilingTextureNode = floorNode.SelectSingleNode("CeilingTexture");
             this.ceilingTexID = Tools.getIntFromAttribute(ceilingTextureNode, "id", -999);
             //this.Flip = Tools.getBoolFromAttribute(ceilingTextureNode, "flip", false);
+
 
             this.FloorColor = Tools.getColorFromNode(floorNode,"FloorColor");
             this.CeilingColor = Tools.getColorFromNode(floorNode, "CeilingColor");
@@ -756,6 +760,9 @@ namespace MazeMaker
 
         public override void Paint(ref Graphics gr)
         {
+            if (!itemVisible&&!selected)
+                return;
+
             Brush br;
             if (selected == false)
             {
@@ -791,6 +798,9 @@ namespace MazeMaker
 
         public bool InRegion(int x1, int y1, int x2, int y2) //currently requires entire area to encompase selection
         {
+            if (!itemVisible)
+                return false;
+
             int iconTolerence = 0;
             x1 = x1 - iconTolerence; //top
             x2 = x2 + iconTolerence; //bottom
@@ -1072,6 +1082,10 @@ namespace MazeMaker
         public string PrintToTreeItem()
         {
             string str = this.ID;
+            if (!this.itemVisible)
+                str += "👁";
+            if (this.itemLocked)
+                str += "🔒";
 
             if (string.IsNullOrWhiteSpace(this.Label) == false)
                 str += " [" + this.Label + "]";
@@ -1153,6 +1167,8 @@ namespace MazeMaker
             XmlElement floorNode = doc.CreateElement(string.Empty, "Floor", string.Empty);
             floorNode.SetAttribute("label", this.Label);
             floorNode.SetAttribute("id", this.GetID().ToString());
+            floorNode.SetAttribute("itemLocked", this.itemLocked.ToString());
+            floorNode.SetAttribute("itemVisible", this.itemVisible.ToString());
 
             XmlElement mzPoint1node = doc.CreateElement(string.Empty, "MzPoint1", string.Empty);
             floorNode.AppendChild(mzPoint1node);
@@ -1256,6 +1272,9 @@ namespace MazeMaker
         public Floor Copy(bool clone=false, int offsetX=0, int offsetY=0)
         {
             Floor temp = new Floor(this.scale, this.Label, -1);
+            temp.itemLocked = this.itemLocked;
+            temp.itemVisible = this.itemVisible;
+
             //temp.ID = this.ID;
             temp.AspectRatioCeiling = this.AspectRatioCeiling;
             temp.AspectRatioFloor = this.AspectRatioFloor;

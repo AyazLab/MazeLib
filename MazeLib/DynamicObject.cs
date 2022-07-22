@@ -31,6 +31,8 @@ namespace MazeMaker
             this.MazeColorRegular = Color.CadetBlue;
             this.SetID(Tools.getIntFromAttribute(dObjectNode, "id", -1));
             this.Label = Tools.getStringFromAttribute(dObjectNode, "label", "");
+            this.itemLocked = Tools.getBoolFromAttribute(dObjectNode, "itemLocked", false);
+            this.itemVisible = Tools.getBoolFromAttribute(dObjectNode, "itemVisible", true);
 
             this.MzPoint = Tools.getXYZfromNode(dObjectNode, 0);
             XmlNode modelNode = dObjectNode.SelectSingleNode("Model");
@@ -800,6 +802,9 @@ namespace MazeMaker
 
         public override void Paint(ref Graphics gr)
         {
+            if (!itemVisible&&!selected)
+                return;
+
             Brush br;
             Pen p;
             Color p1Radius = Color.Red;
@@ -995,6 +1000,8 @@ namespace MazeMaker
             XmlElement dynamicObjectNode = doc.CreateElement(string.Empty, "DynamicObject", string.Empty);
             dynamicObjectNode.SetAttribute("label", this.Label);
             dynamicObjectNode.SetAttribute("id", this.GetID().ToString());
+            dynamicObjectNode.SetAttribute("itemLocked", this.itemLocked.ToString());
+            dynamicObjectNode.SetAttribute("itemVisible", this.itemVisible.ToString());
 
             XmlElement mzPointnode = doc.CreateElement(string.Empty, "MzPoint", string.Empty);
             dynamicObjectNode.AppendChild(mzPointnode);
@@ -1117,6 +1124,10 @@ namespace MazeMaker
         new public DynamicObject Copy(bool clone=false,int offsetX=0, int offsetY=0)
         {
             DynamicObject temp = new DynamicObject(this.scale, this.Label, -1);
+
+            temp.itemLocked = this.itemLocked;
+            temp.itemVisible = this.itemVisible;
+
             temp.Collision = this.Collision;
             temp.Kinematic = this.Kinematic;
             temp.Mass = this.Mass;

@@ -33,6 +33,8 @@ namespace MazeMaker
         {
             this.SetID(Tools.getIntFromAttribute(lightNode, "id", -1));
             this.Label = Tools.getStringFromAttribute(lightNode, "label", "");
+            this.itemLocked = Tools.getBoolFromAttribute(lightNode, "itemLocked", false);
+            this.itemVisible = Tools.getBoolFromAttribute(lightNode, "itemVisible", true);
 
             this.MzPoint = Tools.getXYZfromNode(lightNode, 0);
             this.DiffuseColor = Tools.getColorFromNode(lightNode);
@@ -246,6 +248,9 @@ namespace MazeMaker
 
         public bool InRegion(int x1, int y1, int x2, int y2)
         {
+            if (!itemVisible)
+                return false;
+
             int iconTolerence = 15;
             x1 = x1 - iconTolerence;
             x2 = x2 + iconTolerence;
@@ -279,6 +284,9 @@ namespace MazeMaker
 
         public override void Paint(ref Graphics gr)
         {
+            if (!itemVisible&&!selected)
+                return;
+
             Brush br;
             //Pen p;
             if (selected == true)
@@ -305,10 +313,15 @@ namespace MazeMaker
         }
         public string PrintToTreeItem()
         {
+            string str = this.ID;
+            if (!this.itemVisible)
+                str += "??";
+            if (this.itemLocked)
+                str += "??";
             if (string.IsNullOrWhiteSpace(this.Label))
-                return this.ID;
+                return str;
             else
-                return this.ID + "[" + this.Label + "]";
+                return str + "[" + this.Label + "]";
         }
         public bool PrintToFile(ref StreamWriter fp)
         {
@@ -336,6 +349,8 @@ namespace MazeMaker
             XmlElement lightNode = doc.CreateElement(string.Empty, "Light", string.Empty);
             lightNode.SetAttribute("label", this.Label);
             lightNode.SetAttribute("id", this.GetID().ToString());
+            lightNode.SetAttribute("itemLocked", this.itemLocked.ToString());
+            lightNode.SetAttribute("itemVisible", this.itemVisible.ToString());
 
             XmlElement mzPointnode = doc.CreateElement(string.Empty, "MzPoint", string.Empty);
             lightNode.AppendChild(mzPointnode);
@@ -372,6 +387,9 @@ namespace MazeMaker
         public Light Copy(bool clone=false, int offsetX=0, int offsetY=0)
         {
             Light temp = new Light(this.scale, this.Label, -1);
+
+            temp.itemLocked = this.itemLocked;
+            temp.itemVisible = this.itemVisible;
             //temp.ID = this.ID;
             temp.AmbientColor = this.AmbientColor;
             temp.AmbientIntesity = this.AmbientIntesity;

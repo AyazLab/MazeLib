@@ -34,6 +34,7 @@ namespace MazeMaker
             this.SetID(id);
             this.Label = label;
             itemType = MazeItemType.End;
+
         }
 
 
@@ -41,6 +42,8 @@ namespace MazeMaker
         {
             this.SetID(Tools.getIntFromAttribute(endRegNode, "id", -1));
             this.Label = Tools.getStringFromAttribute(endRegNode, "label", "");
+            this.itemLocked = Tools.getBoolFromAttribute(endRegNode, "itemLocked", false);
+            this.itemVisible = Tools.getBoolFromAttribute(endRegNode, "itemVisible", true);
 
             MPoint temp1 = Tools.getXYZfromNode(endRegNode, -2,"MzCoord");
             MPoint temp2 = Tools.getXYZfromNode(endRegNode, -3, "MzCoord");
@@ -248,6 +251,9 @@ namespace MazeMaker
 
         public virtual bool InRegion(int x1, int y1, int x2, int y2) //currently requires entire area to encompase selection
         {
+            if (!itemVisible)
+                return false;
+
             int iconTolerence = 0;
             x1 = x1 - iconTolerence; //top
             x2 = x2 + iconTolerence; //bottom
@@ -379,6 +385,9 @@ namespace MazeMaker
         }
         public override void Paint(ref Graphics gr)
         {
+            if (!itemVisible&&!selected)
+                return;
+
             Brush br;
             Pen p;
             if (selected == false)
@@ -412,10 +421,15 @@ namespace MazeMaker
 
         public string PrintToTreeItem()
         {
+            string str = this.ID;
+            if (!this.itemVisible)
+                str += "👁";
+            if (this.itemLocked)
+                str += "🔒";
             if (string.IsNullOrWhiteSpace(this.Label))
-                return this.ID;
+                return str;
             else
-                return this.ID + "[" + this.Label + "]";
+                return str + "[" + this.Label + "]";
         }
 
         public virtual bool PrintToFile(ref StreamWriter fp)
@@ -439,6 +453,8 @@ namespace MazeMaker
             XmlElement endRegNode = doc.CreateElement(string.Empty, "EndRegion", string.Empty);
             endRegNode.SetAttribute("label", this.Label);
             endRegNode.SetAttribute("id", this.GetID().ToString());
+            endRegNode.SetAttribute("itemLocked", this.itemLocked.ToString());
+            endRegNode.SetAttribute("itemVisible", this.itemVisible.ToString());
 
             XmlElement mzCoordNode = doc.CreateElement(string.Empty, "MzCoord", string.Empty);
             endRegNode.AppendChild(mzCoordNode);
@@ -470,6 +486,9 @@ namespace MazeMaker
         public virtual EndRegion Copy(bool clone, int offsetX=0, int offsetY=0)
         {
             EndRegion temp = new EndRegion(this.scale, this.Label, -1);
+
+            temp.itemLocked = this.itemLocked;
+            temp.itemVisible = this.itemVisible;
             //temp.ID = this.ID;
             temp.Height = this.Height;
             temp.MaxX = this.MaxX;

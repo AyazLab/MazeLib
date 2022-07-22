@@ -42,6 +42,9 @@ namespace MazeMaker
         {
             this.SetID(Tools.getIntFromAttribute(wallNode, "id", -1));
             this.Label = Tools.getStringFromAttribute(wallNode, "label","");
+            this.itemLocked = Tools.getBoolFromAttribute(wallNode, "itemLocked", false);
+            this.itemVisible = Tools.getBoolFromAttribute(wallNode, "itemVisible", true);
+
             XmlNode textureNode = wallNode.SelectSingleNode("Texture");
             this.texID = Tools.getIntFromAttribute(textureNode, "id", -999);
             this.Flip = Tools.getBoolFromAttribute(textureNode, "flip", false);
@@ -531,6 +534,9 @@ namespace MazeMaker
 
         public override void Paint(ref Graphics gr)
         {
+            if (!itemVisible&&!selected)
+                return;
+
             Pen p;
             Brush br;
 
@@ -617,7 +623,10 @@ namespace MazeMaker
 
         public virtual bool InRegion(int x1, int y1, int x2, int y2) //currently requires entire area to encompass selection
         {
-            if(x1==x2&&y1==y2)
+            if (!itemVisible)
+                return false;
+
+            if (x1==x2&&y1==y2)
             {
                 //double value = 0;
                 return this.IfSelected(x1, y1);
@@ -867,6 +876,10 @@ namespace MazeMaker
         public virtual string PrintToTreeItem()
         {
             string str = this.ID;
+            if (!this.itemVisible)
+                str += "👁";
+            if (this.itemLocked)
+                str += "🔒";
 
             if (string.IsNullOrWhiteSpace(this.Label) == false)
                     str += " [" + this.Label + "]";
@@ -918,6 +931,8 @@ namespace MazeMaker
             XmlElement wallNode = doc.CreateElement(string.Empty, "Wall", string.Empty);
             wallNode.SetAttribute("label", this.Label);
             wallNode.SetAttribute("id", this.GetID().ToString());
+            wallNode.SetAttribute("itemLocked", this.itemLocked.ToString());
+            wallNode.SetAttribute("itemVisible", this.itemVisible.ToString());
 
             XmlElement mzPoint1node = doc.CreateElement(string.Empty, "MzPoint1", string.Empty);
             wallNode.AppendChild(mzPoint1node);
@@ -1005,6 +1020,10 @@ namespace MazeMaker
         public virtual Wall Copy(bool clone, int offsetX=0, int offsetY=0)
         {
             Wall temp = new Wall(this.scale, this.Label, -1);
+
+            temp.itemLocked = this.itemLocked;
+            temp.itemVisible = this.itemVisible;
+
             temp.Vertex1 = new TPoint(this.Vertex1);
             temp.Vertex2 = new TPoint(this.Vertex2);
             temp.Vertex3 = new TPoint(this.Vertex3);
