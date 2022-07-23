@@ -239,6 +239,22 @@ namespace MazeMaker
             //mzPoint.Y = 0;
             mzPoint.Z = scrPoint.Y / scale;
         }
+
+        public void SetElevation(double newElevation, bool addToCurrent = false)
+        {
+
+            if (addToCurrent)
+            {
+                mzPoint.Y = mzPoint.Y + newElevation;
+
+            }
+            else
+            {
+
+                mzPoint.Y = newElevation;
+            }
+
+        }
         private void ConvertFromMazeCoordinates()
         {
             scrPoint.X = (float)(mzPoint.X * scale);

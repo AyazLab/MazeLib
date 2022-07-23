@@ -376,6 +376,21 @@ namespace MazeMaker
             minZ = (float)(scrRect.Top / scale);
             maxZ = (float)(scrRect.Bottom / scale);
         }
+
+        public void SetElevation(float newElevation, bool addToCurrent = false)
+        {
+
+            if (addToCurrent)
+            {
+                offset += newElevation;
+            }
+            else
+            {
+
+                this.offset = newElevation;
+            }
+
+        }
         private void ConvertFromMazeCoordinates()
         {
             scrRect.X = (float)(minX * scale);

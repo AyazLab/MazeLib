@@ -660,6 +660,27 @@ namespace MazeMaker
             return regCount >= 2;
         }
 
+        public void SetElevation(float newElevation, bool addToCurrent = false)
+        {
+
+            if (addToCurrent)
+            {
+                mzPoint1.Y = mzPoint1.Y + newElevation;
+                mzPoint2.Y = mzPoint2.Y + newElevation;
+                mzPoint3.Y = mzPoint3.Y + newElevation;
+                mzPoint4.Y = mzPoint4.Y + newElevation;
+            }
+            else
+            {
+                float minElevation = Math.Min((float)Math.Min(mzPoint1.Y, mzPoint2.Y), (float)Math.Min(mzPoint3.Y, mzPoint4.Y));
+                mzPoint1.Y = mzPoint1.Y - minElevation + newElevation;
+                mzPoint2.Y = mzPoint2.Y - minElevation + newElevation;
+                mzPoint3.Y = mzPoint3.Y - minElevation + newElevation;
+                mzPoint4.Y = mzPoint4.Y - minElevation + newElevation;
+            }
+
+        }
+
         private void ConvertFromScreenCoordinates()
         {
             mzPoint1.X = scrPoint1.X / scale;
