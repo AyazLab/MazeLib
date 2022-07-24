@@ -42,6 +42,7 @@ namespace MazeMaker
         {
             this.SetID(Tools.getIntFromAttribute(wallNode, "id", -1));
             this.Label = Tools.getStringFromAttribute(wallNode, "label","");
+            this.Group = Tools.getStringFromAttribute(wallNode, "group", "");
             this.itemLocked = Tools.getBoolFromAttribute(wallNode, "itemLocked", false);
             this.itemVisible = Tools.getBoolFromAttribute(wallNode, "itemVisible", true);
 
@@ -950,6 +951,7 @@ namespace MazeMaker
         public virtual XmlElement toXMLnode(XmlDocument doc, Dictionary<string, string> cImages)
         {
             XmlElement wallNode = doc.CreateElement(string.Empty, "Wall", string.Empty);
+            wallNode.SetAttribute("group", this.Group);
             wallNode.SetAttribute("label", this.Label);
             wallNode.SetAttribute("id", this.GetID().ToString());
             wallNode.SetAttribute("itemLocked", this.itemLocked.ToString());
@@ -1077,6 +1079,7 @@ namespace MazeMaker
             if (clone)
             {
                 temp.SetID(this.GetID(),true);
+                temp.Group = this.Group;
             }
             else
             {

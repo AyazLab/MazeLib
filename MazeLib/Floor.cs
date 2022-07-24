@@ -34,6 +34,7 @@ namespace MazeMaker
         public Floor(XmlNode floorNode)
         {
             this.SetID(Tools.getIntFromAttribute(floorNode, "id", -1));
+            this.Group = Tools.getStringFromAttribute(floorNode, "group", "");
             this.Label = Tools.getStringFromAttribute(floorNode, "label", "");
             this.itemLocked = Tools.getBoolFromAttribute(floorNode, "itemLocked", false);
             this.itemVisible = Tools.getBoolFromAttribute(floorNode, "itemVisible", true);
@@ -952,6 +953,28 @@ namespace MazeMaker
             mzPoint4.Z = scrRect.Bottom / scale;
             CalculateFromTextureCoordinates();
         }
+
+        public void SetElevation(float newElevation, bool addToCurrent = false)
+        {
+
+            if (addToCurrent)
+            {
+                mzPoint1.Y = mzPoint1.Y + newElevation;
+                mzPoint2.Y = mzPoint2.Y + newElevation;
+                mzPoint3.Y = mzPoint3.Y + newElevation;
+                mzPoint4.Y = mzPoint4.Y + newElevation;
+            }
+            else
+            {
+                float minElevation = Math.Min((float)Math.Min(mzPoint1.Y, mzPoint2.Y), (float)Math.Min(mzPoint3.Y, mzPoint4.Y));
+                mzPoint1.Y = mzPoint1.Y - minElevation + newElevation;
+                mzPoint2.Y = mzPoint2.Y - minElevation + newElevation;
+                mzPoint3.Y = mzPoint3.Y - minElevation + newElevation;
+                mzPoint4.Y = mzPoint4.Y - minElevation + newElevation;
+            }
+
+        }
+
         public void ConvertFromMazeCoordinates()
         {
             mzPoint2.Z = mzPoint1.Z;
@@ -1165,6 +1188,7 @@ namespace MazeMaker
         public XmlElement toXMLnode(XmlDocument doc, Dictionary<string, string> cImages)
         {
             XmlElement floorNode = doc.CreateElement(string.Empty, "Floor", string.Empty);
+            floorNode.SetAttribute("group", this.Group);
             floorNode.SetAttribute("label", this.Label);
             floorNode.SetAttribute("id", this.GetID().ToString());
             floorNode.SetAttribute("itemLocked", this.itemLocked.ToString());
@@ -1317,6 +1341,7 @@ namespace MazeMaker
             if (clone)
             {
                 temp.SetID(this.GetID(),true);
+                temp.Group = this.Group;
             }
             else
             {

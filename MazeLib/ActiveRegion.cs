@@ -34,6 +34,7 @@ namespace MazeMaker
         {
             this.SetID(Tools.getIntFromAttribute(actRegNode, "id", -1));
             this.Label = Tools.getStringFromAttribute(actRegNode, "label", "");
+            this.Group = Tools.getStringFromAttribute(actRegNode, "group", "");
             this.itemLocked = Tools.getBoolFromAttribute(actRegNode, "itemLocked", false);
             this.itemVisible = Tools.getBoolFromAttribute(actRegNode, "itemVisible", true);
 
@@ -766,6 +767,7 @@ namespace MazeMaker
         public XmlElement toXMLnode(XmlDocument doc, Dictionary<string, string> cAudio)
         {
             XmlElement actRegNode = doc.CreateElement(string.Empty, "ActiveRegion", string.Empty);
+            actRegNode.SetAttribute("group", this.Group);
             actRegNode.SetAttribute("label", this.Label);
             actRegNode.SetAttribute("id", this.GetID().ToString());
             actRegNode.SetAttribute("itemLocked", this.itemLocked.ToString());
@@ -894,6 +896,7 @@ namespace MazeMaker
             if (clone)
             {
                 temp.SetID(this.GetID(),true);
+                temp.Group = this.Group;
             }
             else
             { 

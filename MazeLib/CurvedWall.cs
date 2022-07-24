@@ -38,6 +38,7 @@ namespace MazeMaker
         public CurvedWall(XmlNode wallNode)
         {
             this.SetID(Tools.getIntFromAttribute(wallNode, "id", -1));
+            this.Group = Tools.getStringFromAttribute(wallNode, "group", "");
             this.Label = Tools.getStringFromAttribute(wallNode, "label","");
 
             this.itemLocked = Tools.getBoolFromAttribute(wallNode, "itemLocked", false);
@@ -1207,6 +1208,7 @@ namespace MazeMaker
         public override XmlElement toXMLnode(XmlDocument doc, Dictionary<string, string> cImages)
         {
             XmlElement wallNode = doc.CreateElement(string.Empty, "CurvedWall", string.Empty);
+            wallNode.SetAttribute("group", this.Group);
             wallNode.SetAttribute("label", this.Label);
             wallNode.SetAttribute("id", this.GetID().ToString());
             wallNode.SetAttribute("itemLocked", this.itemLocked.ToString());
@@ -1358,6 +1360,7 @@ namespace MazeMaker
             if (clone)
             {
                 temp.SetID(this.GetID(),true);
+                temp.Group = this.Group;
             }
             else
             {

@@ -30,6 +30,7 @@ namespace MazeMaker
         {
             this.MazeColorRegular = Color.CadetBlue;
             this.SetID(Tools.getIntFromAttribute(dObjectNode, "id", -1));
+            this.Group = Tools.getStringFromAttribute(dObjectNode, "group", "");
             this.Label = Tools.getStringFromAttribute(dObjectNode, "label", "");
             this.itemLocked = Tools.getBoolFromAttribute(dObjectNode, "itemLocked", false);
             this.itemVisible = Tools.getBoolFromAttribute(dObjectNode, "itemVisible", true);
@@ -998,6 +999,7 @@ namespace MazeMaker
         public XmlElement toXMLnode(XmlDocument doc, Dictionary<string, string> cAudio, Dictionary<string, string> cModels)
         {
             XmlElement dynamicObjectNode = doc.CreateElement(string.Empty, "DynamicObject", string.Empty);
+            dynamicObjectNode.SetAttribute("group", this.Group);
             dynamicObjectNode.SetAttribute("label", this.Label);
             dynamicObjectNode.SetAttribute("id", this.GetID().ToString());
             dynamicObjectNode.SetAttribute("itemLocked", this.itemLocked.ToString());
@@ -1173,6 +1175,7 @@ namespace MazeMaker
             if (clone)
             {
                 temp.SetID(this.GetID(),true);
+                temp.Group = this.Group;
             }
             else
             {

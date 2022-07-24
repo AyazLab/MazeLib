@@ -21,9 +21,31 @@ namespace MazeMaker
         public Maze()
         {
             NameFactory.Reset();
+            mazeGroups.Add("",new MazeItemGroup("(None)"));
         }
 
+        public struct MazeItemGroup
+        {
+            public MazeItemGroup(string groupName)
+            {
+                this.isVisible = true;
+                this.isLocked = false;
+                if (groupName == "")
+                    groupName = "(None)";
+                this.groupName = groupName;
+                groupItems = new List<MazeItem>();
+                
+                isChecked = true;
+            }
+            public string groupName;
+            public List<MazeItem> groupItems;
+            public bool isVisible;
+            public bool isLocked;
+            public bool isChecked;
+            
+        };
 
+        public Dictionary<string,MazeItemGroup> mazeGroups=new Dictionary<string, MazeItemGroup>();
 
         public bool changed = false;
         

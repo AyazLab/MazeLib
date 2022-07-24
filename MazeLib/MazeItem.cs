@@ -145,6 +145,21 @@ namespace MazeMaker
                 OnPropertyChanged("Label", true);
             }
         }
+
+        private string group = "";
+        [Category("1.Item")]
+        [Description("Group item belongs to")]
+        public string Group
+        {
+            get { return group; }
+            set
+            {
+                if (value == "")
+                    value = "";
+                group = value;
+                OnPropertyChanged("group", true);
+            }
+        }
     }
 
     public static class NameFactory

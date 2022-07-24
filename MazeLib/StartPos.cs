@@ -33,6 +33,7 @@ namespace MazeMaker
         public StartPos(XmlNode startNode)
         {
             this.SetID(Tools.getIntFromAttribute(startNode, "id", -1));
+            this.Group = Tools.getStringFromAttribute(startNode, "group", "");
             this.Label = Tools.getStringFromAttribute(startNode, "label", "");
             this.itemLocked = Tools.getBoolFromAttribute(startNode, "itemLocked", false);
             this.itemVisible = Tools.getBoolFromAttribute(startNode, "itemVisible", true);
@@ -400,6 +401,7 @@ namespace MazeMaker
         public XmlElement toXMLnode(XmlDocument doc)
         {
             XmlElement startPosNode = doc.CreateElement(string.Empty, "StartPosition", string.Empty);
+            startPosNode.SetAttribute("group", this.Group);
             startPosNode.SetAttribute("label", this.Label);
             startPosNode.SetAttribute("id", this.GetID().ToString());
             startPosNode.SetAttribute("itemLocked", this.itemLocked.ToString());
@@ -452,6 +454,7 @@ namespace MazeMaker
             if (clone)
             {
                 temp.SetID(this.GetID(),true);
+                temp.Group = this.Group;
             }
             else
             {

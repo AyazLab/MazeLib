@@ -32,6 +32,7 @@ namespace MazeMaker
         public Light(XmlNode lightNode)
         {
             this.SetID(Tools.getIntFromAttribute(lightNode, "id", -1));
+            this.Group = Tools.getStringFromAttribute(lightNode, "group", "");
             this.Label = Tools.getStringFromAttribute(lightNode, "label", "");
             this.itemLocked = Tools.getBoolFromAttribute(lightNode, "itemLocked", false);
             this.itemVisible = Tools.getBoolFromAttribute(lightNode, "itemVisible", true);
@@ -363,6 +364,7 @@ namespace MazeMaker
         public XmlElement toXMLnode(XmlDocument doc)
         {
             XmlElement lightNode = doc.CreateElement(string.Empty, "Light", string.Empty);
+            lightNode.SetAttribute("group", this.Group);
             lightNode.SetAttribute("label", this.Label);
             lightNode.SetAttribute("id", this.GetID().ToString());
             lightNode.SetAttribute("itemLocked", this.itemLocked.ToString());
@@ -421,6 +423,7 @@ namespace MazeMaker
             if (clone)
             {
                 temp.SetID(this.GetID(), true);
+                temp.Group = this.Group;
             }
             else
             {

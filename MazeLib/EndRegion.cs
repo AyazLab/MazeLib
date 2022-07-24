@@ -41,6 +41,7 @@ namespace MazeMaker
         public EndRegion(XmlNode endRegNode)
         {
             this.SetID(Tools.getIntFromAttribute(endRegNode, "id", -1));
+            this.Group = Tools.getStringFromAttribute(endRegNode, "group", "");
             this.Label = Tools.getStringFromAttribute(endRegNode, "label", "");
             this.itemLocked = Tools.getBoolFromAttribute(endRegNode, "itemLocked", false);
             this.itemVisible = Tools.getBoolFromAttribute(endRegNode, "itemVisible", true);
@@ -466,6 +467,7 @@ namespace MazeMaker
         public virtual XmlElement toXMLnode(XmlDocument doc)
         {
             XmlElement endRegNode = doc.CreateElement(string.Empty, "EndRegion", string.Empty);
+            endRegNode.SetAttribute("group", this.Group);
             endRegNode.SetAttribute("label", this.Label);
             endRegNode.SetAttribute("id", this.GetID().ToString());
             endRegNode.SetAttribute("itemLocked", this.itemLocked.ToString());
@@ -523,6 +525,7 @@ namespace MazeMaker
             if (clone)
             {
                 temp.SetID(this.GetID(),true);
+                temp.Group = this.Group;
             }
             else
             {

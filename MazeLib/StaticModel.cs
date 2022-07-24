@@ -30,6 +30,7 @@ namespace MazeMaker
         public StaticModel(XmlNode sModelNode)
         {
             this.SetID(Tools.getIntFromAttribute(sModelNode, "id", -1));
+            this.Group = Tools.getStringFromAttribute(sModelNode, "group", "");
             this.Label = Tools.getStringFromAttribute(sModelNode, "label", "");
             this.itemLocked = Tools.getBoolFromAttribute(sModelNode, "itemLocked", false);
             this.itemVisible = Tools.getBoolFromAttribute(sModelNode, "itemVisible", true);
@@ -385,6 +386,7 @@ namespace MazeMaker
         public virtual XmlElement toXMLnode(XmlDocument doc, Dictionary<string, string> cModels)
         {
             XmlElement staticModelNode = doc.CreateElement(string.Empty, "StaticModel", string.Empty);
+            staticModelNode.SetAttribute("group", this.Group);
             staticModelNode.SetAttribute("label", this.Label);
             staticModelNode.SetAttribute("id", this.GetID().ToString());
             staticModelNode.SetAttribute("itemLocked", this.itemLocked.ToString());
@@ -449,6 +451,7 @@ namespace MazeMaker
             if (clone)
             {
                 temp.SetID(this.GetID(), true);
+                temp.Group = this.Group;
             }
             else
             {
