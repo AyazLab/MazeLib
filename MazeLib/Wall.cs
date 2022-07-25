@@ -532,25 +532,34 @@ namespace MazeMaker
                 OnPropertyChanged("TextureMode");
             }
         }
-
         public override void Paint(ref Graphics gr)
+        {
+            this.Paint(ref gr, 1);
+        }
+
+        public void Paint(ref Graphics gr, float opacity = 1)
         {
             if (!itemVisible&&!selected)
                 return;
 
             Pen p;
+
             Brush br;
 
             if (selected == true)
             {
-                br = new SolidBrush(mazeColorSelected);
+                br = new SolidBrush(Color.FromArgb((int)(255 * opacity),mazeColorSelected));
                 p = new Pen(br, 11);
+     
+
                 gr.DrawLine(p, scrPoint1, scrPoint2);
                 p.Dispose();
                 br.Dispose();
             }
-            br = new SolidBrush(mazeColorRegular);
+            br = new SolidBrush(Color.FromArgb((int) (255*opacity),mazeColorRegular));
             p = new Pen(br, 5);
+            Color aClr = Color.FromArgb((int)(255 * opacity), p.Color);
+            p.Color = aClr;
             gr.DrawLine(p, scrPoint1, scrPoint2);
             p.Dispose();
             br.Dispose();
@@ -620,7 +629,15 @@ namespace MazeMaker
             return false;
         }
 
+        public double getMinY()
+        {
+            return Math.Max(Math.Max(mzPoint1.Y, mzPoint2.Y), Math.Max(mzPoint3.Y, mzPoint4.Y));
+        }
 
+        public double getMaxY()
+        {
+            return Math.Max(Math.Max(mzPoint1.Y, mzPoint2.Y), Math.Max(mzPoint3.Y, mzPoint4.Y));
+        }
 
         public virtual bool InRegion(int x1, int y1, int x2, int y2) //currently requires entire area to encompass selection
         {

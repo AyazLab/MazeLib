@@ -242,6 +242,11 @@ namespace MazeMaker
         }
         public override void Paint(ref Graphics gr)
         {
+            this.Paint(ref gr, 1);
+        }
+
+        public void Paint(ref Graphics gr, float opacity = 1)
+        {
             if (!itemVisible&&!selected)
                 return;
 
@@ -252,10 +257,12 @@ namespace MazeMaker
 
             if (selected == true)
             {
-                br = new SolidBrush(mazeColorSelected);
+                br = new SolidBrush(Color.FromArgb((int)(255*opacity),mazeColorSelected));
                 gr.FillEllipse(br, scrPoint.X - 11, scrPoint.Y - 11, 22, 22);
                 
                 p = new Pen(mazeColorSelected,8);
+                Color aClr = Color.FromArgb((int)(255 * opacity), p.Color);
+                p.Color = aClr;
                 gr.DrawLine(p, scrPoint, new PointF((float)(Math.Cos(angle_yaw * Math.PI / 180) * 17) + scrPoint.X, -(float)Math.Sin(angle_yaw * Math.PI / 180) * 17 + scrPoint.Y));
                 p.Dispose();
                 br.Dispose();
@@ -263,8 +270,7 @@ namespace MazeMaker
 
             if (isDefaultStartPos == true)
             {
-                
-                br = new SolidBrush(colorDefault);
+                br = new SolidBrush(Color.FromArgb((int)(255 * opacity), colorDefault));
 
                 if(selected)
                     gr.FillEllipse(br, scrPoint.X - 9, scrPoint.Y - 9, 18, 18);
@@ -272,19 +278,25 @@ namespace MazeMaker
                     gr.FillEllipse(br, scrPoint.X - 10, scrPoint.Y - 10, 20, 20);
 
                 p = new Pen(colorDefault, 8);
+                Color aClr = Color.FromArgb((int)(255 * opacity), p.Color);
+                p.Color = aClr;
                 gr.DrawLine(p, scrPoint, new PointF((float)(Math.Cos(angle_yaw * Math.PI / 180) * 17) + scrPoint.X, -(float)Math.Sin(angle_yaw * Math.PI / 180) * 17 + scrPoint.Y));
                 p.Dispose();
                 br.Dispose();
             }
 
 
-            br = new SolidBrush(mazeColorRegular);
+            br = new SolidBrush(Color.FromArgb((int)(255 * opacity), mazeColorRegular));
             gr.FillEllipse(br, scrPoint.X - 8, scrPoint.Y - 8, 16, 16);
-            gr.DrawEllipse(Pens.Black, scrPoint.X - 8, scrPoint.Y - 8, 16, 16);
-            p = new Pen(Color.Black, 5);
+            p = new Pen(Color.FromArgb((int)(255 * opacity), Color.Black), 2);
+
+            gr.DrawEllipse(p, scrPoint.X - 8, scrPoint.Y - 8, 16, 16);
+            p = new Pen(Color.FromArgb((int)(255 * opacity), Color.Black), 2);
+
             gr.DrawLine(p, scrPoint, new PointF((float)(Math.Cos(angle_yaw * Math.PI / 180) * 14) + scrPoint.X, -(float)Math.Sin(angle_yaw * Math.PI / 180) * 14 + scrPoint.Y));
             p.Dispose();
-            p = new Pen(mazeColorRegular, 4);
+
+            p = new Pen(Color.FromArgb((int)(255 * opacity), Color.Black), 2);
             gr.DrawLine(p, scrPoint, new PointF((float)(Math.Cos(angle_yaw * Math.PI / 180) * 13) + scrPoint.X, -(float)Math.Sin(angle_yaw * Math.PI / 180) * 13 + scrPoint.Y));            
 
             br.Dispose();
@@ -347,6 +359,14 @@ namespace MazeMaker
                 return false;
             }
         }
+
+        public double getY()
+        {
+            return mzPoint.Y;
+        }
+
+       
+
         public bool InRegion(int x1, int y1, int x2, int y2)
         {
             if (!itemVisible)

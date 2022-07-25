@@ -233,6 +233,11 @@ namespace MazeMaker
         }
         public override void Paint(ref Graphics gr)
         {
+            this.Paint(ref gr, 1);
+        }
+
+        public void Paint(ref Graphics gr, float opacity = 1)
+        {
             if (!itemVisible&&!selected)
                 return;
 
@@ -240,7 +245,7 @@ namespace MazeMaker
             //Pen p;
             if (selected == true)
             {
-                br = new SolidBrush(mazeColorSelected);
+                br = new SolidBrush(Color.FromArgb((int)(255*opacity),mazeColorSelected));
                 gr.FillEllipse(br, scrPoint.X - 11, scrPoint.Y - 11, 22, 22);
 
                 //p = new Pen(Color.Beige, 8);
@@ -248,7 +253,7 @@ namespace MazeMaker
                 //p.Dispose();
                 br.Dispose();
             }
-            br = new SolidBrush(mazeColorRegular);
+            br = new SolidBrush(Color.FromArgb((int)(255 * opacity), mazeColorRegular));
             gr.FillEllipse(br, scrPoint.X - 8, scrPoint.Y - 8, 16, 16);
             gr.DrawEllipse(Pens.Black, scrPoint.X - 8, scrPoint.Y - 8, 16, 16);
             //p = new Pen(Color.Black, 5);
@@ -308,6 +313,11 @@ namespace MazeMaker
 
 
             this.ScrPoint = Tools.RotatePoint(this.ScrPoint, midPoint, degrees);
+        }
+
+        public double getY()
+        {
+            return mzPoint.Y;
         }
 
 

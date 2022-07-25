@@ -761,6 +761,11 @@ namespace MazeMaker
 
         public override void Paint(ref Graphics gr)
         {
+            this.Paint(ref gr, 1);
+        }
+
+        public void Paint(ref Graphics gr,float opacity=1)
+        {
             if (!itemVisible&&!selected)
                 return;
 
@@ -768,15 +773,16 @@ namespace MazeMaker
             if (selected == false)
             {
                 //br = new SolidBrush(colorCur);
-                Color foreColor = Color.FromArgb(180,mazeColorRegular);
-                
-                br = new HatchBrush(HatchStyle.DiagonalBrick, foreColor, mazeColorRegular);
+                Color foreColor = Color.FromArgb((int)(255* opacity), mazeColorRegular);
+                Color mazeColor = Color.FromArgb((int)(180 * opacity), mazeColorRegular);
+                br = new HatchBrush(HatchStyle.DiagonalBrick, foreColor, mazeColor);
             }
             else
             {
                 //br = new SolidBrush(colorSel);
-                Color foreColor = Color.FromArgb(90, mazeColorSelected);
-                br = new HatchBrush(HatchStyle.Cross, foreColor, mazeColorSelected);
+                Color foreColor = Color.FromArgb((int)(255 * opacity), mazeColorSelected);
+                Color mazeColor = Color.FromArgb((int)(180 * opacity), mazeColorSelected);
+                br = new HatchBrush(HatchStyle.Cross, foreColor, mazeColor);
             }
 
             gr.FillRectangle(br, scrRect);
@@ -784,6 +790,9 @@ namespace MazeMaker
             if (selected)
             {
                 Pen a = new Pen(Brushes.Black, 3);
+                
+                Color aClr = Color.FromArgb((int)(255* opacity), a.Color);
+                a.Color = aClr;
                 //gr.DrawRectangle(a, scrRect);
                 gr.DrawRectangle(a, scrRect.Left,scrRect.Top,scrRect.Width,scrRect.Height);
                 a.Dispose();
@@ -791,11 +800,26 @@ namespace MazeMaker
             else
             {
                 //gr.DrawRectangle(Pens.Black,scrRect);
-                gr.DrawRectangle(Pens.Black, scrRect.Left, scrRect.Top, scrRect.Width, scrRect.Height);
+                Pen a = new Pen(Brushes.Black, 1);
+
+                Color aClr = Color.FromArgb((int)(255 *opacity), a.Color);
+                a.Color = aClr;
+                gr.DrawRectangle(a, scrRect.Left, scrRect.Top, scrRect.Width, scrRect.Height);
             }
             
 
         }
+
+        public double getMinY()
+        {
+            return Math.Max(Math.Max(mzPoint1.Y, mzPoint2.Y), Math.Max(mzPoint3.Y, mzPoint4.Y));
+        }
+
+        public double getMaxY()
+        {
+            return Math.Max(Math.Max(mzPoint1.Y, mzPoint2.Y),Math.Max(mzPoint3.Y,mzPoint4.Y));
+        }
+
 
         public bool InRegion(int x1, int y1, int x2, int y2) //currently requires entire area to encompase selection
         {

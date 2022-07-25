@@ -667,6 +667,12 @@ namespace MazeMaker
 
         public override void Paint(ref Graphics gr)
         {
+            this.Paint(ref gr, 1);
+        }
+
+        public new void Paint(ref Graphics gr, float opacity = 1)
+        {
+
             if (!itemVisible&&!selected)
                 return;
 
@@ -681,8 +687,10 @@ namespace MazeMaker
 
                 if (selected == true)
                 {
-                    br = new SolidBrush(mazeColorSelected);
+                    br = new SolidBrush(Color.FromArgb((int)(255*opacity),mazeColorSelected));
                     p = new Pen(br, 11);
+                    Color aClr = Color.FromArgb((int)(255 * opacity), p.Color);
+                    p.Color = aClr;
                     //gr.DrawLine(p, scrPoint1, scrPoint3);
                     //gr.DrawLine(p, scrPoint3, scrPoint2);
                     //gr.DrawCurve(p, scrPoints);
@@ -693,8 +701,10 @@ namespace MazeMaker
                 else
                 {
                     //Rectangle rectI = new Rectangle(new Point((int)(circleCenter.X - circleRadius), (int)(circleCenter.Y - circleRadius)), new Size((int)(circleRadius * 2), (int)(circleRadius * 2)));
-                    br = new SolidBrush(mazeColorRegular);
+                    br = new SolidBrush(Color.FromArgb((int)(255 * opacity), mazeColorSelected));
                     p = new Pen(br, 5);
+                    Color aClr = Color.FromArgb((int)(255 * opacity), p.Color);
+                    p.Color = aClr;
                     //gr.DrawRectangle(Pens.Aquamarine, rectI);
                     gr.DrawArc(p, rect, (float)angleBegin, (float)(angleEnd - angleBegin));
 

@@ -262,6 +262,11 @@ namespace MazeMaker
             scrPoint.Y = (float)(mzPoint.Z * scale);
         }
 
+        public double getY()
+        {
+            return mzPoint.Y;
+        }
+
 
         public bool InRegion(int x1, int y1, int x2, int y2)
         {
@@ -301,6 +306,12 @@ namespace MazeMaker
 
         public override void Paint(ref Graphics gr)
         {
+            this.Paint(ref gr, 1);
+        }
+
+        public void Paint(ref Graphics gr, float opacity = 1)
+        {
+
             if (!itemVisible&&!selected)
                 return;
 
@@ -308,7 +319,7 @@ namespace MazeMaker
             //Pen p;
             if (selected == true)
             {
-                br = new SolidBrush(mazeColorSelected);
+                br = new SolidBrush(Color.FromArgb((int)(255*opacity),mazeColorSelected));
                 gr.FillEllipse(br, scrPoint.X - 11, scrPoint.Y - 11, 22, 22);
 
                 //p = new Pen(Color.Beige, 8);
@@ -316,9 +327,10 @@ namespace MazeMaker
                 //p.Dispose();
                 br.Dispose();
             }
-            br = new SolidBrush(mazeColorRegular);
+            br = new SolidBrush(Color.FromArgb((int)(255 * opacity), mazeColorRegular));
+            Pen p = new Pen(Color.FromArgb((int)(255*opacity),Color.Black), 5);
             gr.FillEllipse(br, scrPoint.X - 8, scrPoint.Y - 8, 16, 16);
-            gr.DrawEllipse(Pens.Black, scrPoint.X - 8, scrPoint.Y - 8, 16, 16);
+            gr.DrawEllipse(p, scrPoint.X - 8, scrPoint.Y - 8, 16, 16);
             //p = new Pen(Color.Black, 5);
             //gr.DrawLine(p, scrPoint, new PointF((float)(Math.Cos(10 * Math.PI / 180) * 14) + scrPoint.X, -(float)Math.Sin(angle * Math.PI / 180) * 14 + scrPoint.Y));
             //p.Dispose();
@@ -326,7 +338,7 @@ namespace MazeMaker
             // gr.DrawLine(p, scrPoint, new PointF((float)(Math.Cos(angle * Math.PI / 180) * 13) + scrPoint.X, -(float)Math.Sin(angle * Math.PI / 180) * 13 + scrPoint.Y));
 
             br.Dispose();
-            //p.Dispose();
+            p.Dispose();
         }
         public string PrintToTreeItem()
         {

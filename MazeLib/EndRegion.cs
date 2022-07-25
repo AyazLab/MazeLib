@@ -250,6 +250,17 @@ namespace MazeMaker
             set { pointThresholdOperator = value; OnPropertyChanged("PointThresholdOperator"); }
         }
 
+        public double getMinY()
+        {
+            return this.offset;
+        }
+
+        public double getMaxY()
+        {
+            return this.offset+this.height;
+        }
+
+
         public virtual bool InRegion(int x1, int y1, int x2, int y2) //currently requires entire area to encompase selection
         {
             if (!itemVisible)
@@ -401,6 +412,12 @@ namespace MazeMaker
         }
         public override void Paint(ref Graphics gr)
         {
+            this.Paint(ref gr, 1);
+        }
+
+        public void Paint(ref Graphics gr, float opacity = 1)
+        {
+            
             if (!itemVisible&&!selected)
                 return;
 
@@ -408,16 +425,20 @@ namespace MazeMaker
             Pen p;
             if (selected == false)
             {
-                //br = new SolidBrush(colorCur);
-                br = new HatchBrush(HatchStyle.DashedDownwardDiagonal, Color.Brown, mazeColorRegular);
+                    //br = new SolidBrush(colorCur);
+                Color foreColor = Color.FromArgb((int)(180 * opacity), Color.Brown);
+                Color mazeColor = Color.FromArgb((int)(180 * opacity), mazeColorRegular);
+                br = new HatchBrush(HatchStyle.DashedDownwardDiagonal, foreColor, mazeColor);
 
 
 
             }
             else
             {
-                //br = new SolidBrush(colorSel);
-                br = new HatchBrush(HatchStyle.ForwardDiagonal, Color.DarkKhaki, mazeColorSelected);
+                    //br = new SolidBrush(colorSel);
+                Color foreColor = Color.FromArgb((int)(180 * opacity), Color.DarkKhaki);
+                Color mazeColor = Color.FromArgb((int)(180 * opacity), mazeColorSelected);
+                br = new HatchBrush(HatchStyle.ForwardDiagonal, foreColor, mazeColor);
 
                 if(this.moveToPos!=null)
                 {
@@ -427,6 +448,9 @@ namespace MazeMaker
             }
 
             p = new Pen(Color.Black, 1);
+            Color aClr = Color.FromArgb((int)(255 * opacity), p.Color);
+            p.Color = aClr;
+
             gr.FillRectangle(br, scrRect);
             gr.DrawRectangle(p, Rectangle.Round(scrRect));
             br.Dispose();

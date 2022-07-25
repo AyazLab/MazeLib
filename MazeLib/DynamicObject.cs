@@ -803,6 +803,11 @@ namespace MazeMaker
 
         public override void Paint(ref Graphics gr)
         {
+            this.Paint(ref gr, 1);
+        }
+
+        public new void Paint(ref Graphics gr, float opacity = 1)
+        {
             if (!itemVisible&&!selected)
                 return;
 
@@ -814,20 +819,26 @@ namespace MazeMaker
 
             if (selected == true)
             {
-                br = new SolidBrush(MazeColorSelected);
+                br = new SolidBrush(Color.FromArgb((int)(255*opacity),MazeColorSelected));
                 gr.FillEllipse(br, this.ScrPoint.X - 13, this.ScrPoint.Y - 13, 26, 26);
 
                 p = new Pen(p1Radius,4);
+                Color aClr = Color.FromArgb((int)(255 * opacity), p.Color);
+                p.Color = aClr;
                 float factor  =(float)(this.Phase1ActiveRadius * this.Scale);
                 
                 gr.DrawEllipse(p, this.ScrPoint.X - factor, this.ScrPoint.Y - factor, factor*2, factor*2);
 
                 p = new Pen(p2Radius, 4);
+                aClr = Color.FromArgb((int)(255 * opacity), p.Color);
+                p.Color = aClr;
                 factor = (float)(this.Phase2ActiveRadius * this.Scale);
 
                 gr.DrawEllipse(p, this.ScrPoint.X - factor, this.ScrPoint.Y - factor, factor * 2, factor * 2);
 
                 p = new Pen(moveToLoc, 4);
+                aClr = Color.FromArgb((int)(255 * opacity), p.Color);
+                p.Color = aClr;
                 float factorX = (float)(this.MzEndPoint.X * this.Scale);
                 float factorZ = (float)(this.MzEndPoint.Z * this.Scale);
 
@@ -841,9 +852,10 @@ namespace MazeMaker
                 p.Dispose();
                 br.Dispose();
             }
-            br = new SolidBrush(MazeColorRegular);
+            br = new SolidBrush(Color.FromArgb((int)(255 * opacity), MazeColorRegular));
+            p = new Pen(Color.FromArgb((int)(255*opacity),Color.Black),1);
             gr.FillEllipse(br, this.ScrPoint.X - 10, this.ScrPoint.Y - 10, 20, 20);
-            gr.DrawEllipse(Pens.Black, this.ScrPoint.X - 10, this.ScrPoint.Y - 10, 20, 20);
+            gr.DrawEllipse(p, this.ScrPoint.X - 10, this.ScrPoint.Y - 10, 20, 20);
             //p = new Pen(Color.Black, 5);
             //gr.DrawLine(p, scrPoint, new PointF((float)(Math.Cos(10 * Math.PI / 180) * 14) + scrPoint.X, -(float)Math.Sin(angle * Math.PI / 180) * 14 + scrPoint.Y));
             //p.Dispose();

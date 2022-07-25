@@ -707,27 +707,41 @@ namespace MazeMaker
             }
         }
 
-
         public override void Paint(ref Graphics gr)
         {
+            this.Paint(ref gr, 1);
+        }
+
+        public void Paint(ref Graphics gr, float opacity = 1)
+        {
+
             if (!itemVisible&&!selected)
                 return;
 
             Brush br;
             Pen p = new Pen(Color.Aquamarine, 4);
+            Color aClr = Color.FromArgb((int)(255 * opacity), p.Color);
+            p.Color = aClr;
+
             if (selected == false)
             {
                 //br = new SolidBrush(colorCur);
-                br = new HatchBrush(HatchStyle.DashedDownwardDiagonal, Color.Green, colorCur);
+                Color foreColor = Color.FromArgb((int)(180 * opacity), Color.Green);
+                Color mazeColor = Color.FromArgb((int)(180 * opacity), colorCur);
+                br = new HatchBrush(HatchStyle.DashedDownwardDiagonal, foreColor, mazeColor);
             }
             else
             {
                 //br = new SolidBrush(colorSel);
-                br = new HatchBrush(HatchStyle.ForwardDiagonal, Color.Green, colorSel);
+                Color foreColor = Color.FromArgb((int)(180 * opacity), colorSel);
+                Color mazeColor = Color.FromArgb((int)(180 * opacity), colorCur);
+                br = new HatchBrush(HatchStyle.ForwardDiagonal, foreColor, mazeColor);
 
                 if(this.activatedObject!=null)
                 {
                      p = new Pen(Color.Aquamarine, 4);
+                    aClr = Color.FromArgb((int)(255 * opacity), p.Color);
+                    p.Color = aClr;
                     gr.DrawLine(p, this.scrRect.Location.X+this.scrRect.Width/2,this.scrRect.Location.Y+this.scrRect.Height/2, this.activatedObject.ScrPoint.X, this.activatedObject.ScrPoint.Y);
                 }
 
@@ -738,6 +752,8 @@ namespace MazeMaker
                 }
             }
             p = new Pen(Color.Black, 1);
+            aClr = Color.FromArgb((int)(255 * opacity), p.Color);
+            p.Color = aClr;
             gr.FillRectangle(br, scrRect);
             gr.DrawRectangle(p, Rectangle.Round(scrRect));
             br.Dispose();
