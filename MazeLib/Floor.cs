@@ -977,15 +977,29 @@ namespace MazeMaker
 
         public void ConvertFromMazeCoordinates()
         {
+           
+            //mz1 upper left
+            //mz2 upper right
+            //mz4 lower left
+            //mz3 lower right
+
             mzPoint2.Z = mzPoint1.Z;
             mzPoint2.X = mzPoint3.X;
             mzPoint4.X = mzPoint1.X;
             mzPoint4.Z = mzPoint3.Z;
 
-            scrRect.X = (float)((mzPoint1.X) * scale);
-            scrRect.Y = (float)((mzPoint1.Z) * scale);
-            scrRect.Width = (float)Math.Abs(((MzPoint3.X) * scale) - scrRect.X);
-            scrRect.Height = (float)Math.Abs(((MzPoint4.Z) * scale) - scrRect.Y);
+            float rectX=Math.Min(Math.Min((float)mzPoint1.X, (float)mzPoint2.X),Math.Min((float)mzPoint3.X, (float)mzPoint4.X)) * (float) scale;
+            float rectY = Math.Min(Math.Min((float)mzPoint1.Z, (float)mzPoint2.Z), Math.Min((float)mzPoint3.Z, (float)mzPoint4.Z)) * (float)scale;
+
+            float rectWidth = Math.Max(Math.Max((float)mzPoint1.X, (float)mzPoint2.X), Math.Max((float)mzPoint3.X, (float)mzPoint4.X)) * (float)scale - rectX;
+            float rectHeight = Math.Max(Math.Max((float)mzPoint1.Z, (float)mzPoint2.Z), Math.Max((float)mzPoint3.Z, (float)mzPoint4.Z)) * (float)scale - rectY;
+
+            
+            scrRect.X = rectX;
+            scrRect.Y = rectY;
+
+            scrRect.Width = rectWidth;
+            scrRect.Height = rectHeight;
         }
         private void CalculateFromTextureCoordinates()
         {
