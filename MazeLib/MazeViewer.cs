@@ -246,7 +246,7 @@ namespace MazeLib
             {
                 gr.TranslateTransform(iViewOffsetX, iViewOffsetY);
 
-                gr.FillRectangle(Brushes.AliceBlue, 0, 0, this.Width, this.Height);
+                //gr.FillRectangle(Brushes.AliceBlue, 0, 0, this.Width, this.Height);
 
                 gr.SmoothingMode =
                     System.Drawing.Drawing2D.SmoothingMode.AntiAlias;

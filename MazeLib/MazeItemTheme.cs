@@ -208,6 +208,18 @@ namespace MazeLib
             apricot.bgColor = Color.White;
             themeItems.Add(apricot);
 
+            MazeItemTheme dark = new MazeItemTheme("Dark");
+            dark.floorColorReg = (Color)cConvert.ConvertFromString("#DCC7AA");
+            dark.floorColorSel = ChangeColorBrightness(apricot.floorColorReg, 0.3f);
+            dark.wallColorReg = (Color)cConvert.ConvertFromString("#6B7A8F");
+            dark.wallColorSel = ChangeColorBrightness(apricot.wallColorReg, 0.3f);
+            dark.activeRegionColorReg = (Color)cConvert.ConvertFromString("#F7882F");
+            dark.activeRegionColorSel = ChangeColorBrightness(apricot.activeRegionColorReg, 0.3f);
+            dark.endRegionReg = (Color)cConvert.ConvertFromString("#F7C331");
+            dark.endRegionSel = ChangeColorBrightness(apricot.endRegionReg, 0.3f);
+            dark.bgColor = Color.Black;
+            themeItems.Add(dark);
+
             int i = 0;
             foreach(MazeItemTheme m in themeItems)
             {
