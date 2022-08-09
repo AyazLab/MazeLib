@@ -30,7 +30,7 @@ namespace MazeLib
             activeRegionColorSel = Color.DarkGreen;
             endRegionReg = Color.Goldenrod;
             endRegionSel = Color.Coral;
-            bgColor = Color.LightSkyBlue;
+            bgColor = Color.White;
             themeIndex = 0;
             name = "Default";
         }
@@ -45,7 +45,7 @@ namespace MazeLib
             activeRegionColorSel = Color.DarkGreen;
             endRegionReg = Color.Goldenrod;
             endRegionSel = Color.Coral;
-            bgColor = Color.LightSkyBlue;
+            bgColor = Color.White;
             themeIndex = -1;
             this.name = name;
         }
