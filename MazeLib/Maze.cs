@@ -2981,7 +2981,8 @@ namespace MazeMaker
             {
                 foreach (string dir in dirsToTry)
                 {
-                    ret = CopyFile(dir+"\\" + file, mazPath, typeToCopy, ref copiedFiles, replaceOrder, out origCopyFile, false);
+                    string newDir = Path.GetDirectoryName(dir);
+                    ret = CopyFile(newDir + "\\" + file, mazPath, typeToCopy, ref copiedFiles, replaceOrder, out origCopyFile, false);
                     if (ret)
                     {
                         return origCopyFile;
@@ -2989,7 +2990,7 @@ namespace MazeMaker
 
                     foreach (string dirLocal in localDirsToTry)
                     {
-                        ret = CopyFile(dir + "\\"+dirLocal+ "\\" + file, mazPath, typeToCopy, ref copiedFiles, replaceOrder,out origCopyFile, false);
+                        ret = CopyFile(newDir + "\\"+dirLocal+ "\\" + file, mazPath, typeToCopy, ref copiedFiles, replaceOrder,out origCopyFile, false);
                         if (ret)
                         {
                             return origCopyFile;
@@ -3018,35 +3019,72 @@ namespace MazeMaker
 
         bool CopyFile(string file, string mazPath, string type, ref string copiedFiles, List<string[]> replaceOrder, out string origCopyFile, bool searchForFile=false)
         {
-            string copiedFile = "no new file";
+            string copiedFile = "";
 
             if (file != "")
             {
-                string oldFilePath = "should fall in one switch case or everything will break";
+                string oldFilePath ="";
+
 
         
                 string fileName = Path.GetFileName(file);
                 string newFilePath = Path.GetFileName(mazPath) + "_assets\\" + type + "\\" + fileName;
                 string newFilePathFull = mazPath + "_assets\\" + type + "\\" + fileName;
+
+
                 switch (type)
                 {
                     case "image":
                         oldFilePath = ImagePathConverter.Paths[fileName];
-                        ImagePathConverter.Paths[fileName] = newFilePath;
+
                         break;
 
                     case "audio":
                         oldFilePath = AudioPathConverter.Paths[fileName];
-                        AudioPathConverter.Paths[fileName] = newFilePath;
+
                         break;
 
                     case "model":
                         oldFilePath = ModelPathConverter.Paths[fileName];
-                        ModelPathConverter.Paths[fileName] = newFilePath;
+
                         break;
                 }
 
-                copiedFile = this.RecursiveFileCopy(file, mazPath, type, newFilePathFull, ref replaceOrder, searchForFile);
+                if (oldFilePath.Length <= 0)
+                {
+                    oldFilePath = file;
+                }
+
+                oldFilePath= Path.GetDirectoryName(file)+"\\"+oldFilePath ;
+
+                
+
+                copiedFile = this.RecursiveFileCopy(oldFilePath, mazPath, type, newFilePathFull, ref replaceOrder, searchForFile);
+
+                if(copiedFile.Length>0)
+                {
+                    switch (type)
+                    {
+                        case "image":
+                            
+                            ImagePathConverter.Paths[fileName] = newFilePath;
+                            break;
+
+                        case "audio":
+                            
+                            AudioPathConverter.Paths[fileName] = newFilePath;
+                            break;
+
+                        case "model":
+                           
+                            ModelPathConverter.Paths[fileName] = newFilePath;
+                            break;
+                    }
+                }else
+                {
+                    origCopyFile = "";
+                    return false;
+                }
                 
                 this.ReplaceFiles(replaceOrder);
             }
@@ -3168,7 +3206,7 @@ namespace MazeMaker
                                     continue;
 
                                 default:
-                                    return "Failed";
+                                    return "";
                             }
                         }
 
@@ -3176,7 +3214,7 @@ namespace MazeMaker
 
                         if (File.Exists(newFilePath))
                         {
-                            return "no new file";
+                            return "";
                         }
 
                         File.Copy(ofd.FileName, newFilePath);
@@ -3184,10 +3222,10 @@ namespace MazeMaker
                         return ofd.FileName;
                     }
 
-                    return "Failed";
+                    return "";
                 }
             }
-            return "Failed";
+            return "";
         }
             
         
@@ -3382,12 +3420,15 @@ namespace MazeMaker
                 return false;
             }
             bool ret;
+
+            string origMazePath = this.FileName;
+
             string directory = Path.GetDirectoryName(mazPath);
             string fileName = Path.GetFileName(mazPath);
             string fileNameNoExt = Path.GetFileNameWithoutExtension(mazPath);
 
 
-            ret = Package(this, null, mazPath, out copiedFiles, replaceOrder);
+            ret = Package(this, null, mazPath, origMazePath, out copiedFiles, replaceOrder);
 
             if (!ret)
                 return false;
@@ -3424,12 +3465,13 @@ namespace MazeMaker
 
         }
 
-        private bool Package(object sender, EventArgs e, string mazPath, out string copiedFiles, List<string[]> replaceOrder)
+        private bool Package(object sender, EventArgs e, string mazPath, string origMazePath, out string copiedFiles, List<string[]> replaceOrder)
         {
             
             copiedFiles = "";
             string directory = Path.GetDirectoryName(mazPath);
             string assetsPath = mazPath + "_assets";
+
             if (!File.Exists(mazPath))   //TODO: save maze
             {
                 this.SaveToMazeXML(mazPath);
@@ -3453,7 +3495,7 @@ namespace MazeMaker
                 List<string> modelTextureFileList = new List<string>();
                 bool ret = true;
 
-                List<string> dirsToTry = new List<string> { Settings.userLibraryFolder, Settings.standardLibraryFolder, mazPath };
+                List<string> dirsToTry = new List<string> { origMazePath, Settings.userLibraryFolder, Settings.standardLibraryFolder, mazPath };
                 
                 foreach (Floor floor in this.cFloor) 
                 {
