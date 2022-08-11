@@ -19,9 +19,12 @@ namespace MazeLib
 
         public static string GetShortFileName(string fname)
         {
-           int startIndex = fname.LastIndexOf('\\');
+           int startIndex = Math.Max(fname.LastIndexOf('\\'), fname.LastIndexOf('/'));
            int lastIndex = fname.LastIndexOf('.');
-            if (startIndex == -1 || lastIndex == -1) return " ";
+            if (lastIndex == -1) return " ";
+
+            if (startIndex < 0)
+                startIndex = 0;
        
            return fname.Substring(startIndex, lastIndex - startIndex);
         }
@@ -64,7 +67,7 @@ namespace MazeLib
                 string mel = "";
 
                 line = st.ReadLine();
-                if (line.StartsWith("0\tLoading\t") && line.Trim().ToLower().EndsWith("mel"))
+                if (line.StartsWith("0\tLoading\t") && (line.Trim().ToLower().EndsWith("mel")|| line.Trim().ToLower().EndsWith("melx")))
                 {
                     mel = line.Substring(10);
                 }
@@ -286,7 +289,7 @@ namespace MazeLib
                 string mel = "";
 
                 line = st.ReadLine();
-                if (line.StartsWith("0\tLoading\t") && line.Trim().ToLower().EndsWith("mel"))
+                if (line.StartsWith("0\tLoading\t") && (line.Trim().ToLower().EndsWith("mel")|| line.Trim().ToLower().EndsWith("melx")))
                 {
                     mel = line.Substring(10);
                 }
