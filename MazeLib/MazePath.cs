@@ -19,7 +19,7 @@ namespace MazeLib
 
         public static string GetShortFileName(string fname)
         {
-           int startIndex = Math.Max(fname.LastIndexOf('\\'), fname.LastIndexOf('/'));
+           int startIndex = Math.Max(fname.LastIndexOf(':'),Math.Max(fname.LastIndexOf('\\'), fname.LastIndexOf('/')));
            int lastIndex = fname.LastIndexOf('.');
             if (lastIndex == -1) return " ";
 
