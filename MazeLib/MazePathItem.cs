@@ -325,12 +325,16 @@ namespace MazeLib
                 else
                 {
                     float temp = 0;
-                    if (float.TryParse(p[1], out temp))
+                    if (p[1].Contains("Event"))
+                    {
+                        cEvents.Add(new EventItem(time, int.Parse(p[2]), int.Parse(p[3]), int.Parse(p[4])));
+                    }
+                    else if (float.TryParse(p[1], out temp))
                     {
                         MPoint mp = new MPoint();
-                        mp.X = temp;
-                        mp.Z = float.Parse(p[2]);
-                        mp.Y = float.Parse(p[3]);
+                        mp.X = float.Parse(p[2]);
+                        mp.Z = float.Parse(p[3]);
+                        mp.Y = float.Parse(p[4]);
 
 
                         if (cPoints.Count - 1 >= 0 && cTimes.Count - 1 >= 0)
@@ -357,18 +361,15 @@ namespace MazeLib
                         cTimes.Add(time);
 
                         MPoint mp2 = new MPoint();
-                        mp2.X = float.Parse(p[4]);
-                        mp2.Z = float.Parse(p[5]);
-                        mp2.Y = float.Parse(p[6]);
+                        mp2.X = float.Parse(p[5]);
+                        mp2.Z = float.Parse(p[6]);
+                        mp2.Y = float.Parse(p[7]);
 
                         cViewPoints.Add(mp2);
 
                         //UpdateSummary();
                     }
-                    else if(p[1].Contains("Event"))
-                    {
-                        cEvents.Add(new EventItem(time,int.Parse(p[2]), int.Parse(p[3]), int.Parse(p[4])));
-                    }
+                    
                 }
 
             }
