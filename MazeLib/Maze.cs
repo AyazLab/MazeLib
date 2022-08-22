@@ -2981,7 +2981,11 @@ namespace MazeMaker
             {
                 foreach (string dir in dirsToTry)
                 {
-                    string newDir = Path.GetDirectoryName(dir);
+                    string newDir=dir;
+                    
+                    if (!Directory.Exists(newDir)&&File.Exists(newDir)) 
+                        newDir= Path.GetDirectoryName(dir);
+                   
 
                     ret = CopyFile(newDir +"\\" + file, mazPath, typeToCopy, ref copiedFiles, replaceOrder, out origCopyFile, false);
                     if (ret)
