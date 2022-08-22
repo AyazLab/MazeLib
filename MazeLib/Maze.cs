@@ -2983,7 +2983,7 @@ namespace MazeMaker
                 {
                     string newDir = Path.GetDirectoryName(dir);
 
-                    ret = CopyFile(newDir + file, mazPath, typeToCopy, ref copiedFiles, replaceOrder, out origCopyFile, false);
+                    ret = CopyFile(newDir +"\\" + file, mazPath, typeToCopy, ref copiedFiles, replaceOrder, out origCopyFile, false);
                     if (ret)
                     {
                         return origCopyFile;
