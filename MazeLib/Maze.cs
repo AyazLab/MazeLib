@@ -3055,7 +3055,7 @@ namespace MazeMaker
                         break;
                 }
 
-                if (oldFilePath.Length <= 0||file.Contains(":"))
+                if (oldFilePath.Length <= 0||(file.Contains(":")&&File.Exists(file)))
                 {
                     oldFilePath = file;
                 }
